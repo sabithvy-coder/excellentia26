@@ -18,17 +18,6 @@ const Home = () => {
     },
   });
 
-  const { data: teams } = useQuery({
-    queryKey: ["teams"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("teams")
-        .select("*")
-        .order("points", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
 
   return (
     <div className="min-h-screen">
@@ -98,27 +87,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Team Standings */}
-      {teams && teams.length > 0 && (
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Team Standings</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-              {teams.map((team, index) => (
-                <div
-                  key={team.id}
-                  className="bg-card border border-border rounded-lg p-6 text-center hover:border-primary transition-colors"
-                >
-                  <div className="text-4xl font-bold text-primary mb-2">{index + 1}</div>
-                  <h3 className="text-xl font-bold mb-2">{team.name}</h3>
-                  <div className="text-3xl font-bold text-secondary">{team.points}</div>
-                  <div className="text-sm text-muted-foreground">points</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Latest News */}
       {newsItems && newsItems.length > 0 && (
