@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,32 +8,61 @@ import { toast } from "sonner";
 import { Lock } from "lucide-react";
 
 const Admin = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // Check if user has admin role
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .eq("role", "admin")
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data) {
+              navigate("/admin/dashboard");
+            }
+          });
+      }
+    });
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.rpc("verify_admin", {
-        p_username: username,
-        p_password: password,
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (error || !data) {
-        toast.error("Invalid credentials");
+      if (authError) throw authError;
+
+      // Check if user has admin role
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", authData.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!roleData) {
+        await supabase.auth.signOut();
+        toast.error("Access denied. Admin privileges required.");
         return;
       }
 
-      // Store admin session
-      sessionStorage.setItem("admin_authenticated", "true");
       toast.success("Login successful");
       navigate("/admin/dashboard");
-    } catch (error) {
-      toast.error("Login failed");
+    } catch (error: any) {
+      toast.error(error.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -52,10 +81,10 @@ const Admin = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>

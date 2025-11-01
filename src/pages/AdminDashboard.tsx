@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { toast } from "sonner";
 import AddResult from "@/components/admin/AddResult";
 import ManagePrograms from "@/components/admin/ManagePrograms";
 import ManageNews from "@/components/admin/ManageNews";
@@ -12,20 +14,51 @@ import Notifications from "@/components/admin/Notifications";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const auth = sessionStorage.getItem("admin_authenticated");
-    if (auth !== "true") {
-      navigate("/admin");
-    } else {
+    const checkAdminAccess = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate("/admin");
+        return;
+      }
+
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!roleData) {
+        toast.error("Access denied");
+        await supabase.auth.signOut();
+        navigate("/admin");
+        return;
+      }
+
       setIsAuthenticated(true);
-    }
+      setLoading(false);
+    };
+
+    checkAdminAccess();
   }, [navigate]);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("admin_authenticated");
-    navigate("/admin");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
+    navigate("/");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;
