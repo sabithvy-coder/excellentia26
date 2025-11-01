@@ -25,12 +25,22 @@ const Gallery = () => {
         <div className="text-center py-12 text-muted-foreground">Loading gallery...</div>
       ) : images && images.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {images.map((image) => {
-            const content = (
-              <div
-                key={image.id}
-                className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-colors group"
-              >
+          {images.map((image) => (
+            <div
+              key={image.id}
+              className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-colors group"
+            >
+              {image.link_url ? (
+                <a href={image.link_url} target="_blank" rel="noopener noreferrer">
+                  <div className="aspect-square overflow-hidden">
+                    <img
+                      src={image.image_url}
+                      alt={image.caption || "Gallery image"}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                </a>
+              ) : (
                 <div className="aspect-square overflow-hidden">
                   <img
                     src={image.image_url}
@@ -38,20 +48,14 @@ const Gallery = () => {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-                {image.caption && (
-                  <div className="p-4">
-                    <p className="text-sm text-muted-foreground">{image.caption}</p>
-                  </div>
-                )}
-              </div>
-            );
-            
-            return image.link_url ? (
-              <a key={image.id} href={image.link_url} target="_blank" rel="noopener noreferrer">
-                {content}
-              </a>
-            ) : content;
-          })}
+              )}
+              {image.caption && (
+                <div className="p-4">
+                  <p className="text-sm text-muted-foreground">{image.caption}</p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-center py-20">

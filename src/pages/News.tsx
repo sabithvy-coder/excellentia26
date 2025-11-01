@@ -65,6 +65,16 @@ const News = () => {
                 <p className="text-muted-foreground leading-relaxed whitespace-pre-line mb-4">
                   {displayContent}
                 </p>
+                {news.link_url && (
+                  <a 
+                    href={news.link_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Read More →
+                  </a>
+                )}
                 {isLong && (
                   <Button
                     variant="ghost"
