@@ -76,10 +76,10 @@ const Results = () => {
 
   const filteredResults = results?.filter((result: any) => {
     const matchesSearch =
-      result.program?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      result.first_place_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      result.second_place_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      result.third_place_name.toLowerCase().includes(searchTerm.toLowerCase());
+      result.program?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      result.first_place_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      result.second_place_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      result.third_place_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesTeam =
       selectedTeam === "all" ||
