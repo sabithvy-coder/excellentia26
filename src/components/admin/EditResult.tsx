@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
-const GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D"];
+const GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "No Grade"];
 
 interface EditResultProps {
   result: any;
@@ -32,10 +32,14 @@ const EditResult = ({ result }: EditResultProps) => {
   const [open, setOpen] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState(result.program_id);
   const [resultNumber, setResultNumber] = useState(result.result_number?.toString() || "");
-  const [firstPlaceName, setFirstPlaceName] = useState(result.first_place_name);
-  const [firstPlaceTeam, setFirstPlaceTeam] = useState(result.first_place_team);
-  const [firstPlaceGrade, setFirstPlaceGrade] = useState(result.first_place_grade);
-  const [firstPlacePoints, setFirstPlacePoints] = useState(result.first_place_points?.toString() || "0");
+  
+  const [firstPlaceLeft, setFirstPlaceLeft] = useState({ 
+    name: result.first_place_name, 
+    team: result.first_place_team, 
+    grade: result.first_place_grade, 
+    points: result.first_place_points?.toString() || "0" 
+  });
+  const [firstPlaceRight, setFirstPlaceRight] = useState({ name: "", team: "", grade: "A+", points: "10" });
 
   const [secondPlaceLeft, setSecondPlaceLeft] = useState({ 
     name: result.second_place_name, 
@@ -57,9 +61,19 @@ const EditResult = ({ result }: EditResultProps) => {
 
   useEffect(() => {
     if (result.additional_grades && Array.isArray(result.additional_grades)) {
+      const firstPlace = result.additional_grades.find((g: any) => g.place === "1st");
       const secondPlace = result.additional_grades.find((g: any) => g.place === "2nd");
       const thirdPlace = result.additional_grades.find((g: any) => g.place === "3rd");
       const others = result.additional_grades.filter((g: any) => g.place === "other");
+
+      if (firstPlace) {
+        setFirstPlaceRight({
+          name: firstPlace.name,
+          team: firstPlace.team,
+          grade: firstPlace.grade,
+          points: firstPlace.points?.toString() || "0"
+        });
+      }
 
       if (secondPlace) {
         setSecondPlaceRight({
@@ -144,7 +158,7 @@ const EditResult = ({ result }: EditResultProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedProgram || !firstPlaceName || !firstPlaceTeam) {
+    if (!selectedProgram || !firstPlaceLeft.name || !firstPlaceLeft.team) {
       toast.error("Please fill in all required fields for first place");
       return;
     }
@@ -160,6 +174,13 @@ const EditResult = ({ result }: EditResultProps) => {
     }
 
     const additionalGradesData = [
+      ...(firstPlaceRight.name && firstPlaceRight.team ? [{
+        name: firstPlaceRight.name,
+        team: firstPlaceRight.team,
+        grade: firstPlaceRight.grade,
+        points: parseInt(firstPlaceRight.points),
+        place: "1st"
+      }] : []),
       ...(secondPlaceRight.name && secondPlaceRight.team ? [{
         name: secondPlaceRight.name,
         team: secondPlaceRight.team,
@@ -188,10 +209,10 @@ const EditResult = ({ result }: EditResultProps) => {
     const resultData = {
       program_id: selectedProgram,
       result_number: parseInt(resultNumber),
-      first_place_name: firstPlaceName,
-      first_place_team: firstPlaceTeam,
-      first_place_grade: firstPlaceGrade,
-      first_place_points: parseInt(firstPlacePoints),
+      first_place_name: firstPlaceLeft.name,
+      first_place_team: firstPlaceLeft.team,
+      first_place_grade: firstPlaceLeft.grade,
+      first_place_points: parseInt(firstPlaceLeft.points),
       second_place_name: secondPlaceLeft.name,
       second_place_team: secondPlaceLeft.team,
       second_place_grade: secondPlaceLeft.grade,
@@ -245,55 +266,111 @@ const EditResult = ({ result }: EditResultProps) => {
             </div>
           </div>
 
-          {/* First Place */}
-          <div className="border border-primary rounded-lg p-4 space-y-3">
-            <h3 className="font-bold text-primary">🥇 First Place</h3>
-            <div>
-              <Label>Participant Name *</Label>
-              <Input
-                value={firstPlaceName}
-                onChange={(e) => setFirstPlaceName(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label>Team *</Label>
-              <Select value={firstPlaceTeam} onValueChange={setFirstPlaceTeam}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams?.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Grade</Label>
-              <Select value={firstPlaceGrade} onValueChange={setFirstPlaceGrade}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {GRADES.map((grade) => (
-                    <SelectItem key={grade} value={grade}>
-                      {grade}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Points *</Label>
-              <Input
-                type="number"
-                value={firstPlacePoints}
-                onChange={(e) => setFirstPlacePoints(e.target.value)}
-                required
-              />
+          {/* First Place Winners - Side by Side */}
+          <div className="border border-primary rounded-lg p-4 space-y-4">
+            <h3 className="font-bold text-primary">🥇 First Place Winners</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left - Required */}
+              <div className="border border-primary/50 rounded-lg p-3 space-y-3">
+                <h4 className="font-medium text-primary">Winner 1 (Required)</h4>
+                <div>
+                  <Label>Participant Name *</Label>
+                  <Input
+                    value={firstPlaceLeft.name}
+                    onChange={(e) => setFirstPlaceLeft({...firstPlaceLeft, name: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>Team *</Label>
+                  <Select value={firstPlaceLeft.team} onValueChange={(val) => setFirstPlaceLeft({...firstPlaceLeft, team: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Grade</Label>
+                  <Select value={firstPlaceLeft.grade} onValueChange={(val) => setFirstPlaceLeft({...firstPlaceLeft, grade: val})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GRADES.map((grade) => (
+                        <SelectItem key={grade} value={grade}>
+                          {grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Points *</Label>
+                  <Input
+                    type="number"
+                    value={firstPlaceLeft.points}
+                    onChange={(e) => setFirstPlaceLeft({...firstPlaceLeft, points: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Right - Optional */}
+              <div className="border border-muted rounded-lg p-3 space-y-3">
+                <h4 className="font-medium text-muted-foreground">Winner 2 (Optional)</h4>
+                <div>
+                  <Label>Participant Name</Label>
+                  <Input
+                    value={firstPlaceRight.name}
+                    onChange={(e) => setFirstPlaceRight({...firstPlaceRight, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label>Team</Label>
+                  <Select value={firstPlaceRight.team} onValueChange={(val) => setFirstPlaceRight({...firstPlaceRight, team: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Grade</Label>
+                  <Select value={firstPlaceRight.grade} onValueChange={(val) => setFirstPlaceRight({...firstPlaceRight, grade: val})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GRADES.map((grade) => (
+                        <SelectItem key={grade} value={grade}>
+                          {grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Points</Label>
+                  <Input
+                    type="number"
+                    value={firstPlaceRight.points}
+                    onChange={(e) => setFirstPlaceRight({...firstPlaceRight, points: e.target.value})}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

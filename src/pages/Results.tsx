@@ -261,6 +261,25 @@ const Results = () => {
                       </div>
                     )}
                   </div>
+                  
+                  {/* Check for additional first place winner */}
+                  {result.additional_grades && Array.isArray(result.additional_grades) && 
+                   (result.additional_grades as any[]).find((g: any) => g.place === "1st") && (
+                    <div className="bg-primary/10 border border-primary rounded-lg p-4">
+                      <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
+                      <div className="font-bold text-lg">
+                        {(result.additional_grades as any[]).find((g: any) => g.place === "1st").name}
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {teams?.find(t => t.id === (result.additional_grades as any[]).find((g: any) => g.place === "1st").team)?.name}
+                      </div>
+                      {(result.additional_grades as any[]).find((g: any) => g.place === "1st").grade && (
+                        <div className="text-2xl font-bold text-primary mt-2">
+                          Grade: {(result.additional_grades as any[]).find((g: any) => g.place === "1st").grade}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Second Place */}
                   <div className="bg-secondary/10 border border-secondary rounded-lg p-4">
@@ -295,7 +314,9 @@ const Results = () => {
                   {/* Additional Grades (if exists) */}
                   {result.additional_grades && Array.isArray(result.additional_grades) && result.additional_grades.length > 0 && (
                     <>
-                      {(result.additional_grades as any[]).map((grade: any, idx: number) => {
+                      {(result.additional_grades as any[])
+                        .filter((grade: any) => grade.place !== "1st") // Exclude first place as it's shown separately
+                        .map((grade: any, idx: number) => {
                         const isSecondPlace = grade.place === "2nd";
                         const isThirdPlace = grade.place === "3rd";
                         
