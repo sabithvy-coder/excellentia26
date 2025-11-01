@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import excellentiaLogo from "@/assets/excellentia-logo.png";
+import excellentiaLogo from "@/assets/excellentia-main-logo.png";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,11 +24,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3">
-              <img src={excellentiaLogo} alt="Excellentia" className="h-10 w-auto" />
-              <span className="font-bold text-xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Excellentia '25
-              </span>
+            <Link to="/" className="flex items-center">
+              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}
