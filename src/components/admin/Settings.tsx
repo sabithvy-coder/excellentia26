@@ -5,8 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Eye, EyeOff, Settings as SettingsIcon, Trophy, Edit2 } from "lucide-react";
+import { Eye, EyeOff, Settings as SettingsIcon, Trophy, Edit2, Upload } from "lucide-react";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const Settings = () => {
   const queryClient = useQueryClient();
@@ -34,9 +42,12 @@ const Settings = () => {
 
   const teamStandingsVisible = settings?.find(s => s.key === "team_standings_visible")?.value === true;
   const teamStandingsAfterResult = (settings?.find(s => s.key === "team_standings_after_result")?.value as number) || 0;
+  const publishedUpToResult = (settings?.find(s => s.key === "published_up_to_result")?.value as number) || 0;
 
   const [editingStandingsThreshold, setEditingStandingsThreshold] = useState(false);
   const [newThreshold, setNewThreshold] = useState(0);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [publishUpToResult, setPublishUpToResult] = useState(0);
 
   const updateSettingMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: any }) => {
@@ -82,6 +93,104 @@ const Settings = () => {
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to update team points");
+    },
+  });
+
+  const publishPointsMutation = useMutation({
+    mutationFn: async (upToResultNumber: number) => {
+      // Get all results up to the specified result number
+      const { data: results, error: resultsError } = await supabase
+        .from("results")
+        .select("*")
+        .lte("result_number", upToResultNumber);
+      
+      if (resultsError) throw resultsError;
+
+      // Calculate points for each team
+      const teamPoints: Record<string, number> = {};
+      const studentPoints: Record<string, Record<string, number>> = {};
+
+      results?.forEach((result: any) => {
+        // First place
+        if (result.first_place_team && result.first_place_points) {
+          teamPoints[result.first_place_team] = (teamPoints[result.first_place_team] || 0) + result.first_place_points;
+          if (!studentPoints[result.first_place_team]) studentPoints[result.first_place_team] = {};
+          studentPoints[result.first_place_team][result.first_place_name] = 
+            (studentPoints[result.first_place_team][result.first_place_name] || 0) + result.first_place_points;
+        }
+
+        // Second place
+        if (result.second_place_team && result.second_place_points) {
+          teamPoints[result.second_place_team] = (teamPoints[result.second_place_team] || 0) + result.second_place_points;
+          if (!studentPoints[result.second_place_team]) studentPoints[result.second_place_team] = {};
+          studentPoints[result.second_place_team][result.second_place_name] = 
+            (studentPoints[result.second_place_team][result.second_place_name] || 0) + result.second_place_points;
+        }
+
+        // Third place
+        if (result.third_place_team && result.third_place_points) {
+          teamPoints[result.third_place_team] = (teamPoints[result.third_place_team] || 0) + result.third_place_points;
+          if (!studentPoints[result.third_place_team]) studentPoints[result.third_place_team] = {};
+          studentPoints[result.third_place_team][result.third_place_name] = 
+            (studentPoints[result.third_place_team][result.third_place_name] || 0) + result.third_place_points;
+        }
+
+        // Additional grades
+        if (result.additional_grades && Array.isArray(result.additional_grades)) {
+          result.additional_grades.forEach((grade: any) => {
+            if (grade.team && grade.points) {
+              teamPoints[grade.team] = (teamPoints[grade.team] || 0) + grade.points;
+              if (!studentPoints[grade.team]) studentPoints[grade.team] = {};
+              studentPoints[grade.team][grade.name] = 
+                (studentPoints[grade.team][grade.name] || 0) + grade.points;
+            }
+          });
+        }
+      });
+
+      // Update published_points for all teams
+      const { data: allTeams } = await supabase.from("teams").select("id");
+      for (const team of allTeams || []) {
+        const { error } = await supabase
+          .from("teams")
+          .update({ published_points: teamPoints[team.id] || 0 })
+          .eq("id", team.id);
+        if (error) throw error;
+      }
+
+      // Update published_points for all students
+      for (const [teamId, students] of Object.entries(studentPoints)) {
+        for (const [studentName, points] of Object.entries(students)) {
+          const { error } = await supabase
+            .from("students")
+            .update({ published_points: points })
+            .eq("name", studentName)
+            .eq("team_id", teamId);
+          if (error) throw error;
+        }
+      }
+
+      // Reset published_points to 0 for students not in the results
+      const { error: resetError } = await supabase
+        .from("students")
+        .update({ published_points: 0 })
+        .not("id", "in", `(${Object.values(studentPoints).flatMap(s => Object.keys(s)).join(",")})`);
+
+      // Update the published_up_to_result setting
+      const { error: settingError } = await supabase
+        .from("settings")
+        .upsert({ key: "published_up_to_result", value: upToResultNumber }, { onConflict: "key" });
+      
+      if (settingError) throw settingError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      toast.success("Points published successfully!");
+      setPublishDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to publish points");
     },
   });
 
@@ -180,20 +289,80 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* Team Points List */}
-          <div className="p-4 border rounded-lg space-y-3">
-            <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-primary" />
-              <Label className="text-base font-medium">Current Team Standings</Label>
+          {/* Publish Points Section */}
+          <div className="flex items-center justify-between p-4 border rounded-lg bg-primary/5">
+            <div className="space-y-1">
+              <Label className="text-base font-medium">Publish Team Points</Label>
+              <p className="text-sm text-muted-foreground">
+                Currently published up to result #{publishedUpToResult}
+              </p>
+            </div>
+            <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="default"
+                  onClick={() => setPublishUpToResult(publishedUpToResult)}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Publish Points
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Publish Team Points to Users</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label>Publish points up to result number:</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={publishUpToResult}
+                      onChange={(e) => setPublishUpToResult(parseInt(e.target.value) || 0)}
+                      placeholder="Enter result number"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Users will see points calculated from results 1 to {publishUpToResult}
+                    </p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setPublishDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => publishPointsMutation.mutate(publishUpToResult)}
+                    disabled={publishPointsMutation.isPending}
+                  >
+                    Publish
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Draft Points (Admin View) */}
+          <div className="p-4 border rounded-lg space-y-3 bg-orange-50 dark:bg-orange-950/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-orange-600" />
+                <Label className="text-base font-medium">Draft Points (Admin Only)</Label>
+              </div>
+              <span className="text-xs bg-orange-200 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded">
+                Latest/Unpublished
+              </span>
             </div>
             <div className="space-y-2">
               {teams?.map((team, index) => (
                 <div 
                   key={team.id} 
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                  className="flex items-center justify-between p-3 bg-background rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 font-bold">
                       {index + 1}
                     </div>
                     <span className="font-medium">{team.name}</span>
@@ -225,7 +394,7 @@ const Settings = () => {
                       </>
                     ) : (
                       <>
-                        <span className="text-2xl font-bold text-primary">{team.points}</span>
+                        <span className="text-2xl font-bold text-orange-600">{team.points}</span>
                         <span className="text-sm text-muted-foreground">pts</span>
                         <Button
                           size="sm"
@@ -239,6 +408,45 @@ const Settings = () => {
                         </Button>
                       </>
                     )}
+                  </div>
+                </div>
+              ))}
+              {(!teams || teams.length === 0) && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No teams available yet
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Published Points (What Users See) */}
+          <div className="p-4 border rounded-lg space-y-3 bg-green-50 dark:bg-green-950/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-green-600" />
+                <Label className="text-base font-medium">Published Points (User View)</Label>
+              </div>
+              <span className="text-xs bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                Up to Result #{publishedUpToResult}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {teams
+                ?.sort((a, b) => (b.published_points || 0) - (a.published_points || 0))
+                .map((team, index) => (
+                <div 
+                  key={team.id} 
+                  className="flex items-center justify-between p-3 bg-background rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 font-bold">
+                      {index + 1}
+                    </div>
+                    <span className="font-medium">{team.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-bold text-green-600">{team.published_points || 0}</span>
+                    <span className="text-sm text-muted-foreground">pts</span>
                   </div>
                 </div>
               ))}

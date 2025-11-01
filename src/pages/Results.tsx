@@ -47,7 +47,7 @@ const Results = () => {
       const { data, error } = await supabase
         .from("teams")
         .select("*")
-        .order("points", { ascending: false });
+        .order("published_points", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -133,7 +133,7 @@ const Results = () => {
                 index === 0 ? "border-primary" : "border-border"
               }`}
             >
-              <div className="text-5xl font-bold text-primary mb-2">{team.points}</div>
+              <div className="text-5xl font-bold text-primary mb-2">{team.published_points || 0}</div>
               <h3 className="text-xl font-bold">{team.name}</h3>
               <div className="text-sm text-muted-foreground mt-2">
                 Rank #{index + 1}

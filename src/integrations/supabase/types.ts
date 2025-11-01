@@ -325,6 +325,7 @@ export type Database = {
           id: string
           name: string
           points: number | null
+          published_points: number | null
           team_id: string | null
         }
         Insert: {
@@ -333,6 +334,7 @@ export type Database = {
           id?: string
           name: string
           points?: number | null
+          published_points?: number | null
           team_id?: string | null
         }
         Update: {
@@ -341,6 +343,7 @@ export type Database = {
           id?: string
           name?: string
           points?: number | null
+          published_points?: number | null
           team_id?: string | null
         }
         Relationships: [
@@ -359,18 +362,21 @@ export type Database = {
           id: string
           name: string
           points: number | null
+          published_points: number | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           name: string
           points?: number | null
+          published_points?: number | null
         }
         Update: {
           created_at?: string | null
           id?: string
           name?: string
           points?: number | null
+          published_points?: number | null
         }
         Relationships: []
       }
