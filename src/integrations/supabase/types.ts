@@ -294,9 +294,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_roles_with_email: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      add_admin_role_by_email: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
