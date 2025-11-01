@@ -95,16 +95,17 @@ const Home = () => {
             <h2 className="text-3xl font-bold text-center mb-12">Latest News</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {newsItems.map((news) => (
-                <div
+                <Link
                   key={news.id}
-                  className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-colors"
+                  to={`/news?id=${news.id}`}
+                  className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-colors cursor-pointer block"
                 >
                   <h3 className="text-xl font-bold mb-3">{news.title}</h3>
                   <p className="text-muted-foreground line-clamp-3">{news.content}</p>
                   <div className="text-sm text-muted-foreground mt-4">
                     {new Date(news.created_at).toLocaleDateString()}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             <div className="text-center mt-8">

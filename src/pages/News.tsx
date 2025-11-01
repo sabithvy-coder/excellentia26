@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ReportDialog from "@/components/ReportDialog";
 
 const News = () => {
+  const [searchParams] = useSearchParams();
+  const newsId = searchParams.get("id");
   const [expandedNews, setExpandedNews] = useState<Record<string, boolean>>({});
   const { data: newsItems, isLoading } = useQuery({
     queryKey: ["news"],
@@ -22,6 +25,18 @@ const News = () => {
   const toggleExpanded = (id: string) => {
     setExpandedNews(prev => ({ ...prev, [id]: !prev[id] }));
   };
+
+  useEffect(() => {
+    if (newsId) {
+      setExpandedNews(prev => ({ ...prev, [newsId]: true }));
+      setTimeout(() => {
+        const element = document.getElementById(`news-${newsId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+    }
+  }, [newsId]);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -40,10 +55,14 @@ const News = () => {
               ? news.content.substring(0, 300) + "..." 
               : news.content;
 
+            const isHighlighted = newsId === news.id;
             const article = (
               <article
                 key={news.id}
-                className="bg-card border border-border rounded-lg p-8 hover:border-primary transition-colors"
+                id={`news-${news.id}`}
+                className={`bg-card border rounded-lg p-8 transition-colors ${
+                  isHighlighted ? "border-primary shadow-lg" : "border-border hover:border-primary"
+                }`}
               >
                 {news.image_url && (
                   <img 
