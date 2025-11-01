@@ -33,6 +33,10 @@ const Settings = () => {
   });
 
   const teamStandingsVisible = settings?.find(s => s.key === "team_standings_visible")?.value === true;
+  const teamStandingsAfterResult = (settings?.find(s => s.key === "team_standings_after_result")?.value as number) || 0;
+
+  const [editingStandingsThreshold, setEditingStandingsThreshold] = useState(false);
+  const [newThreshold, setNewThreshold] = useState(0);
 
   const updateSettingMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: any }) => {
@@ -119,6 +123,61 @@ const Settings = () => {
                 </>
               )}
             </Button>
+          </div>
+
+          {/* Team Standings Threshold */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <Label className="text-base font-medium">Show Team Standings After Result</Label>
+              <p className="text-sm text-muted-foreground">
+                Team standings will be visible after result number: {teamStandingsAfterResult}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {editingStandingsThreshold ? (
+                <>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={newThreshold}
+                    onChange={(e) => setNewThreshold(parseInt(e.target.value) || 0)}
+                    className="w-24"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      updateSettingMutation.mutate({
+                        key: "team_standings_after_result",
+                        value: newThreshold,
+                      });
+                      setEditingStandingsThreshold(false);
+                    }}
+                    disabled={updateSettingMutation.isPending}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingStandingsThreshold(false)}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setNewThreshold(teamStandingsAfterResult);
+                    setEditingStandingsThreshold(true);
+                  }}
+                >
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Edit Threshold
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Team Points List */}
