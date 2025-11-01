@@ -1,4 +1,4 @@
-import { Scroll, Calendar, Users, Trophy, MapPin } from "lucide-react";
+import { Scroll, Calendar, Users, Trophy, MapPin, MessageCircle } from "lucide-react";
 import scrollIcon from "@/assets/scroll-icon.png";
 
 const About = () => {
@@ -96,6 +96,24 @@ const About = () => {
               the Scrolls."
             </span>
           </p>
+        </section>
+
+        {/* WhatsApp Channel CTA */}
+        <section className="bg-gradient-to-r from-green-500/10 to-green-600/10 border border-green-600/20 rounded-lg p-8 text-center">
+          <MessageCircle className="w-12 h-12 mx-auto mb-4 text-green-600" />
+          <h2 className="text-2xl font-bold mb-4">Stay Connected!</h2>
+          <p className="text-muted-foreground mb-6">
+            Join our WhatsApp channel for live updates, results, and exclusive content from Excellentia 2025
+          </p>
+          <a
+            href="https://whatsapp.com/channel/0029VaA6UMK8kyyFIltUH33p"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+          >
+            <MessageCircle className="w-5 h-5" />
+            Join WhatsApp Channel
+          </a>
         </section>
       </div>
     </div>

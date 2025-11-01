@@ -39,7 +39,7 @@ const News = () => {
               ? news.content.substring(0, 300) + "..." 
               : news.content;
 
-            return (
+            const article = (
               <article
                 key={news.id}
                 className="bg-card border border-border rounded-lg p-8 hover:border-primary transition-colors"
@@ -87,6 +87,12 @@ const News = () => {
                 )}
               </article>
             );
+            
+            return news.link_url ? (
+              <a key={news.id} href={news.link_url} target="_blank" rel="noopener noreferrer" className="block">
+                {article}
+              </a>
+            ) : article;
           })}
         </div>
       ) : (

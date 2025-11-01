@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Scroll, Calendar, Users, Trophy } from "lucide-react";
+import { Scroll, Calendar, Users, Trophy, MessageCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import excellentiaLogo from "@/assets/excellentia-logo.png";
@@ -169,6 +169,26 @@ const Home = () => {
               Gallery
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* WhatsApp Channel CTA */}
+      <section className="py-12 bg-gradient-to-r from-green-500/10 to-green-600/10">
+        <div className="container mx-auto px-4 text-center">
+          <MessageCircle className="w-16 h-16 mx-auto mb-4 text-green-600" />
+          <h2 className="text-3xl font-bold mb-4">Stay Connected!</h2>
+          <p className="text-xl text-muted-foreground mb-6">
+            Join our WhatsApp channel for live updates, results, and exclusive content from Excellentia 2025
+          </p>
+          <a
+            href="https://whatsapp.com/channel/0029VaA6UMK8kyyFIltUH33p"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-lg transition-colors"
+          >
+            <MessageCircle className="w-6 h-6" />
+            Join WhatsApp Channel
+          </a>
         </div>
       </section>
     </div>

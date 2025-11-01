@@ -14,6 +14,7 @@ const ManageNews = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -45,6 +46,7 @@ const ManageNews = () => {
       setTitle("");
       setContent("");
       setImageUrl("");
+      setLinkUrl("");
       setEditingId(null);
     },
     onError: () => {
@@ -100,6 +102,7 @@ const ManageNews = () => {
     setTitle(news.title);
     setContent(news.content);
     setImageUrl(news.image_url || "");
+    setLinkUrl(news.link_url || "");
     setEditingId(news.id);
   };
 
@@ -109,7 +112,7 @@ const ManageNews = () => {
       toast.error("Title and content are required");
       return;
     }
-    addNewsMutation.mutate({ title, content, image_url: imageUrl || null });
+    addNewsMutation.mutate({ title, content, image_url: imageUrl || null, link_url: linkUrl || null });
   };
 
   return (
@@ -145,6 +148,14 @@ const ManageNews = () => {
               <Input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
               {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
             </div>
+            <div>
+              <Label>Link URL (Optional)</Label>
+              <Input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
             {imageUrl && (
               <div className="border rounded-lg overflow-hidden">
                 <img src={imageUrl} alt="Preview" className="w-full h-48 object-cover" />
@@ -165,6 +176,7 @@ const ManageNews = () => {
                   setTitle("");
                   setContent("");
                   setImageUrl("");
+                  setLinkUrl("");
                 }}
               >
                 Cancel Edit

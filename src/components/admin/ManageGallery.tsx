@@ -12,6 +12,7 @@ const ManageGallery = () => {
   const queryClient = useQueryClient();
   const [imageUrl, setImageUrl] = useState("");
   const [caption, setCaption] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const [uploading, setUploading] = useState(false);
 
   const { data: images } = useQuery({
@@ -36,6 +37,7 @@ const ManageGallery = () => {
       toast.success("Image added successfully!");
       setImageUrl("");
       setCaption("");
+      setLinkUrl("");
     },
     onError: () => {
       toast.error("Failed to add image");
@@ -92,7 +94,7 @@ const ManageGallery = () => {
       toast.error("Image URL is required");
       return;
     }
-    addImageMutation.mutate({ image_url: imageUrl, caption });
+    addImageMutation.mutate({ image_url: imageUrl, caption, link_url: linkUrl || null });
   };
 
   return (
@@ -117,6 +119,14 @@ const ManageGallery = () => {
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="Enter image caption"
+              />
+            </div>
+            <div>
+              <Label>Link URL (Optional)</Label>
+              <Input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
               />
             </div>
             {imageUrl && (
