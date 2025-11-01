@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Eye, EyeOff, Settings as SettingsIcon, Trophy, Edit2, Upload } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import {
   Dialog,
@@ -48,6 +49,10 @@ const Settings = () => {
   const [newThreshold, setNewThreshold] = useState(0);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [publishUpToResult, setPublishUpToResult] = useState(0);
+  const [editingPublishedTeam, setEditingPublishedTeam] = useState<string | null>(null);
+  const [newPublishedPoints, setNewPublishedPoints] = useState<number>(0);
+  const [editingResultThreshold, setEditingResultThreshold] = useState(false);
+  const [resultThresholdValue, setResultThresholdValue] = useState<number>(0);
 
   const updateSettingMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: any }) => {
@@ -93,6 +98,44 @@ const Settings = () => {
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to update team points");
+    },
+  });
+
+  const updatePublishedPointsMutation = useMutation({
+    mutationFn: async ({ teamId, publishedPoints }: { teamId: string; publishedPoints: number }) => {
+      if (publishedPoints < 0) {
+        throw new Error("Points cannot be negative");
+      }
+      const { error } = await supabase
+        .from("teams")
+        .update({ published_points: publishedPoints })
+        .eq("id", teamId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      toast.success("Published points updated successfully!");
+      setEditingPublishedTeam(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to update published points");
+    },
+  });
+
+  const updateResultThresholdMutation = useMutation({
+    mutationFn: async (threshold: number) => {
+      const { error } = await supabase
+        .from("settings")
+        .upsert({ key: "published_up_to_result", value: threshold }, { onConflict: "key" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      toast.success("Result threshold updated successfully!");
+      setEditingResultThreshold(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to update result threshold");
     },
   });
 
@@ -289,12 +332,67 @@ const Settings = () => {
             </div>
           </div>
 
+          {/* Result Threshold Display */}
+          <div className="flex items-center justify-between p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+            <div className="space-y-1">
+              <Label className="text-base font-medium">Table Standings After Result</Label>
+              <p className="text-sm text-muted-foreground">
+                Users see standings calculated up to result #{publishedUpToResult}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {editingResultThreshold ? (
+                <>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={resultThresholdValue}
+                    onChange={(e) => setResultThresholdValue(parseInt(e.target.value) || 0)}
+                    className="w-24"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => updateResultThresholdMutation.mutate(resultThresholdValue)}
+                    disabled={updateResultThresholdMutation.isPending}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingResultThreshold(false);
+                      setResultThresholdValue(publishedUpToResult);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl font-bold text-blue-600">{publishedUpToResult}</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingResultThreshold(true);
+                      setResultThresholdValue(publishedUpToResult);
+                    }}
+                  >
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Publish Points Section */}
           <div className="flex items-center justify-between p-4 border rounded-lg bg-primary/5">
             <div className="space-y-1">
               <Label className="text-base font-medium">Publish Team Points</Label>
               <p className="text-sm text-muted-foreground">
-                Currently published up to result #{publishedUpToResult}
+                Recalculate and publish points from results
               </p>
             </div>
             <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
@@ -445,8 +543,46 @@ const Settings = () => {
                     <span className="font-medium">{team.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl font-bold text-green-600">{team.published_points || 0}</span>
-                    <span className="text-sm text-muted-foreground">pts</span>
+                    {editingPublishedTeam === team.id ? (
+                      <>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={newPublishedPoints}
+                          onChange={(e) => setNewPublishedPoints(parseInt(e.target.value) || 0)}
+                          className="w-24"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => updatePublishedPointsMutation.mutate({ teamId: team.id, publishedPoints: newPublishedPoints })}
+                          disabled={updatePublishedPointsMutation.isPending}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingPublishedTeam(null)}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-bold text-green-600">{team.published_points || 0}</span>
+                        <span className="text-sm text-muted-foreground">pts</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setEditingPublishedTeam(team.id);
+                            setNewPublishedPoints(team.published_points || 0);
+                          }}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
