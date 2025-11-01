@@ -10,6 +10,7 @@ import AddResult from "@/components/admin/AddResult";
 import ManagePrograms from "@/components/admin/ManagePrograms";
 import ManageNews from "@/components/admin/ManageNews";
 import ManageGallery from "@/components/admin/ManageGallery";
+import ManageResults from "@/components/admin/ManageResults";
 import Notifications from "@/components/admin/Notifications";
 import Settings from "@/components/admin/Settings";
 
@@ -98,7 +99,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="results">
-            <AddResult />
+            <div className="space-y-6">
+              <AddResult />
+              <ManageResults />
+            </div>
           </TabsContent>
 
           <TabsContent value="programs">
