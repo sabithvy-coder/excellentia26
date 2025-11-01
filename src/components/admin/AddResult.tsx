@@ -34,7 +34,7 @@ const AddResult = () => {
   // Auto-fill category when program is selected
   const handleProgramChange = (programId: string) => {
     setSelectedProgram(programId);
-    const selectedProgramData = programs?.find(p => p.id === programId);
+    const selectedProgramData = availablePrograms?.find(p => p.id === programId);
     if (selectedProgramData?.category) {
       setCategory(selectedProgramData.category);
     } else {
@@ -61,6 +61,15 @@ const AddResult = () => {
     },
   });
 
+  const { data: existingResults } = useQuery({
+    queryKey: ["results"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("results").select("program_id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: teams } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
@@ -69,6 +78,11 @@ const AddResult = () => {
       return data;
     },
   });
+
+  // Filter out programs that already have results
+  const availablePrograms = programs?.filter(
+    (program) => !existingResults?.some((result) => result.program_id === program.id)
+  );
 
   // Fetch the latest result number for preview
   useQuery({
@@ -99,6 +113,7 @@ const AddResult = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["results"] });
       queryClient.invalidateQueries({ queryKey: ["teams"] });
+      queryClient.invalidateQueries({ queryKey: ["programs"] });
       toast.success("Result added successfully!");
       resetForm();
     },
@@ -238,7 +253,7 @@ const AddResult = () => {
                   <SelectValue placeholder="Select program" />
                 </SelectTrigger>
                 <SelectContent>
-                  {programs?.map((program) => (
+                  {availablePrograms?.map((program) => (
                     <SelectItem key={program.id} value={program.id}>
                       {program.name} {program.category && `(${program.category})`}
                     </SelectItem>
