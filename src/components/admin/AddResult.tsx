@@ -42,13 +42,13 @@ const AddResult = () => {
     }
   };
   
-  const [secondPlaceWinners, setSecondPlaceWinners] = useState<Array<{name: string; team: string; grade: string; points: string}>>([
-    { name: "", team: "", grade: "A", points: "9" }
-  ]);
+  // Second place - two winners (left required, right optional)
+  const [secondPlaceLeft, setSecondPlaceLeft] = useState({ name: "", team: "", grade: "A", points: "9" });
+  const [secondPlaceRight, setSecondPlaceRight] = useState({ name: "", team: "", grade: "A", points: "9" });
   
-  const [thirdPlaceWinners, setThirdPlaceWinners] = useState<Array<{name: string; team: string; grade: string; points: string}>>([
-    { name: "", team: "", grade: "A-", points: "8" }
-  ]);
+  // Third place - two winners (left required, right optional)
+  const [thirdPlaceLeft, setThirdPlaceLeft] = useState({ name: "", team: "", grade: "A-", points: "8" });
+  const [thirdPlaceRight, setThirdPlaceRight] = useState({ name: "", team: "", grade: "A-", points: "8" });
   
   const [additionalGrades, setAdditionalGrades] = useState<Array<{name: string; team: string; grade: string; points: string}>>([]);
 
@@ -117,42 +117,13 @@ const AddResult = () => {
     setFirstPlaceTeam("");
     setFirstPlaceGrade("A+");
     setFirstPlacePoints("10");
-    setSecondPlaceWinners([{ name: "", team: "", grade: "A", points: "9" }]);
-    setThirdPlaceWinners([{ name: "", team: "", grade: "A-", points: "8" }]);
+    setSecondPlaceLeft({ name: "", team: "", grade: "A", points: "9" });
+    setSecondPlaceRight({ name: "", team: "", grade: "A", points: "9" });
+    setThirdPlaceLeft({ name: "", team: "", grade: "A-", points: "8" });
+    setThirdPlaceRight({ name: "", team: "", grade: "A-", points: "8" });
     setAdditionalGrades([]);
   };
 
-  const addSecondPlaceWinner = () => {
-    setSecondPlaceWinners([...secondPlaceWinners, { name: "", team: "", grade: "A", points: "9" }]);
-  };
-
-  const removeSecondPlaceWinner = (index: number) => {
-    if (secondPlaceWinners.length > 1) {
-      setSecondPlaceWinners(secondPlaceWinners.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateSecondPlaceWinner = (index: number, field: string, value: string) => {
-    const updated = [...secondPlaceWinners];
-    updated[index] = { ...updated[index], [field]: value };
-    setSecondPlaceWinners(updated);
-  };
-
-  const addThirdPlaceWinner = () => {
-    setThirdPlaceWinners([...thirdPlaceWinners, { name: "", team: "", grade: "A-", points: "8" }]);
-  };
-
-  const removeThirdPlaceWinner = (index: number) => {
-    if (thirdPlaceWinners.length > 1) {
-      setThirdPlaceWinners(thirdPlaceWinners.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateThirdPlaceWinner = (index: number, field: string, value: string) => {
-    const updated = [...thirdPlaceWinners];
-    updated[index] = { ...updated[index], [field]: value };
-    setThirdPlaceWinners(updated);
-  };
 
   const addAdditionalGrade = () => {
     setAdditionalGrades([...additionalGrades, { name: "", team: "", grade: "B+", points: "7" }]);
@@ -177,38 +148,36 @@ const AddResult = () => {
       return;
     }
 
-    // Validate second place winners
-    const validSecondPlace = secondPlaceWinners.filter(w => w.name && w.team);
-    if (validSecondPlace.length === 0) {
-      toast.error("Please add at least one second place winner");
+    // Validate second place left (required)
+    if (!secondPlaceLeft.name || !secondPlaceLeft.team) {
+      toast.error("Please fill in the required second place winner (left)");
       return;
     }
 
-    // Validate third place winners
-    const validThirdPlace = thirdPlaceWinners.filter(w => w.name && w.team);
-    if (validThirdPlace.length === 0) {
-      toast.error("Please add at least one third place winner");
+    // Validate third place left (required)
+    if (!thirdPlaceLeft.name || !thirdPlaceLeft.team) {
+      toast.error("Please fill in the required third place winner (left)");
       return;
     }
 
-    // Prepare additional grades including 2nd and 3rd place winners beyond the first one
+    // Prepare additional grades
     const additionalGradesData = [
-      // Add extra 2nd place winners
-      ...validSecondPlace.slice(1).map(winner => ({
-        name: winner.name,
-        team: winner.team,
-        grade: winner.grade,
-        points: parseInt(winner.points),
+      // Add second place right if filled
+      ...(secondPlaceRight.name && secondPlaceRight.team ? [{
+        name: secondPlaceRight.name,
+        team: secondPlaceRight.team,
+        grade: secondPlaceRight.grade,
+        points: parseInt(secondPlaceRight.points),
         place: "2nd"
-      })),
-      // Add extra 3rd place winners
-      ...validThirdPlace.slice(1).map(winner => ({
-        name: winner.name,
-        team: winner.team,
-        grade: winner.grade,
-        points: parseInt(winner.points),
+      }] : []),
+      // Add third place right if filled
+      ...(thirdPlaceRight.name && thirdPlaceRight.team ? [{
+        name: thirdPlaceRight.name,
+        team: thirdPlaceRight.team,
+        grade: thirdPlaceRight.grade,
+        points: parseInt(thirdPlaceRight.points),
         place: "3rd"
-      })),
+      }] : []),
       // Add other additional grades
       ...additionalGrades
         .filter(grade => grade.name)
@@ -228,14 +197,14 @@ const AddResult = () => {
       first_place_team: firstPlaceTeam,
       first_place_grade: firstPlaceGrade,
       first_place_points: parseInt(firstPlacePoints),
-      second_place_name: validSecondPlace[0].name,
-      second_place_team: validSecondPlace[0].team,
-      second_place_grade: validSecondPlace[0].grade,
-      second_place_points: parseInt(validSecondPlace[0].points),
-      third_place_name: validThirdPlace[0].name,
-      third_place_team: validThirdPlace[0].team,
-      third_place_grade: validThirdPlace[0].grade,
-      third_place_points: parseInt(validThirdPlace[0].points),
+      second_place_name: secondPlaceLeft.name,
+      second_place_team: secondPlaceLeft.team,
+      second_place_grade: secondPlaceLeft.grade,
+      second_place_points: parseInt(secondPlaceLeft.points),
+      third_place_name: thirdPlaceLeft.name,
+      third_place_team: thirdPlaceLeft.team,
+      third_place_grade: thirdPlaceLeft.grade,
+      third_place_points: parseInt(thirdPlaceLeft.points),
       additional_grades: additionalGradesData
     };
 
@@ -360,41 +329,25 @@ const AddResult = () => {
             </div>
           </div>
 
-          {/* Second Place Winners */}
+          {/* Second Place Winners - Side by Side */}
           <div className="border border-secondary rounded-lg p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-secondary">🥈 Second Place Winners</h3>
-              <Button type="button" variant="outline" size="sm" onClick={addSecondPlaceWinner}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Winner
-              </Button>
-            </div>
-            {secondPlaceWinners.map((winner, index) => (
-              <div key={index} className="border border-muted rounded-lg p-3 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Winner {index + 1}</h4>
-                  {secondPlaceWinners.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeSecondPlaceWinner(index)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
+            <h3 className="font-bold text-secondary">🥈 Second Place Winners</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left - Required */}
+              <div className="border border-secondary/50 rounded-lg p-3 space-y-3">
+                <h4 className="font-medium text-secondary">Winner 1 (Required)</h4>
                 <div>
-                  <Label>Participant Name</Label>
+                  <Label>Participant Name *</Label>
                   <Input
-                    value={winner.name}
-                    onChange={(e) => updateSecondPlaceWinner(index, "name", e.target.value)}
+                    value={secondPlaceLeft.name}
+                    onChange={(e) => setSecondPlaceLeft({...secondPlaceLeft, name: e.target.value})}
                     placeholder="Enter name"
+                    required
                   />
                 </div>
                 <div>
-                  <Label>Team</Label>
-                  <Select value={winner.team} onValueChange={(val) => updateSecondPlaceWinner(index, "team", val)}>
+                  <Label>Team *</Label>
+                  <Select value={secondPlaceLeft.team} onValueChange={(val) => setSecondPlaceLeft({...secondPlaceLeft, team: val})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select team" />
                     </SelectTrigger>
@@ -409,7 +362,60 @@ const AddResult = () => {
                 </div>
                 <div>
                   <Label>Grade</Label>
-                  <Select value={winner.grade} onValueChange={(val) => updateSecondPlaceWinner(index, "grade", val)}>
+                  <Select value={secondPlaceLeft.grade} onValueChange={(val) => setSecondPlaceLeft({...secondPlaceLeft, grade: val})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GRADES.map((grade) => (
+                        <SelectItem key={grade} value={grade}>
+                          {grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Points *</Label>
+                  <Input
+                    type="number"
+                    value={secondPlaceLeft.points}
+                    onChange={(e) => setSecondPlaceLeft({...secondPlaceLeft, points: e.target.value})}
+                    placeholder="Enter points"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Right - Optional */}
+              <div className="border border-muted rounded-lg p-3 space-y-3">
+                <h4 className="font-medium text-muted-foreground">Winner 2 (Optional)</h4>
+                <div>
+                  <Label>Participant Name</Label>
+                  <Input
+                    value={secondPlaceRight.name}
+                    onChange={(e) => setSecondPlaceRight({...secondPlaceRight, name: e.target.value})}
+                    placeholder="Enter name"
+                  />
+                </div>
+                <div>
+                  <Label>Team</Label>
+                  <Select value={secondPlaceRight.team} onValueChange={(val) => setSecondPlaceRight({...secondPlaceRight, team: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Grade</Label>
+                  <Select value={secondPlaceRight.grade} onValueChange={(val) => setSecondPlaceRight({...secondPlaceRight, grade: val})}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -426,50 +432,34 @@ const AddResult = () => {
                   <Label>Points</Label>
                   <Input
                     type="number"
-                    value={winner.points}
-                    onChange={(e) => updateSecondPlaceWinner(index, "points", e.target.value)}
+                    value={secondPlaceRight.points}
+                    onChange={(e) => setSecondPlaceRight({...secondPlaceRight, points: e.target.value})}
                     placeholder="Enter points"
                   />
                 </div>
               </div>
-            ))}
+            </div>
           </div>
 
-          {/* Third Place Winners */}
+          {/* Third Place Winners - Side by Side */}
           <div className="border border-muted rounded-lg p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold">🥉 Third Place Winners</h3>
-              <Button type="button" variant="outline" size="sm" onClick={addThirdPlaceWinner}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Winner
-              </Button>
-            </div>
-            {thirdPlaceWinners.map((winner, index) => (
-              <div key={index} className="border border-muted rounded-lg p-3 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Winner {index + 1}</h4>
-                  {thirdPlaceWinners.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeThirdPlaceWinner(index)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
+            <h3 className="font-bold">🥉 Third Place Winners</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left - Required */}
+              <div className="border border-muted/50 rounded-lg p-3 space-y-3">
+                <h4 className="font-medium">Winner 1 (Required)</h4>
                 <div>
-                  <Label>Participant Name</Label>
+                  <Label>Participant Name *</Label>
                   <Input
-                    value={winner.name}
-                    onChange={(e) => updateThirdPlaceWinner(index, "name", e.target.value)}
+                    value={thirdPlaceLeft.name}
+                    onChange={(e) => setThirdPlaceLeft({...thirdPlaceLeft, name: e.target.value})}
                     placeholder="Enter name"
+                    required
                   />
                 </div>
                 <div>
-                  <Label>Team</Label>
-                  <Select value={winner.team} onValueChange={(val) => updateThirdPlaceWinner(index, "team", val)}>
+                  <Label>Team *</Label>
+                  <Select value={thirdPlaceLeft.team} onValueChange={(val) => setThirdPlaceLeft({...thirdPlaceLeft, team: val})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select team" />
                     </SelectTrigger>
@@ -484,7 +474,60 @@ const AddResult = () => {
                 </div>
                 <div>
                   <Label>Grade</Label>
-                  <Select value={winner.grade} onValueChange={(val) => updateThirdPlaceWinner(index, "grade", val)}>
+                  <Select value={thirdPlaceLeft.grade} onValueChange={(val) => setThirdPlaceLeft({...thirdPlaceLeft, grade: val})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GRADES.map((grade) => (
+                        <SelectItem key={grade} value={grade}>
+                          {grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Points *</Label>
+                  <Input
+                    type="number"
+                    value={thirdPlaceLeft.points}
+                    onChange={(e) => setThirdPlaceLeft({...thirdPlaceLeft, points: e.target.value})}
+                    placeholder="Enter points"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Right - Optional */}
+              <div className="border border-muted rounded-lg p-3 space-y-3">
+                <h4 className="font-medium text-muted-foreground">Winner 2 (Optional)</h4>
+                <div>
+                  <Label>Participant Name</Label>
+                  <Input
+                    value={thirdPlaceRight.name}
+                    onChange={(e) => setThirdPlaceRight({...thirdPlaceRight, name: e.target.value})}
+                    placeholder="Enter name"
+                  />
+                </div>
+                <div>
+                  <Label>Team</Label>
+                  <Select value={thirdPlaceRight.team} onValueChange={(val) => setThirdPlaceRight({...thirdPlaceRight, team: val})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Grade</Label>
+                  <Select value={thirdPlaceRight.grade} onValueChange={(val) => setThirdPlaceRight({...thirdPlaceRight, grade: val})}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -501,13 +544,13 @@ const AddResult = () => {
                   <Label>Points</Label>
                   <Input
                     type="number"
-                    value={winner.points}
-                    onChange={(e) => updateThirdPlaceWinner(index, "points", e.target.value)}
+                    value={thirdPlaceRight.points}
+                    onChange={(e) => setThirdPlaceRight({...thirdPlaceRight, points: e.target.value})}
                     placeholder="Enter points"
                   />
                 </div>
               </div>
-            ))}
+            </div>
           </div>
 
           {/* Additional Grades (Optional) */}
