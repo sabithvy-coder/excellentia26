@@ -61,18 +61,21 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          image_url: string | null
           title: string
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
+          image_url?: string | null
           title: string
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
+          image_url?: string | null
           title?: string
         }
         Relationships: []
@@ -162,6 +165,7 @@ export type Database = {
       }
       results: {
         Row: {
+          additional_grades: Json | null
           another_grade_name: string | null
           another_grade_points: number | null
           another_grade_team: string | null
@@ -171,6 +175,7 @@ export type Database = {
           first_place_team: string | null
           id: string
           program_id: string | null
+          result_number: number | null
           second_place_name: string
           second_place_points: number | null
           second_place_team: string | null
@@ -179,6 +184,7 @@ export type Database = {
           third_place_team: string | null
         }
         Insert: {
+          additional_grades?: Json | null
           another_grade_name?: string | null
           another_grade_points?: number | null
           another_grade_team?: string | null
@@ -188,6 +194,7 @@ export type Database = {
           first_place_team?: string | null
           id?: string
           program_id?: string | null
+          result_number?: number | null
           second_place_name: string
           second_place_points?: number | null
           second_place_team?: string | null
@@ -196,6 +203,7 @@ export type Database = {
           third_place_team?: string | null
         }
         Update: {
+          additional_grades?: Json | null
           another_grade_name?: string | null
           another_grade_points?: number | null
           another_grade_team?: string | null
@@ -205,6 +213,7 @@ export type Database = {
           first_place_team?: string | null
           id?: string
           program_id?: string | null
+          result_number?: number | null
           second_place_name?: string
           second_place_points?: number | null
           second_place_team?: string | null
@@ -244,6 +253,38 @@ export type Database = {
           {
             foreignKeyName: "results_third_place_team_fkey"
             columns: ["third_place_team"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          points: number | null
+          team_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          points?: number | null
+          team_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          points?: number | null
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_team_id_fkey"
+            columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
             referencedColumns: ["id"]
