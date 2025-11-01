@@ -25,6 +25,7 @@ const AddResult = () => {
   const [selectedProgram, setSelectedProgram] = useState("");
   const [category, setCategory] = useState("");
   const [resultNumber, setResultNumber] = useState("");
+  const [suggestedResultNumber, setSuggestedResultNumber] = useState<number | null>(null);
   const [firstPlaceName, setFirstPlaceName] = useState("");
   const [firstPlaceTeam, setFirstPlaceTeam] = useState("");
   const [firstPlaceGrade, setFirstPlaceGrade] = useState("A+");
@@ -69,6 +70,27 @@ const AddResult = () => {
     },
   });
 
+  // Fetch the latest result number for preview
+  useQuery({
+    queryKey: ["latestResultNumber"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("results")
+        .select("result_number")
+        .order("result_number", { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (error && error.code !== "PGRST116") throw error;
+      const nextNumber = data ? (data.result_number || 0) + 1 : 1;
+      setSuggestedResultNumber(nextNumber);
+      if (!resultNumber) {
+        setResultNumber(nextNumber.toString());
+      }
+      return nextNumber;
+    },
+  });
+
   const addResultMutation = useMutation({
     mutationFn: async (resultData: any) => {
       const { error } = await supabase.from("results").insert(resultData);
@@ -88,7 +110,9 @@ const AddResult = () => {
   const resetForm = () => {
     setSelectedProgram("");
     setCategory("");
-    setResultNumber("");
+    const nextNumber = suggestedResultNumber ? suggestedResultNumber + 1 : 1;
+    setSuggestedResultNumber(nextNumber);
+    setResultNumber(nextNumber.toString());
     setFirstPlaceName("");
     setFirstPlaceTeam("");
     setFirstPlaceGrade("A+");
@@ -111,9 +135,6 @@ const AddResult = () => {
   const updateSecondPlaceWinner = (index: number, field: string, value: string) => {
     const updated = [...secondPlaceWinners];
     updated[index] = { ...updated[index], [field]: value };
-    if (field === "grade") {
-      updated[index].points = GRADE_POINTS[value]?.toString() || "0";
-    }
     setSecondPlaceWinners(updated);
   };
 
@@ -130,9 +151,6 @@ const AddResult = () => {
   const updateThirdPlaceWinner = (index: number, field: string, value: string) => {
     const updated = [...thirdPlaceWinners];
     updated[index] = { ...updated[index], [field]: value };
-    if (field === "grade") {
-      updated[index].points = GRADE_POINTS[value]?.toString() || "0";
-    }
     setThirdPlaceWinners(updated);
   };
 
@@ -147,9 +165,6 @@ const AddResult = () => {
   const updateAdditionalGrade = (index: number, field: string, value: string) => {
     const updated = [...additionalGrades];
     updated[index] = { ...updated[index], [field]: value };
-    if (field === "grade") {
-      updated[index].points = GRADE_POINTS[value]?.toString() || "0";
-    }
     setAdditionalGrades(updated);
   };
 
@@ -281,13 +296,16 @@ const AddResult = () => {
           </div>
 
           <div>
-            <Label>Result Number (Auto-generated if empty)</Label>
+            <Label>Result Number</Label>
             <Input
               type="number"
               value={resultNumber}
               onChange={(e) => setResultNumber(e.target.value)}
-              placeholder="Leave empty for auto-increment"
+              placeholder={suggestedResultNumber ? `Suggested: ${suggestedResultNumber}` : "Auto-generated"}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Edit if needed. Next result will be {resultNumber ? parseInt(resultNumber) + 1 : 'auto-generated'}.
+            </p>
           </div>
 
           {/* First Place */}

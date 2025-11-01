@@ -316,7 +316,7 @@ const Results = () => {
                                 ? "text-muted-foreground" 
                                 : "text-foreground"
                             }`}>
-                              {isSecondPlace ? "🥈 2nd Place" : isThirdPlace ? "🥉 3rd Place" : `🏆 Participant ${idx + 4}`}
+                              {isSecondPlace ? "🥈 2nd Place" : isThirdPlace ? "🥉 3rd Place" : "🏆 Another Grade"}
                             </div>
                             <div className="font-bold text-lg">{grade.name}</div>
                             {grade.team && (
