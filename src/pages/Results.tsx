@@ -39,6 +39,7 @@ const Results = () => {
   });
 
   const teamStandingsVisible = settings?.find(s => s.key === "team_standings_visible")?.value === true;
+  const teamStandingsAfterResult = (settings?.find(s => s.key === "team_standings_after_result")?.value as number) || 0;
 
   const { data: teams } = useQuery({
     queryKey: ["teams"],
@@ -122,7 +123,7 @@ const Results = () => {
       {teamStandingsVisible && (
         <section className="mb-12">
           <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Team Standings After Result #{latestResultNumber}
+            Team Standings After Result #{teamStandingsAfterResult}
           </h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {teams?.map((team, index) => (
