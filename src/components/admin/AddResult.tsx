@@ -29,6 +29,17 @@ const AddResult = () => {
   const [firstPlaceTeam, setFirstPlaceTeam] = useState("");
   const [firstPlaceGrade, setFirstPlaceGrade] = useState("A+");
   const [firstPlacePoints, setFirstPlacePoints] = useState("10");
+
+  // Auto-fill category when program is selected
+  const handleProgramChange = (programId: string) => {
+    setSelectedProgram(programId);
+    const selectedProgramData = programs?.find(p => p.id === programId);
+    if (selectedProgramData?.category) {
+      setCategory(selectedProgramData.category);
+    } else {
+      setCategory("");
+    }
+  };
   
   const [secondPlaceWinners, setSecondPlaceWinners] = useState<Array<{name: string; team: string; grade: string; points: string}>>([
     { name: "", team: "", grade: "A", points: "9" }
@@ -229,33 +240,41 @@ const AddResult = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label>Program *</Label>
-              <Select value={selectedProgram} onValueChange={setSelectedProgram}>
+              <Select value={selectedProgram} onValueChange={handleProgramChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select program" />
                 </SelectTrigger>
                 <SelectContent>
                   {programs?.map((program) => (
                     <SelectItem key={program.id} value={program.id}>
-                      {program.name}
+                      {program.name} {program.category && `(${program.category})`}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Category *</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Novice">Novice</SelectItem>
-                  <SelectItem value="Bachelor">Bachelor</SelectItem>
-                  <SelectItem value="Masters">Masters</SelectItem>
-                  <SelectItem value="Universal">Universal</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {category && (
+              <div>
+                <Label>Category</Label>
+                <Input value={category} disabled className="bg-muted" />
+              </div>
+            )}
+            {!category && selectedProgram && (
+              <div>
+                <Label>Category *</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Novice">Novice</SelectItem>
+                    <SelectItem value="Bachelor">Bachelor</SelectItem>
+                    <SelectItem value="Masters">Masters</SelectItem>
+                    <SelectItem value="Universal">Universal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div>
