@@ -183,14 +183,16 @@ const AddResult = () => {
         name: winner.name,
         team: winner.team,
         grade: winner.grade,
-        points: parseInt(winner.points)
+        points: parseInt(winner.points),
+        place: "2nd"
       })),
       // Add extra 3rd place winners
       ...validThirdPlace.slice(1).map(winner => ({
         name: winner.name,
         team: winner.team,
         grade: winner.grade,
-        points: parseInt(winner.points)
+        points: parseInt(winner.points),
+        place: "3rd"
       })),
       // Add other additional grades
       ...additionalGrades
@@ -199,7 +201,8 @@ const AddResult = () => {
           name: grade.name,
           team: grade.team || null,
           grade: grade.grade,
-          points: parseInt(grade.points)
+          points: parseInt(grade.points),
+          place: "other"
         }))
     ];
 

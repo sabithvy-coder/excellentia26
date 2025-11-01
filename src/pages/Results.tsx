@@ -294,24 +294,50 @@ const Results = () => {
                   {/* Additional Grades (if exists) */}
                   {result.additional_grades && Array.isArray(result.additional_grades) && result.additional_grades.length > 0 && (
                     <>
-                      {(result.additional_grades as any[]).map((grade: any, idx: number) => (
-                        <div key={idx} className="bg-card border border-border rounded-lg p-4">
-                          <div className="text-sm font-medium text-foreground mb-2">
-                            🏆 Participant {idx + 4}
+                      {(result.additional_grades as any[]).map((grade: any, idx: number) => {
+                        const isSecondPlace = grade.place === "2nd";
+                        const isThirdPlace = grade.place === "3rd";
+                        
+                        return (
+                          <div 
+                            key={idx} 
+                            className={`rounded-lg p-4 ${
+                              isSecondPlace 
+                                ? "bg-secondary/10 border border-secondary" 
+                                : isThirdPlace 
+                                ? "bg-muted/30 border border-muted" 
+                                : "bg-card border border-border"
+                            }`}
+                          >
+                            <div className={`text-sm font-medium mb-2 ${
+                              isSecondPlace 
+                                ? "text-secondary" 
+                                : isThirdPlace 
+                                ? "text-muted-foreground" 
+                                : "text-foreground"
+                            }`}>
+                              {isSecondPlace ? "🥈 2nd Place" : isThirdPlace ? "🥉 3rd Place" : `🏆 Participant ${idx + 4}`}
+                            </div>
+                            <div className="font-bold text-lg">{grade.name}</div>
+                            {grade.team && (
+                              <div className="text-sm text-muted-foreground mt-1">
+                                {teams?.find(t => t.id === grade.team)?.name}
+                              </div>
+                            )}
+                            {grade.grade && (
+                              <div className={`text-2xl font-bold mt-2 ${
+                                isSecondPlace 
+                                  ? "text-secondary" 
+                                  : isThirdPlace 
+                                  ? "text-muted-foreground" 
+                                  : "text-foreground"
+                              }`}>
+                                Grade: {grade.grade}
+                              </div>
+                            )}
                           </div>
-                          <div className="font-bold text-lg">{grade.name}</div>
-                          {grade.team && (
-                            <div className="text-sm text-muted-foreground mt-1">
-                              {teams?.find(t => t.id === grade.team)?.name}
-                            </div>
-                          )}
-                          {grade.grade && (
-                            <div className="text-2xl font-bold text-foreground mt-2">
-                              Grade: {grade.grade}
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </>
                   )}
                 </div>
