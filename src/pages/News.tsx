@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ReportDialog from "@/components/ReportDialog";
 
 const News = () => {
   const [expandedNews, setExpandedNews] = useState<Record<string, boolean>>({});
@@ -95,6 +96,9 @@ const News = () => {
                     )}
                   </Button>
                 )}
+                <div className="mt-4">
+                  <ReportDialog type="news" itemId={news.id} />
+                </div>
               </article>
             );
             

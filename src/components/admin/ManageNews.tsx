@@ -17,6 +17,7 @@ const ManageNews = () => {
   const [linkUrl, setLinkUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
 
   const { data: newsItems } = useQuery({
     queryKey: ["news"],
@@ -144,10 +145,50 @@ const ManageNews = () => {
               />
             </div>
             <div>
-              <Label>Upload Image (Optional)</Label>
-              <Input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
-              {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
+              <Label>Image Source Method (Optional)</Label>
+              <div className="flex gap-4 mt-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="file"
+                    checked={uploadMethod === "file"}
+                    onChange={(e) => {
+                      setUploadMethod(e.target.value as "file");
+                      setImageUrl("");
+                    }}
+                  />
+                  <span>Upload File</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    value="url"
+                    checked={uploadMethod === "url"}
+                    onChange={(e) => {
+                      setUploadMethod(e.target.value as "url");
+                      setImageUrl("");
+                    }}
+                  />
+                  <span>Paste URL</span>
+                </label>
+              </div>
             </div>
+            {uploadMethod === "file" ? (
+              <div>
+                <Label>Upload Image</Label>
+                <Input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
+                {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
+              </div>
+            ) : (
+              <div>
+                <Label>Image URL</Label>
+                <Input
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+            )}
             <div>
               <Label>Link URL (Optional)</Label>
               <Input

@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ReportDialog from "@/components/ReportDialog";
+import { toast } from "sonner";
 
 const Gallery = () => {
   const { data: images, isLoading } = useQuery({
@@ -14,6 +17,24 @@ const Gallery = () => {
       return data;
     },
   });
+
+  const handleDownload = async (imageUrl: string, caption: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = caption || "gallery-image";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success("Image downloaded successfully!");
+    } catch (error) {
+      toast.error("Failed to download image");
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -49,11 +70,23 @@ const Gallery = () => {
                   />
                 </div>
               )}
-              {image.caption && (
-                <div className="p-4">
+              <div className="p-4 space-y-2">
+                {image.caption && (
                   <p className="text-sm text-muted-foreground">{image.caption}</p>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleDownload(image.image_url, image.caption || "image")}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                  <ReportDialog type="gallery" itemId={image.id} />
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>

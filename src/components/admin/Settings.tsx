@@ -3,8 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Eye, EyeOff, Settings as SettingsIcon, Trophy } from "lucide-react";
+import { Eye, EyeOff, Settings as SettingsIcon, Trophy, Edit2 } from "lucide-react";
+import { useState } from "react";
 
 const Settings = () => {
   const queryClient = useQueryClient();
@@ -48,12 +50,36 @@ const Settings = () => {
     },
   });
 
+  const [editingTeam, setEditingTeam] = useState<string | null>(null);
+  const [newPoints, setNewPoints] = useState<number>(0);
+
   const toggleTeamStandings = () => {
     updateSettingMutation.mutate({
       key: "team_standings_visible",
       value: !teamStandingsVisible,
     });
   };
+
+  const updateTeamPointsMutation = useMutation({
+    mutationFn: async ({ teamId, points }: { teamId: string; points: number }) => {
+      if (points < 0) {
+        throw new Error("Points cannot be negative");
+      }
+      const { error } = await supabase
+        .from("teams")
+        .update({ points })
+        .eq("id", teamId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      toast.success("Team points updated successfully!");
+      setEditingTeam(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to update team points");
+    },
+  });
 
   return (
     <Card>
@@ -113,9 +139,47 @@ const Settings = () => {
                     </div>
                     <span className="font-medium">{team.name}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-primary">{team.points}</span>
-                    <span className="text-sm text-muted-foreground">pts</span>
+                  <div className="flex items-center gap-3">
+                    {editingTeam === team.id ? (
+                      <>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={newPoints}
+                          onChange={(e) => setNewPoints(parseInt(e.target.value) || 0)}
+                          className="w-24"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => updateTeamPointsMutation.mutate({ teamId: team.id, points: newPoints })}
+                          disabled={updateTeamPointsMutation.isPending}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingTeam(null)}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-bold text-primary">{team.points}</span>
+                        <span className="text-sm text-muted-foreground">pts</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setEditingTeam(team.id);
+                            setNewPoints(team.points);
+                          }}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}

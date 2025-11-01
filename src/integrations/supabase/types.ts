@@ -113,29 +113,49 @@ export type Database = {
       reports: {
         Row: {
           created_at: string | null
+          gallery_id: string | null
           id: string
           issue: string
+          news_id: string | null
           reporter_name: string
           result_id: string | null
           status: string | null
         }
         Insert: {
           created_at?: string | null
+          gallery_id?: string | null
           id?: string
           issue: string
+          news_id?: string | null
           reporter_name: string
           result_id?: string | null
           status?: string | null
         }
         Update: {
           created_at?: string | null
+          gallery_id?: string | null
           id?: string
           issue?: string
+          news_id?: string | null
           reporter_name?: string
           result_id?: string | null
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reports_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "gallery"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reports_result_id_fkey"
             columns: ["result_id"]
