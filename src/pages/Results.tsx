@@ -22,7 +22,6 @@ import { toast } from "sonner";
 
 const Results = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTeam, setSelectedTeam] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [selectedResultId, setSelectedResultId] = useState<string>("");
@@ -81,19 +80,11 @@ const Results = () => {
       result.second_place_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       result.third_place_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesTeam =
-      selectedTeam === "all" ||
-      result.first_place_team?.id === selectedTeam ||
-      result.second_place_team?.id === selectedTeam ||
-      result.third_place_team?.id === selectedTeam ||
-      (result.additional_grades && Array.isArray(result.additional_grades) && 
-        (result.additional_grades as any[]).some((grade: any) => grade.team === selectedTeam));
-
     const matchesCategory =
       selectedCategory === "all" ||
       result.program?.category === selectedCategory;
 
-    return matchesSearch && matchesTeam && matchesCategory;
+    return matchesSearch && matchesCategory;
   });
 
   const handleReport = async () => {
@@ -158,19 +149,6 @@ const Results = () => {
               className="pl-10"
             />
           </div>
-          <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-            <SelectTrigger className="md:w-[200px]">
-              <SelectValue placeholder="Filter by team" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
-              {teams?.map((team) => (
-                <SelectItem key={team.id} value={team.id}>
-                  {team.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="md:w-[200px]">
               <SelectValue placeholder="Filter by category" />
