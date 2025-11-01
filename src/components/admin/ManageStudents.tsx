@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Edit } from "lucide-react";
 
 const ManageStudents = () => {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [teamId, setTeamId] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: teams } = useQuery({
     queryKey: ["teams"],
@@ -40,17 +41,23 @@ const ManageStudents = () => {
 
   const addStudentMutation = useMutation({
     mutationFn: async (studentData: any) => {
-      const { error } = await supabase.from("students").insert(studentData);
-      if (error) throw error;
+      if (editingId) {
+        const { error } = await supabase.from("students").update(studentData).eq("id", editingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("students").insert(studentData);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
-      toast.success("Student added successfully!");
+      toast.success(editingId ? "Student updated!" : "Student added!");
       setName("");
       setTeamId("");
+      setEditingId(null);
     },
     onError: () => {
-      toast.error("Failed to add student");
+      toast.error(editingId ? "Failed to update" : "Failed to add");
     },
   });
 
@@ -67,6 +74,12 @@ const ManageStudents = () => {
       toast.error("Failed to delete student");
     },
   });
+
+  const handleEdit = (student: any) => {
+    setName(student.name);
+    setTeamId(student.team_id);
+    setEditingId(student.id);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,8 +125,24 @@ const ManageStudents = () => {
               </Select>
             </div>
             <Button type="submit" className="w-full" disabled={addStudentMutation.isPending}>
-              {addStudentMutation.isPending ? "Adding..." : "Add Student"}
+              {addStudentMutation.isPending 
+                ? (editingId ? "Updating..." : "Adding...") 
+                : (editingId ? "Update Student" : "Add Student")}
             </Button>
+            {editingId && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => {
+                  setEditingId(null);
+                  setName("");
+                  setTeamId("");
+                }}
+              >
+                Cancel Edit
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>
@@ -136,11 +165,10 @@ const ManageStudents = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-xl font-bold text-secondary">{student.points} pts</div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteStudentMutation.mutate(student.id)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(student)}>
+                      <Edit className="w-4 h-4 text-primary" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => deleteStudentMutation.mutate(student.id)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>

@@ -15,6 +15,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 
+const GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D"];
+const GRADE_POINTS: Record<string, number> = {
+  "A+": 10, "A": 9, "A-": 8, "B+": 7, "B": 6, "B-": 5, "C+": 4, "C": 3, "C-": 2, "D": 1
+};
+
 const AddResult = () => {
   const queryClient = useQueryClient();
   const [selectedProgram, setSelectedProgram] = useState("");
@@ -22,14 +27,14 @@ const AddResult = () => {
   const [resultNumber, setResultNumber] = useState("");
   const [firstPlaceName, setFirstPlaceName] = useState("");
   const [firstPlaceTeam, setFirstPlaceTeam] = useState("");
-  const [firstPlacePoints, setFirstPlacePoints] = useState("10");
+  const [firstPlaceGrade, setFirstPlaceGrade] = useState("A+");
   const [secondPlaceName, setSecondPlaceName] = useState("");
   const [secondPlaceTeam, setSecondPlaceTeam] = useState("");
-  const [secondPlacePoints, setSecondPlacePoints] = useState("7");
+  const [secondPlaceGrade, setSecondPlaceGrade] = useState("A");
   const [thirdPlaceName, setThirdPlaceName] = useState("");
   const [thirdPlaceTeam, setThirdPlaceTeam] = useState("");
-  const [thirdPlacePoints, setThirdPlacePoints] = useState("5");
-  const [additionalGrades, setAdditionalGrades] = useState<Array<{name: string; team: string; points: string}>>([]);
+  const [thirdPlaceGrade, setThirdPlaceGrade] = useState("A-");
+  const [additionalGrades, setAdditionalGrades] = useState<Array<{name: string; team: string; grade: string}>>([]);
 
   const { data: programs } = useQuery({
     queryKey: ["programs"],
@@ -71,18 +76,18 @@ const AddResult = () => {
     setResultNumber("");
     setFirstPlaceName("");
     setFirstPlaceTeam("");
-    setFirstPlacePoints("10");
+    setFirstPlaceGrade("A+");
     setSecondPlaceName("");
     setSecondPlaceTeam("");
-    setSecondPlacePoints("7");
+    setSecondPlaceGrade("A");
     setThirdPlaceName("");
     setThirdPlaceTeam("");
-    setThirdPlacePoints("5");
+    setThirdPlaceGrade("A-");
     setAdditionalGrades([]);
   };
 
   const addAdditionalGrade = () => {
-    setAdditionalGrades([...additionalGrades, { name: "", team: "", points: "3" }]);
+    setAdditionalGrades([...additionalGrades, { name: "", team: "", grade: "B+" }]);
   };
 
   const removeAdditionalGrade = (index: number) => {
@@ -108,7 +113,8 @@ const AddResult = () => {
       .map(grade => ({
         name: grade.name,
         team: grade.team || null,
-        points: parseInt(grade.points)
+        grade: grade.grade,
+        points: GRADE_POINTS[grade.grade]
       }));
 
     const resultData = {
@@ -116,13 +122,16 @@ const AddResult = () => {
       ...(resultNumber && { result_number: parseInt(resultNumber) }),
       first_place_name: firstPlaceName,
       first_place_team: firstPlaceTeam,
-      first_place_points: parseInt(firstPlacePoints),
+      first_place_grade: firstPlaceGrade,
+      first_place_points: GRADE_POINTS[firstPlaceGrade],
       second_place_name: secondPlaceName,
       second_place_team: secondPlaceTeam,
-      second_place_points: parseInt(secondPlacePoints),
+      second_place_grade: secondPlaceGrade,
+      second_place_points: GRADE_POINTS[secondPlaceGrade],
       third_place_name: thirdPlaceName,
       third_place_team: thirdPlaceTeam,
-      third_place_points: parseInt(thirdPlacePoints),
+      third_place_grade: thirdPlaceGrade,
+      third_place_points: GRADE_POINTS[thirdPlaceGrade],
       additional_grades: additionalGradesData
     };
 
@@ -211,12 +220,19 @@ const AddResult = () => {
               </Select>
             </div>
             <div>
-              <Label>Points</Label>
-              <Input
-                type="number"
-                value={firstPlacePoints}
-                onChange={(e) => setFirstPlacePoints(e.target.value)}
-              />
+              <Label>Grade</Label>
+              <Select value={firstPlaceGrade} onValueChange={setFirstPlaceGrade}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {GRADES.map((grade) => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade} ({GRADE_POINTS[grade]} points)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -247,12 +263,19 @@ const AddResult = () => {
               </Select>
             </div>
             <div>
-              <Label>Points</Label>
-              <Input
-                type="number"
-                value={secondPlacePoints}
-                onChange={(e) => setSecondPlacePoints(e.target.value)}
-              />
+              <Label>Grade</Label>
+              <Select value={secondPlaceGrade} onValueChange={setSecondPlaceGrade}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {GRADES.map((grade) => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade} ({GRADE_POINTS[grade]} points)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -283,12 +306,19 @@ const AddResult = () => {
               </Select>
             </div>
             <div>
-              <Label>Points</Label>
-              <Input
-                type="number"
-                value={thirdPlacePoints}
-                onChange={(e) => setThirdPlacePoints(e.target.value)}
-              />
+              <Label>Grade</Label>
+              <Select value={thirdPlaceGrade} onValueChange={setThirdPlaceGrade}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {GRADES.map((grade) => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade} ({GRADE_POINTS[grade]} points)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -338,12 +368,19 @@ const AddResult = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label>Points</Label>
-                  <Input
-                    type="number"
-                    value={grade.points}
-                    onChange={(e) => updateAdditionalGrade(index, "points", e.target.value)}
-                  />
+                  <Label>Grade</Label>
+                  <Select value={grade.grade} onValueChange={(val) => updateAdditionalGrade(index, "grade", val)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GRADES.map((g) => (
+                        <SelectItem key={g} value={g}>
+                          {g} ({GRADE_POINTS[g]} points)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             ))}

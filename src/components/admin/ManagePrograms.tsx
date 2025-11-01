@@ -4,15 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Edit } from "lucide-react";
 
 const ManagePrograms = () => {
   const queryClient = useQueryClient();
   const [programName, setProgramName] = useState("");
   const [category, setCategory] = useState("");
   const [venue, setVenue] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: programs } = useQuery({
     queryKey: ["programs"],
@@ -28,18 +36,24 @@ const ManagePrograms = () => {
 
   const addProgramMutation = useMutation({
     mutationFn: async (programData: any) => {
-      const { error } = await supabase.from("programs").insert(programData);
-      if (error) throw error;
+      if (editingId) {
+        const { error } = await supabase.from("programs").update(programData).eq("id", editingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("programs").insert(programData);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["programs"] });
-      toast.success("Program added successfully!");
+      toast.success(editingId ? "Program updated successfully!" : "Program added successfully!");
       setProgramName("");
       setCategory("");
       setVenue("");
+      setEditingId(null);
     },
     onError: () => {
-      toast.error("Failed to add program");
+      toast.error(editingId ? "Failed to update program" : "Failed to add program");
     },
   });
 
@@ -56,6 +70,13 @@ const ManagePrograms = () => {
       toast.error("Failed to delete program");
     },
   });
+
+  const handleEdit = (program: any) => {
+    setProgramName(program.name);
+    setCategory(program.category || "");
+    setVenue(program.venue || "");
+    setEditingId(program.id);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,11 +108,17 @@ const ManagePrograms = () => {
             </div>
             <div>
               <Label>Category</Label>
-              <Input
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Enter category (optional)"
-              />
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Novice">Novice</SelectItem>
+                  <SelectItem value="Bachelor">Bachelor</SelectItem>
+                  <SelectItem value="Masters">Masters</SelectItem>
+                  <SelectItem value="Universal">Universal</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Venue</Label>
@@ -102,8 +129,25 @@ const ManagePrograms = () => {
               />
             </div>
             <Button type="submit" className="w-full" disabled={addProgramMutation.isPending}>
-              {addProgramMutation.isPending ? "Adding..." : "Add Program"}
+              {addProgramMutation.isPending 
+                ? (editingId ? "Updating..." : "Adding...") 
+                : (editingId ? "Update Program" : "Add Program")}
             </Button>
+            {editingId && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => {
+                  setEditingId(null);
+                  setProgramName("");
+                  setCategory("");
+                  setVenue("");
+                }}
+              >
+                Cancel Edit
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>
@@ -129,13 +173,22 @@ const ManagePrograms = () => {
                       <div className="text-sm text-muted-foreground">{program.venue}</div>
                     )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteProgramMutation.mutate(program.id)}
-                  >
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(program)}
+                    >
+                      <Edit className="w-4 h-4 text-primary" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteProgramMutation.mutate(program.id)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
               ))
             ) : (

@@ -170,15 +170,18 @@ export type Database = {
           another_grade_points: number | null
           another_grade_team: string | null
           created_at: string | null
+          first_place_grade: string | null
           first_place_name: string
           first_place_points: number | null
           first_place_team: string | null
           id: string
           program_id: string | null
           result_number: number | null
+          second_place_grade: string | null
           second_place_name: string
           second_place_points: number | null
           second_place_team: string | null
+          third_place_grade: string | null
           third_place_name: string
           third_place_points: number | null
           third_place_team: string | null
@@ -189,15 +192,18 @@ export type Database = {
           another_grade_points?: number | null
           another_grade_team?: string | null
           created_at?: string | null
+          first_place_grade?: string | null
           first_place_name: string
           first_place_points?: number | null
           first_place_team?: string | null
           id?: string
           program_id?: string | null
           result_number?: number | null
+          second_place_grade?: string | null
           second_place_name: string
           second_place_points?: number | null
           second_place_team?: string | null
+          third_place_grade?: string | null
           third_place_name: string
           third_place_points?: number | null
           third_place_team?: string | null
@@ -208,15 +214,18 @@ export type Database = {
           another_grade_points?: number | null
           another_grade_team?: string | null
           created_at?: string | null
+          first_place_grade?: string | null
           first_place_name?: string
           first_place_points?: number | null
           first_place_team?: string | null
           id?: string
           program_id?: string | null
           result_number?: number | null
+          second_place_grade?: string | null
           second_place_name?: string
           second_place_points?: number | null
           second_place_team?: string | null
+          third_place_grade?: string | null
           third_place_name?: string
           third_place_points?: number | null
           third_place_team?: string | null
@@ -259,9 +268,34 @@ export type Database = {
           },
         ]
       }
+      settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           created_at: string | null
+          grade: string | null
           id: string
           name: string
           points: number | null
@@ -269,6 +303,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          grade?: string | null
           id?: string
           name: string
           points?: number | null
@@ -276,6 +311,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          grade?: string | null
           id?: string
           name?: string
           points?: number | null

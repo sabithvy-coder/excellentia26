@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Edit } from "lucide-react";
 
 const ManageNews = () => {
   const queryClient = useQueryClient();
@@ -15,6 +15,7 @@ const ManageNews = () => {
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: newsItems } = useQuery({
     queryKey: ["news"],
@@ -30,18 +31,24 @@ const ManageNews = () => {
 
   const addNewsMutation = useMutation({
     mutationFn: async (newsData: any) => {
-      const { error } = await supabase.from("news").insert(newsData);
-      if (error) throw error;
+      if (editingId) {
+        const { error } = await supabase.from("news").update(newsData).eq("id", editingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("news").insert(newsData);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["news"] });
-      toast.success("News added successfully!");
+      toast.success(editingId ? "News updated successfully!" : "News added successfully!");
       setTitle("");
       setContent("");
       setImageUrl("");
+      setEditingId(null);
     },
     onError: () => {
-      toast.error("Failed to add news");
+      toast.error(editingId ? "Failed to update news" : "Failed to add news");
     },
   });
 
@@ -66,12 +73,12 @@ const ManageNews = () => {
     setUploading(true);
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const fileName = `news-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from("gallery")
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -81,11 +88,19 @@ const ManageNews = () => {
 
       setImageUrl(publicUrl);
       toast.success("Image uploaded successfully!");
-    } catch (error) {
-      toast.error("Failed to upload image");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error(error.message || "Failed to upload image");
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleEdit = (news: any) => {
+    setTitle(news.title);
+    setContent(news.content);
+    setImageUrl(news.image_url || "");
+    setEditingId(news.id);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -136,8 +151,25 @@ const ManageNews = () => {
               </div>
             )}
             <Button type="submit" className="w-full" disabled={addNewsMutation.isPending}>
-              {addNewsMutation.isPending ? "Adding..." : "Add News"}
+              {addNewsMutation.isPending 
+                ? (editingId ? "Updating..." : "Adding...") 
+                : (editingId ? "Update News" : "Add News")}
             </Button>
+            {editingId && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => {
+                  setEditingId(null);
+                  setTitle("");
+                  setContent("");
+                  setImageUrl("");
+                }}
+              >
+                Cancel Edit
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>
@@ -156,13 +188,22 @@ const ManageNews = () => {
                   )}
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-bold">{news.title}</h4>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteNewsMutation.mutate(news.id)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(news)}
+                      >
+                        <Edit className="w-4 h-4 text-primary" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteNewsMutation.mutate(news.id)}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-2">{news.content}</p>
                   <div className="text-xs text-muted-foreground mt-2">

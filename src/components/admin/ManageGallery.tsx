@@ -63,12 +63,12 @@ const ManageGallery = () => {
     setUploading(true);
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const fileName = `gallery-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from("gallery")
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -78,8 +78,9 @@ const ManageGallery = () => {
 
       setImageUrl(publicUrl);
       toast.success("Image uploaded successfully!");
-    } catch (error) {
-      toast.error("Failed to upload image");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error(error.message || "Failed to upload image");
     } finally {
       setUploading(false);
     }

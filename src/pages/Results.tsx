@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Download, AlertCircle } from "lucide-react";
+import { Search, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,17 @@ const Results = () => {
   const [selectedResultId, setSelectedResultId] = useState<string>("");
   const [reporterName, setReporterName] = useState("");
   const [reportIssue, setReportIssue] = useState("");
+
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("settings").select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const teamStandingsVisible = settings?.find(s => s.key === "team_standings_visible")?.value === true;
 
   const { data: teams } = useQuery({
     queryKey: ["teams"],
@@ -107,11 +118,12 @@ const Results = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      {/* Team Standings */}
-      <section className="mb-12">
-        <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Team Points After ({latestResultNumber})
-        </h1>
+      {/* Team Standings - Only show if admin has published */}
+      {teamStandingsVisible && (
+        <section className="mb-12">
+          <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Team Standings After Result #{latestResultNumber}
+          </h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {teams?.map((team, index) => (
             <div
@@ -126,9 +138,10 @@ const Results = () => {
                 Rank #{index + 1}
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Filters */}
       <section className="mb-8 max-w-4xl mx-auto">
@@ -241,9 +254,11 @@ const Results = () => {
                     <div className="text-sm text-muted-foreground mt-1">
                       {result.first_place_team?.name}
                     </div>
-                    <div className="text-sm font-medium text-primary mt-2">
-                      {result.first_place_points} points
-                    </div>
+                    {result.first_place_grade && (
+                      <div className="text-2xl font-bold text-primary mt-2">
+                        Grade: {result.first_place_grade}
+                      </div>
+                    )}
                   </div>
 
                   {/* Second Place */}
@@ -253,9 +268,11 @@ const Results = () => {
                     <div className="text-sm text-muted-foreground mt-1">
                       {result.second_place_team?.name}
                     </div>
-                    <div className="text-sm font-medium text-secondary mt-2">
-                      {result.second_place_points} points
-                    </div>
+                    {result.second_place_grade && (
+                      <div className="text-2xl font-bold text-secondary mt-2">
+                        Grade: {result.second_place_grade}
+                      </div>
+                    )}
                   </div>
 
                   {/* Third Place */}
@@ -267,9 +284,11 @@ const Results = () => {
                     <div className="text-sm text-muted-foreground mt-1">
                       {result.third_place_team?.name}
                     </div>
-                    <div className="text-sm font-medium text-muted-foreground mt-2">
-                      {result.third_place_points} points
-                    </div>
+                    {result.third_place_grade && (
+                      <div className="text-2xl font-bold text-muted-foreground mt-2">
+                        Grade: {result.third_place_grade}
+                      </div>
+                    )}
                   </div>
 
                   {/* Additional Grades (if exists) */}
@@ -278,7 +297,7 @@ const Results = () => {
                       {(result.additional_grades as any[]).map((grade: any, idx: number) => (
                         <div key={idx} className="bg-card border border-border rounded-lg p-4">
                           <div className="text-sm font-medium text-foreground mb-2">
-                            🏆 Grade {idx + 1}
+                            🏆 Participant {idx + 4}
                           </div>
                           <div className="font-bold text-lg">{grade.name}</div>
                           {grade.team && (
@@ -286,9 +305,11 @@ const Results = () => {
                               {teams?.find(t => t.id === grade.team)?.name}
                             </div>
                           )}
-                          <div className="text-sm font-medium text-foreground mt-2">
-                            {grade.points} points
-                          </div>
+                          {grade.grade && (
+                            <div className="text-2xl font-bold text-foreground mt-2">
+                              Grade: {grade.grade}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </>
