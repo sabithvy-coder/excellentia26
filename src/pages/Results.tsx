@@ -85,7 +85,9 @@ const Results = () => {
       selectedTeam === "all" ||
       result.first_place_team?.id === selectedTeam ||
       result.second_place_team?.id === selectedTeam ||
-      result.third_place_team?.id === selectedTeam;
+      result.third_place_team?.id === selectedTeam ||
+      (result.additional_grades && Array.isArray(result.additional_grades) && 
+        (result.additional_grades as any[]).some((grade: any) => grade.team === selectedTeam));
 
     const matchesCategory =
       selectedCategory === "all" ||

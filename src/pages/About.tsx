@@ -1,5 +1,5 @@
 import { MessageCircle, Calendar, Users, Trophy, MapPin } from "lucide-react";
-import scrollIcon from "@/assets/scroll-icon.png";
+import scrollIcon from "@/assets/through-scrolls-icon.png";
 
 const About = () => {
   return (
