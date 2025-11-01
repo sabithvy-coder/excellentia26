@@ -5,11 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
+import AdminWelcome from "@/components/admin/AdminWelcome";
 import AddResult from "@/components/admin/AddResult";
 import ManagePrograms from "@/components/admin/ManagePrograms";
 import ManageNews from "@/components/admin/ManageNews";
 import ManageGallery from "@/components/admin/ManageGallery";
-import ManageStudents from "@/components/admin/ManageStudents";
 import Notifications from "@/components/admin/Notifications";
 import Settings from "@/components/admin/Settings";
 
@@ -83,16 +83,19 @@ const AdminDashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="results" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 max-w-6xl mx-auto">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6 max-w-5xl mx-auto">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="programs">Programs</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
-            <TabsTrigger value="students">Students</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard">
+            <AdminWelcome />
+          </TabsContent>
 
           <TabsContent value="results">
             <AddResult />
@@ -108,14 +111,6 @@ const AdminDashboard = () => {
 
           <TabsContent value="gallery">
             <ManageGallery />
-          </TabsContent>
-
-          <TabsContent value="students">
-            <ManageStudents />
-          </TabsContent>
-
-          <TabsContent value="notifications">
-            <Notifications />
           </TabsContent>
 
           <TabsContent value="settings">

@@ -28,13 +28,17 @@ const AddResult = () => {
   const [firstPlaceName, setFirstPlaceName] = useState("");
   const [firstPlaceTeam, setFirstPlaceTeam] = useState("");
   const [firstPlaceGrade, setFirstPlaceGrade] = useState("A+");
-  const [secondPlaceName, setSecondPlaceName] = useState("");
-  const [secondPlaceTeam, setSecondPlaceTeam] = useState("");
-  const [secondPlaceGrade, setSecondPlaceGrade] = useState("A");
-  const [thirdPlaceName, setThirdPlaceName] = useState("");
-  const [thirdPlaceTeam, setThirdPlaceTeam] = useState("");
-  const [thirdPlaceGrade, setThirdPlaceGrade] = useState("A-");
-  const [additionalGrades, setAdditionalGrades] = useState<Array<{name: string; team: string; grade: string}>>([]);
+  const [firstPlacePoints, setFirstPlacePoints] = useState("10");
+  
+  const [secondPlaceWinners, setSecondPlaceWinners] = useState<Array<{name: string; team: string; grade: string; points: string}>>([
+    { name: "", team: "", grade: "A", points: "9" }
+  ]);
+  
+  const [thirdPlaceWinners, setThirdPlaceWinners] = useState<Array<{name: string; team: string; grade: string; points: string}>>([
+    { name: "", team: "", grade: "A-", points: "8" }
+  ]);
+  
+  const [additionalGrades, setAdditionalGrades] = useState<Array<{name: string; team: string; grade: string; points: string}>>([]);
 
   const { data: programs } = useQuery({
     queryKey: ["programs"],
@@ -77,17 +81,52 @@ const AddResult = () => {
     setFirstPlaceName("");
     setFirstPlaceTeam("");
     setFirstPlaceGrade("A+");
-    setSecondPlaceName("");
-    setSecondPlaceTeam("");
-    setSecondPlaceGrade("A");
-    setThirdPlaceName("");
-    setThirdPlaceTeam("");
-    setThirdPlaceGrade("A-");
+    setFirstPlacePoints("10");
+    setSecondPlaceWinners([{ name: "", team: "", grade: "A", points: "9" }]);
+    setThirdPlaceWinners([{ name: "", team: "", grade: "A-", points: "8" }]);
     setAdditionalGrades([]);
   };
 
+  const addSecondPlaceWinner = () => {
+    setSecondPlaceWinners([...secondPlaceWinners, { name: "", team: "", grade: "A", points: "9" }]);
+  };
+
+  const removeSecondPlaceWinner = (index: number) => {
+    if (secondPlaceWinners.length > 1) {
+      setSecondPlaceWinners(secondPlaceWinners.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateSecondPlaceWinner = (index: number, field: string, value: string) => {
+    const updated = [...secondPlaceWinners];
+    updated[index] = { ...updated[index], [field]: value };
+    if (field === "grade") {
+      updated[index].points = GRADE_POINTS[value]?.toString() || "0";
+    }
+    setSecondPlaceWinners(updated);
+  };
+
+  const addThirdPlaceWinner = () => {
+    setThirdPlaceWinners([...thirdPlaceWinners, { name: "", team: "", grade: "A-", points: "8" }]);
+  };
+
+  const removeThirdPlaceWinner = (index: number) => {
+    if (thirdPlaceWinners.length > 1) {
+      setThirdPlaceWinners(thirdPlaceWinners.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateThirdPlaceWinner = (index: number, field: string, value: string) => {
+    const updated = [...thirdPlaceWinners];
+    updated[index] = { ...updated[index], [field]: value };
+    if (field === "grade") {
+      updated[index].points = GRADE_POINTS[value]?.toString() || "0";
+    }
+    setThirdPlaceWinners(updated);
+  };
+
   const addAdditionalGrade = () => {
-    setAdditionalGrades([...additionalGrades, { name: "", team: "", grade: "B+" }]);
+    setAdditionalGrades([...additionalGrades, { name: "", team: "", grade: "B+", points: "7" }]);
   };
 
   const removeAdditionalGrade = (index: number) => {
@@ -97,25 +136,61 @@ const AddResult = () => {
   const updateAdditionalGrade = (index: number, field: string, value: string) => {
     const updated = [...additionalGrades];
     updated[index] = { ...updated[index], [field]: value };
+    if (field === "grade") {
+      updated[index].points = GRADE_POINTS[value]?.toString() || "0";
+    }
     setAdditionalGrades(updated);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedProgram || !category || !firstPlaceName || !firstPlaceTeam || !secondPlaceName || !secondPlaceTeam || !thirdPlaceName || !thirdPlaceTeam) {
-      toast.error("Please fill in all required fields");
+    // Validate first place
+    if (!selectedProgram || !category || !firstPlaceName || !firstPlaceTeam) {
+      toast.error("Please fill in all required fields for first place");
       return;
     }
 
-    const additionalGradesData = additionalGrades
-      .filter(grade => grade.name)
-      .map(grade => ({
-        name: grade.name,
-        team: grade.team || null,
-        grade: grade.grade,
-        points: GRADE_POINTS[grade.grade]
-      }));
+    // Validate second place winners
+    const validSecondPlace = secondPlaceWinners.filter(w => w.name && w.team);
+    if (validSecondPlace.length === 0) {
+      toast.error("Please add at least one second place winner");
+      return;
+    }
+
+    // Validate third place winners
+    const validThirdPlace = thirdPlaceWinners.filter(w => w.name && w.team);
+    if (validThirdPlace.length === 0) {
+      toast.error("Please add at least one third place winner");
+      return;
+    }
+
+    // Prepare additional grades including 2nd and 3rd place winners beyond the first one
+    const additionalGradesData = [
+      // Add extra 2nd place winners
+      ...validSecondPlace.slice(1).map(winner => ({
+        name: winner.name,
+        team: winner.team,
+        grade: winner.grade,
+        points: parseInt(winner.points)
+      })),
+      // Add extra 3rd place winners
+      ...validThirdPlace.slice(1).map(winner => ({
+        name: winner.name,
+        team: winner.team,
+        grade: winner.grade,
+        points: parseInt(winner.points)
+      })),
+      // Add other additional grades
+      ...additionalGrades
+        .filter(grade => grade.name)
+        .map(grade => ({
+          name: grade.name,
+          team: grade.team || null,
+          grade: grade.grade,
+          points: parseInt(grade.points)
+        }))
+    ];
 
     const resultData = {
       program_id: selectedProgram,
@@ -123,15 +198,15 @@ const AddResult = () => {
       first_place_name: firstPlaceName,
       first_place_team: firstPlaceTeam,
       first_place_grade: firstPlaceGrade,
-      first_place_points: GRADE_POINTS[firstPlaceGrade],
-      second_place_name: secondPlaceName,
-      second_place_team: secondPlaceTeam,
-      second_place_grade: secondPlaceGrade,
-      second_place_points: GRADE_POINTS[secondPlaceGrade],
-      third_place_name: thirdPlaceName,
-      third_place_team: thirdPlaceTeam,
-      third_place_grade: thirdPlaceGrade,
-      third_place_points: GRADE_POINTS[thirdPlaceGrade],
+      first_place_points: parseInt(firstPlacePoints),
+      second_place_name: validSecondPlace[0].name,
+      second_place_team: validSecondPlace[0].team,
+      second_place_grade: validSecondPlace[0].grade,
+      second_place_points: parseInt(validSecondPlace[0].points),
+      third_place_name: validThirdPlace[0].name,
+      third_place_team: validThirdPlace[0].team,
+      third_place_grade: validThirdPlace[0].grade,
+      third_place_points: parseInt(validThirdPlace[0].points),
       additional_grades: additionalGradesData
     };
 
@@ -228,98 +303,171 @@ const AddResult = () => {
                 <SelectContent>
                   {GRADES.map((grade) => (
                     <SelectItem key={grade} value={grade}>
-                      {grade} ({GRADE_POINTS[grade]} points)
+                      {grade}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label>Points</Label>
+              <Input
+                type="number"
+                value={firstPlacePoints}
+                onChange={(e) => setFirstPlacePoints(e.target.value)}
+                placeholder="Enter points"
+              />
             </div>
           </div>
 
-          {/* Second Place */}
-          <div className="border border-secondary rounded-lg p-4 space-y-3">
-            <h3 className="font-bold text-secondary">🥈 Second Place</h3>
-            <div>
-              <Label>Participant Name</Label>
-              <Input
-                value={secondPlaceName}
-                onChange={(e) => setSecondPlaceName(e.target.value)}
-                placeholder="Enter name"
-              />
+          {/* Second Place Winners */}
+          <div className="border border-secondary rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-secondary">🥈 Second Place Winners</h3>
+              <Button type="button" variant="outline" size="sm" onClick={addSecondPlaceWinner}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Winner
+              </Button>
             </div>
-            <div>
-              <Label>Team</Label>
-              <Select value={secondPlaceTeam} onValueChange={setSecondPlaceTeam}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams?.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Grade</Label>
-              <Select value={secondPlaceGrade} onValueChange={setSecondPlaceGrade}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {GRADES.map((grade) => (
-                    <SelectItem key={grade} value={grade}>
-                      {grade} ({GRADE_POINTS[grade]} points)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {secondPlaceWinners.map((winner, index) => (
+              <div key={index} className="border border-muted rounded-lg p-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Winner {index + 1}</h4>
+                  {secondPlaceWinners.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeSecondPlaceWinner(index)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+                <div>
+                  <Label>Participant Name</Label>
+                  <Input
+                    value={winner.name}
+                    onChange={(e) => updateSecondPlaceWinner(index, "name", e.target.value)}
+                    placeholder="Enter name"
+                  />
+                </div>
+                <div>
+                  <Label>Team</Label>
+                  <Select value={winner.team} onValueChange={(val) => updateSecondPlaceWinner(index, "team", val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Grade</Label>
+                  <Select value={winner.grade} onValueChange={(val) => updateSecondPlaceWinner(index, "grade", val)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GRADES.map((grade) => (
+                        <SelectItem key={grade} value={grade}>
+                          {grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Points</Label>
+                  <Input
+                    type="number"
+                    value={winner.points}
+                    onChange={(e) => updateSecondPlaceWinner(index, "points", e.target.value)}
+                    placeholder="Enter points"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Third Place */}
-          <div className="border border-muted rounded-lg p-4 space-y-3">
-            <h3 className="font-bold">🥉 Third Place</h3>
-            <div>
-              <Label>Participant Name</Label>
-              <Input
-                value={thirdPlaceName}
-                onChange={(e) => setThirdPlaceName(e.target.value)}
-                placeholder="Enter name"
-              />
+          {/* Third Place Winners */}
+          <div className="border border-muted rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold">🥉 Third Place Winners</h3>
+              <Button type="button" variant="outline" size="sm" onClick={addThirdPlaceWinner}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Winner
+              </Button>
             </div>
-            <div>
-              <Label>Team</Label>
-              <Select value={thirdPlaceTeam} onValueChange={setThirdPlaceTeam}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams?.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Grade</Label>
-              <Select value={thirdPlaceGrade} onValueChange={setThirdPlaceGrade}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {GRADES.map((grade) => (
-                    <SelectItem key={grade} value={grade}>
-                      {grade} ({GRADE_POINTS[grade]} points)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {thirdPlaceWinners.map((winner, index) => (
+              <div key={index} className="border border-muted rounded-lg p-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Winner {index + 1}</h4>
+                  {thirdPlaceWinners.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeThirdPlaceWinner(index)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+                <div>
+                  <Label>Participant Name</Label>
+                  <Input
+                    value={winner.name}
+                    onChange={(e) => updateThirdPlaceWinner(index, "name", e.target.value)}
+                    placeholder="Enter name"
+                  />
+                </div>
+                <div>
+                  <Label>Team</Label>
+                  <Select value={winner.team} onValueChange={(val) => updateThirdPlaceWinner(index, "team", val)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Grade</Label>
+                  <Select value={winner.grade} onValueChange={(val) => updateThirdPlaceWinner(index, "grade", val)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GRADES.map((grade) => (
+                        <SelectItem key={grade} value={grade}>
+                          {grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Points</Label>
+                  <Input
+                    type="number"
+                    value={winner.points}
+                    onChange={(e) => updateThirdPlaceWinner(index, "points", e.target.value)}
+                    placeholder="Enter points"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Additional Grades (Optional) */}
@@ -376,11 +524,20 @@ const AddResult = () => {
                     <SelectContent>
                       {GRADES.map((g) => (
                         <SelectItem key={g} value={g}>
-                          {g} ({GRADE_POINTS[g]} points)
+                          {g}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label>Points</Label>
+                  <Input
+                    type="number"
+                    value={grade.points}
+                    onChange={(e) => updateAdditionalGrade(index, "points", e.target.value)}
+                    placeholder="Enter points"
+                  />
                 </div>
               </div>
             ))}

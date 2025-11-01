@@ -1,12 +1,10 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Eye, EyeOff, Settings as SettingsIcon } from "lucide-react";
+import { Eye, EyeOff, Settings as SettingsIcon, Trophy } from "lucide-react";
 
 const Settings = () => {
   const queryClient = useQueryClient();
@@ -15,6 +13,18 @@ const Settings = () => {
     queryKey: ["settings"],
     queryFn: async () => {
       const { data, error } = await supabase.from("settings").select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: teams } = useQuery({
+    queryKey: ["teams"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("teams")
+        .select("*")
+        .order("points", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -55,60 +65,67 @@ const Settings = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Team Standings Visibility */}
-        <div className="flex items-center justify-between p-4 border rounded-lg">
-          <div className="space-y-1">
-            <Label className="text-base font-medium">Team Standings Visibility</Label>
-            <p className="text-sm text-muted-foreground">
-              {teamStandingsVisible 
-                ? "🟢 Team standings are LIVE and visible to all users" 
-                : "🔴 Team standings are HIDDEN from users"}
-            </p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <Label className="text-base font-medium">Team Standings Visibility</Label>
+              <p className="text-sm text-muted-foreground">
+                {teamStandingsVisible 
+                  ? "🟢 Team standings are LIVE and visible to all users" 
+                  : "🔴 Team standings are HIDDEN from users"}
+              </p>
+            </div>
+            <Button
+              onClick={toggleTeamStandings}
+              variant={teamStandingsVisible ? "destructive" : "default"}
+              size="sm"
+              className="ml-4"
+            >
+              {teamStandingsVisible ? (
+                <>
+                  <EyeOff className="w-4 h-4 mr-2" />
+                  Hide from Users
+                </>
+              ) : (
+                <>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Publish to Users
+                </>
+              )}
+            </Button>
           </div>
-          <Button
-            onClick={toggleTeamStandings}
-            variant={teamStandingsVisible ? "destructive" : "default"}
-            size="sm"
-            className="ml-4"
-          >
-            {teamStandingsVisible ? (
-              <>
-                <EyeOff className="w-4 h-4 mr-2" />
-                Hide from Users
-              </>
-            ) : (
-              <>
-                <Eye className="w-4 h-4 mr-2" />
-                Publish to Users
-              </>
-            )}
-          </Button>
-        </div>
 
-        {/* Grade Points Information */}
-        <div className="p-4 border rounded-lg space-y-3">
-          <Label className="text-base font-medium">Grade to Points Mapping</Label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {[
-              { grade: "A+", points: 10 },
-              { grade: "A", points: 9 },
-              { grade: "A-", points: 8 },
-              { grade: "B+", points: 7 },
-              { grade: "B", points: 6 },
-              { grade: "B-", points: 5 },
-              { grade: "C+", points: 4 },
-              { grade: "C", points: 3 },
-              { grade: "C-", points: 2 },
-              { grade: "D", points: 1 },
-            ].map((item) => (
-              <div key={item.grade} className="flex items-center justify-between p-2 bg-muted rounded">
-                <span className="font-bold">{item.grade}</span>
-                <span className="text-sm text-muted-foreground">{item.points} pts</span>
-              </div>
-            ))}
+          {/* Team Points List */}
+          <div className="p-4 border rounded-lg space-y-3">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-primary" />
+              <Label className="text-base font-medium">Current Team Standings</Label>
+            </div>
+            <div className="space-y-2">
+              {teams?.map((team, index) => (
+                <div 
+                  key={team.id} 
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
+                      {index + 1}
+                    </div>
+                    <span className="font-medium">{team.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold text-primary">{team.points}</span>
+                    <span className="text-sm text-muted-foreground">pts</span>
+                  </div>
+                </div>
+              ))}
+              {(!teams || teams.length === 0) && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No teams available yet
+                </p>
+              )}
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Points are automatically calculated based on grades and only visible to admins.
-          </p>
         </div>
       </CardContent>
     </Card>
