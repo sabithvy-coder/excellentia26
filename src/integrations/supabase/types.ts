@@ -41,18 +41,21 @@ export type Database = {
           created_at: string | null
           id: string
           image_url: string
+          link_url: string | null
         }
         Insert: {
           caption?: string | null
           created_at?: string | null
           id?: string
           image_url: string
+          link_url?: string | null
         }
         Update: {
           caption?: string | null
           created_at?: string | null
           id?: string
           image_url?: string
+          link_url?: string | null
         }
         Relationships: []
       }
@@ -62,6 +65,7 @@ export type Database = {
           created_at: string | null
           id: string
           image_url: string | null
+          link_url: string | null
           title: string
         }
         Insert: {
@@ -69,6 +73,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           image_url?: string | null
+          link_url?: string | null
           title: string
         }
         Update: {
@@ -76,6 +81,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           image_url?: string | null
+          link_url?: string | null
           title?: string
         }
         Relationships: []
