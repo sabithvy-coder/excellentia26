@@ -1,0 +1,294 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Search, Download, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+
+const Results = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState<string>("all");
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [selectedResultId, setSelectedResultId] = useState<string>("");
+  const [reporterName, setReporterName] = useState("");
+  const [reportIssue, setReportIssue] = useState("");
+
+  const { data: teams } = useQuery({
+    queryKey: ["teams"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("teams")
+        .select("*")
+        .order("points", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: results } = useQuery({
+    queryKey: ["results"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("results")
+        .select(`
+          *,
+          program:programs(*),
+          first_place_team:teams!results_first_place_team_fkey(name),
+          second_place_team:teams!results_second_place_team_fkey(name),
+          third_place_team:teams!results_third_place_team_fkey(name),
+          another_grade_team:teams!results_another_grade_team_fkey(name)
+        `)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const filteredResults = results?.filter((result: any) => {
+    const matchesSearch =
+      result.program?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      result.first_place_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      result.second_place_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      result.third_place_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesTeam =
+      selectedTeam === "all" ||
+      result.first_place_team?.id === selectedTeam ||
+      result.second_place_team?.id === selectedTeam ||
+      result.third_place_team?.id === selectedTeam ||
+      result.another_grade_team?.id === selectedTeam;
+
+    return matchesSearch && matchesTeam;
+  });
+
+  const handleReport = async () => {
+    if (!reporterName || !reportIssue) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    const { error } = await supabase.from("reports").insert({
+      result_id: selectedResultId,
+      reporter_name: reporterName,
+      issue: reportIssue,
+    });
+
+    if (error) {
+      toast.error("Failed to submit report");
+      return;
+    }
+
+    toast.success("Report submitted successfully");
+    setReportDialogOpen(false);
+    setReporterName("");
+    setReportIssue("");
+  };
+
+  const downloadPoster = (result: any) => {
+    // This would generate and download a poster
+    toast.success("Poster download started");
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-12">
+      {/* Team Standings */}
+      <section className="mb-12">
+        <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          Team Points
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          {teams?.map((team, index) => (
+            <div
+              key={team.id}
+              className={`bg-card border-2 rounded-lg p-6 text-center ${
+                index === 0 ? "border-primary" : "border-border"
+              }`}
+            >
+              <div className="text-5xl font-bold text-primary mb-2">{team.points}</div>
+              <h3 className="text-xl font-bold">{team.name}</h3>
+              <div className="text-sm text-muted-foreground mt-2">
+                Rank #{index + 1}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Filters */}
+      <section className="mb-8 max-w-4xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            <Input
+              placeholder="Search by program or participant name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+            <SelectTrigger className="md:w-[200px]">
+              <SelectValue placeholder="Filter by team" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Teams</SelectItem>
+              {teams?.map((team) => (
+                <SelectItem key={team.id} value={team.id}>
+                  {team.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
+
+      {/* Results List */}
+      <section className="max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold mb-6">Competition Results</h2>
+        {filteredResults && filteredResults.length > 0 ? (
+          <div className="space-y-6">
+            {filteredResults.map((result) => (
+              <div
+                key={result.id}
+                className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-colors"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">{result.program?.name}</h3>
+                    {result.program?.category && (
+                      <span className="text-sm text-muted-foreground">
+                        {result.program.category}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadPoster(result)}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Poster
+                    </Button>
+                    <Dialog
+                      open={reportDialogOpen && selectedResultId === result.id}
+                      onOpenChange={(open) => {
+                        setReportDialogOpen(open);
+                        if (open) setSelectedResultId(result.id);
+                      }}
+                    >
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <AlertCircle className="w-4 h-4 mr-2" />
+                          Report
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Report Issue</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <Input
+                            placeholder="Your Name"
+                            value={reporterName}
+                            onChange={(e) => setReporterName(e.target.value)}
+                          />
+                          <textarea
+                            className="w-full min-h-[100px] p-3 bg-input border border-border rounded-md"
+                            placeholder="Describe the issue..."
+                            value={reportIssue}
+                            onChange={(e) => setReportIssue(e.target.value)}
+                          />
+                          <Button onClick={handleReport} className="w-full">
+                            Submit Report
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* First Place */}
+                  <div className="bg-primary/10 border border-primary rounded-lg p-4">
+                    <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
+                    <div className="font-bold text-lg">{result.first_place_name}</div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {result.first_place_team?.name}
+                    </div>
+                    <div className="text-sm font-medium text-primary mt-2">
+                      {result.first_place_points} points
+                    </div>
+                  </div>
+
+                  {/* Second Place */}
+                  <div className="bg-secondary/10 border border-secondary rounded-lg p-4">
+                    <div className="text-sm font-medium text-secondary mb-2">🥈 2nd Place</div>
+                    <div className="font-bold text-lg">{result.second_place_name}</div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {result.second_place_team?.name}
+                    </div>
+                    <div className="text-sm font-medium text-secondary mt-2">
+                      {result.second_place_points} points
+                    </div>
+                  </div>
+
+                  {/* Third Place */}
+                  <div className="bg-muted/30 border border-muted rounded-lg p-4">
+                    <div className="text-sm font-medium text-muted-foreground mb-2">
+                      🥉 3rd Place
+                    </div>
+                    <div className="font-bold text-lg">{result.third_place_name}</div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {result.third_place_team?.name}
+                    </div>
+                    <div className="text-sm font-medium text-muted-foreground mt-2">
+                      {result.third_place_points} points
+                    </div>
+                  </div>
+
+                  {/* Another Grade (if exists) */}
+                  {result.another_grade_name && (
+                    <div className="bg-card border border-border rounded-lg p-4">
+                      <div className="text-sm font-medium text-foreground mb-2">
+                        🏆 Special Grade
+                      </div>
+                      <div className="font-bold text-lg">{result.another_grade_name}</div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {result.another_grade_team?.name}
+                      </div>
+                      <div className="text-sm font-medium text-foreground mt-2">
+                        {result.another_grade_points} points
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            No results found. Try adjusting your filters.
+          </div>
+        )}
+      </section>
+    </div>
+  );
+};
+
+export default Results;

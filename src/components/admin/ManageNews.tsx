@@ -1,0 +1,138 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Plus, Trash2 } from "lucide-react";
+
+const ManageNews = () => {
+  const queryClient = useQueryClient();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  const { data: newsItems } = useQuery({
+    queryKey: ["news"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("news")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const addNewsMutation = useMutation({
+    mutationFn: async (newsData: any) => {
+      const { error } = await supabase.from("news").insert(newsData);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["news"] });
+      toast.success("News added successfully!");
+      setTitle("");
+      setContent("");
+    },
+    onError: () => {
+      toast.error("Failed to add news");
+    },
+  });
+
+  const deleteNewsMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("news").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["news"] });
+      toast.success("News deleted successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to delete news");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !content) {
+      toast.error("Title and content are required");
+      return;
+    }
+    addNewsMutation.mutate({ title, content });
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Add News Update
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label>Title *</Label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter news title"
+              />
+            </div>
+            <div>
+              <Label>Content *</Label>
+              <Textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Enter news content"
+                rows={6}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={addNewsMutation.isPending}>
+              {addNewsMutation.isPending ? "Adding..." : "Add News"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent News</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4 max-h-[500px] overflow-y-auto">
+            {newsItems && newsItems.length > 0 ? (
+              newsItems.map((news) => (
+                <div key={news.id} className="p-4 bg-muted rounded-lg">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold">{news.title}</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteNewsMutation.mutate(news.id)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{news.content}</p>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    {new Date(news.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted-foreground text-center py-4">No news yet</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default ManageNews;
