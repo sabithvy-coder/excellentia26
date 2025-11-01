@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import EditResult from "./EditResult";
 
 const ManageResults = () => {
   const queryClient = useQueryClient();
@@ -90,7 +91,9 @@ const ManageResults = () => {
                     Added: {new Date(result.created_at).toLocaleString()}
                   </div>
                 </div>
-                <AlertDialog>
+                <div className="flex gap-2">
+                  <EditResult result={result} />
+                  <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="sm">
                       <Trash2 className="w-4 h-4 text-destructive" />
@@ -114,6 +117,7 @@ const ManageResults = () => {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+                </div>
               </div>
             ))
           ) : (

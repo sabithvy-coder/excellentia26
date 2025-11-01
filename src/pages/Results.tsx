@@ -65,7 +65,7 @@ const Results = () => {
           third_place_team:teams!results_third_place_team_fkey(name),
           another_grade_team:teams!results_another_grade_team_fkey(name)
         `)
-        .order("created_at", { ascending: false });
+        .order("result_number", { ascending: true });
       if (error) throw error;
       return data;
     },
