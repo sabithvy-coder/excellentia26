@@ -43,11 +43,16 @@ const Home = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <img src={excellentiaLogo} alt="Excellentia" className="w-64 mx-auto mb-8" />
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Through the Scrolls
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                Unfolding Excellence Through the{" "}
+              </span>
+              <span className="inline-block animate-scroll-slide bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent">
+                Scrolls
+              </span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              Excellence Arts Fiesta 2025
+              Excellentia Arts Fiesta 2025
             </p>
             <div className="flex flex-wrap gap-4 justify-center mb-12">
               <div className="flex items-center gap-2 text-lg">

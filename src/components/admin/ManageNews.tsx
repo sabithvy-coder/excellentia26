@@ -13,6 +13,8 @@ const ManageNews = () => {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const { data: newsItems } = useQuery({
     queryKey: ["news"],
@@ -36,6 +38,7 @@ const ManageNews = () => {
       toast.success("News added successfully!");
       setTitle("");
       setContent("");
+      setImageUrl("");
     },
     onError: () => {
       toast.error("Failed to add news");
@@ -56,13 +59,42 @@ const ManageNews = () => {
     },
   });
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("gallery")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("gallery")
+        .getPublicUrl(filePath);
+
+      setImageUrl(publicUrl);
+      toast.success("Image uploaded successfully!");
+    } catch (error) {
+      toast.error("Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !content) {
       toast.error("Title and content are required");
       return;
     }
-    addNewsMutation.mutate({ title, content });
+    addNewsMutation.mutate({ title, content, image_url: imageUrl || null });
   };
 
   return (
@@ -93,6 +125,16 @@ const ManageNews = () => {
                 rows={6}
               />
             </div>
+            <div>
+              <Label>Upload Image (Optional)</Label>
+              <Input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
+              {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
+            </div>
+            {imageUrl && (
+              <div className="border rounded-lg overflow-hidden">
+                <img src={imageUrl} alt="Preview" className="w-full h-48 object-cover" />
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={addNewsMutation.isPending}>
               {addNewsMutation.isPending ? "Adding..." : "Add News"}
             </Button>
@@ -109,6 +151,9 @@ const ManageNews = () => {
             {newsItems && newsItems.length > 0 ? (
               newsItems.map((news) => (
                 <div key={news.id} className="p-4 bg-muted rounded-lg">
+                  {news.image_url && (
+                    <img src={news.image_url} alt={news.title} className="w-full h-32 object-cover rounded-lg mb-2" />
+                  )}
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-bold">{news.title}</h4>
                     <Button

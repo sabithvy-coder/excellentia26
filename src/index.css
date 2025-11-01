@@ -56,3 +56,18 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes scroll-slide {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-scroll-slide {
+    animation: scroll-slide 3s ease-in-out infinite;
+  }
+}

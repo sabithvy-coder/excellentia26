@@ -23,6 +23,7 @@ import { toast } from "sonner";
 const Results = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [selectedResultId, setSelectedResultId] = useState<string>("");
   const [reporterName, setReporterName] = useState("");
@@ -59,6 +60,8 @@ const Results = () => {
     },
   });
 
+  const latestResultNumber = results?.[0]?.result_number || 0;
+
   const filteredResults = results?.filter((result: any) => {
     const matchesSearch =
       result.program?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,10 +73,13 @@ const Results = () => {
       selectedTeam === "all" ||
       result.first_place_team?.id === selectedTeam ||
       result.second_place_team?.id === selectedTeam ||
-      result.third_place_team?.id === selectedTeam ||
-      result.another_grade_team?.id === selectedTeam;
+      result.third_place_team?.id === selectedTeam;
 
-    return matchesSearch && matchesTeam;
+    const matchesCategory =
+      selectedCategory === "all" ||
+      result.program?.category === selectedCategory;
+
+    return matchesSearch && matchesTeam && matchesCategory;
   });
 
   const handleReport = async () => {
@@ -99,17 +105,12 @@ const Results = () => {
     setReportIssue("");
   };
 
-  const downloadPoster = (result: any) => {
-    // This would generate and download a poster
-    toast.success("Poster download started");
-  };
-
   return (
     <div className="container mx-auto px-4 py-12">
       {/* Team Standings */}
       <section className="mb-12">
         <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Team Points
+          Team Points After ({latestResultNumber})
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {teams?.map((team, index) => (
@@ -154,6 +155,18 @@ const Results = () => {
               ))}
             </SelectContent>
           </Select>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="md:w-[200px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="Novice">Novice</SelectItem>
+              <SelectItem value="Bachelor">Bachelor</SelectItem>
+              <SelectItem value="Masters">Masters</SelectItem>
+              <SelectItem value="Universal">Universal</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </section>
 
@@ -169,22 +182,19 @@ const Results = () => {
               >
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-bold mb-2">{result.program?.name}</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
+                        #{result.result_number}
+                      </span>
+                      <h3 className="text-xl font-bold">{result.program?.name}</h3>
+                    </div>
                     {result.program?.category && (
-                      <span className="text-sm text-muted-foreground">
+                      <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary rounded-full text-sm font-medium">
                         {result.program.category}
                       </span>
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => downloadPoster(result)}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Poster
-                    </Button>
                     <Dialog
                       open={reportDialogOpen && selectedResultId === result.id}
                       onOpenChange={(open) => {
@@ -262,20 +272,26 @@ const Results = () => {
                     </div>
                   </div>
 
-                  {/* Another Grade (if exists) */}
-                  {result.another_grade_name && (
-                    <div className="bg-card border border-border rounded-lg p-4">
-                      <div className="text-sm font-medium text-foreground mb-2">
-                        🏆 Special Grade
-                      </div>
-                      <div className="font-bold text-lg">{result.another_grade_name}</div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {result.another_grade_team?.name}
-                      </div>
-                      <div className="text-sm font-medium text-foreground mt-2">
-                        {result.another_grade_points} points
-                      </div>
-                    </div>
+                  {/* Additional Grades (if exists) */}
+                  {result.additional_grades && Array.isArray(result.additional_grades) && result.additional_grades.length > 0 && (
+                    <>
+                      {(result.additional_grades as any[]).map((grade: any, idx: number) => (
+                        <div key={idx} className="bg-card border border-border rounded-lg p-4">
+                          <div className="text-sm font-medium text-foreground mb-2">
+                            🏆 Grade {idx + 1}
+                          </div>
+                          <div className="font-bold text-lg">{grade.name}</div>
+                          {grade.team && (
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {teams?.find(t => t.id === grade.team)?.name}
+                            </div>
+                          )}
+                          <div className="text-sm font-medium text-foreground mt-2">
+                            {grade.points} points
+                          </div>
+                        </div>
+                      ))}
+                    </>
                   )}
                 </div>
               </div>

@@ -1,0 +1,159 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { Plus, Trash2 } from "lucide-react";
+
+const ManageStudents = () => {
+  const queryClient = useQueryClient();
+  const [name, setName] = useState("");
+  const [teamId, setTeamId] = useState("");
+
+  const { data: teams } = useQuery({
+    queryKey: ["teams"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("teams").select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: students } = useQuery({
+    queryKey: ["students"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("students")
+        .select(`
+          *,
+          team:teams(name)
+        `)
+        .order("points", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const addStudentMutation = useMutation({
+    mutationFn: async (studentData: any) => {
+      const { error } = await supabase.from("students").insert(studentData);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      toast.success("Student added successfully!");
+      setName("");
+      setTeamId("");
+    },
+    onError: () => {
+      toast.error("Failed to add student");
+    },
+  });
+
+  const deleteStudentMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("students").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      toast.success("Student deleted successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to delete student");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !teamId) {
+      toast.error("Name and team are required");
+      return;
+    }
+    addStudentMutation.mutate({ name, team_id: teamId });
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Add Student
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label>Student Name *</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter student name"
+              />
+            </div>
+            <div>
+              <Label>Team *</Label>
+              <Select value={teamId} onValueChange={setTeamId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams?.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button type="submit" className="w-full" disabled={addStudentMutation.isPending}>
+              {addStudentMutation.isPending ? "Adding..." : "Add Student"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Students Leaderboard</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3 max-h-[500px] overflow-y-auto">
+            {students && students.length > 0 ? (
+              students.map((student: any, index) => (
+                <div key={student.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl font-bold text-primary">#{index + 1}</div>
+                    <div>
+                      <div className="font-bold">{student.name}</div>
+                      <div className="text-sm text-muted-foreground">{student.team?.name}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-xl font-bold text-secondary">{student.points} pts</div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteStudentMutation.mutate(student.id)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted-foreground text-center py-4">No students yet</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default ManageStudents;

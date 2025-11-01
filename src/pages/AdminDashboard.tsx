@@ -9,6 +9,7 @@ import AddResult from "@/components/admin/AddResult";
 import ManagePrograms from "@/components/admin/ManagePrograms";
 import ManageNews from "@/components/admin/ManageNews";
 import ManageGallery from "@/components/admin/ManageGallery";
+import ManageStudents from "@/components/admin/ManageStudents";
 import Notifications from "@/components/admin/Notifications";
 
 const AdminDashboard = () => {
@@ -82,11 +83,12 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="results" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto">
+          <TabsList className="grid w-full grid-cols-6 max-w-5xl mx-auto">
             <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="programs">Programs</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
+            <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
 
@@ -104,6 +106,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="gallery">
             <ManageGallery />
+          </TabsContent>
+
+          <TabsContent value="students">
+            <ManageStudents />
           </TabsContent>
 
           <TabsContent value="notifications">

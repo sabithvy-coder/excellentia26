@@ -106,17 +106,9 @@ const ManageGallery = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label>Upload Image</Label>
+              <Label>Upload Image *</Label>
               <Input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
               {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
-            </div>
-            <div>
-              <Label>Image URL</Label>
-              <Input
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="Or paste image URL"
-              />
             </div>
             <div>
               <Label>Caption (Optional)</Label>
@@ -131,7 +123,7 @@ const ManageGallery = () => {
                 <img src={imageUrl} alt="Preview" className="w-full h-48 object-cover" />
               </div>
             )}
-            <Button type="submit" className="w-full" disabled={addImageMutation.isPending}>
+            <Button type="submit" className="w-full" disabled={addImageMutation.isPending || !imageUrl}>
               {addImageMutation.isPending ? "Adding..." : "Add to Gallery"}
             </Button>
           </form>
