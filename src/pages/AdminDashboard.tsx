@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, LayoutDashboard, Bell, DollarSign, Trophy, Calendar, Newspaper, Image as ImageIcon, Video, Settings as SettingsIcon } from "lucide-react";
+import { LogOut, Menu, LayoutDashboard, Bell, DollarSign, Trophy, Calendar, Newspaper, Image as ImageIcon, Video, Settings as SettingsIcon, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -21,9 +21,11 @@ import ManageNews from "@/components/admin/ManageNews";
 import ManageGallery from "@/components/admin/ManageGallery";
 import ManageVideos from "@/components/admin/ManageVideos";
 import ManageResults from "@/components/admin/ManageResults";
+import ManageStudents from "@/components/admin/ManageStudents";
 import Notifications from "@/components/admin/Notifications";
 import Settings from "@/components/admin/Settings";
 import ManageDonations from "@/components/admin/ManageDonations";
+import VerifyPosters from "@/components/admin/VerifyPosters";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ const AdminDashboard = () => {
     { value: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { value: "notifications", label: "Notifications", icon: Bell },
     { value: "donations", label: "Donations", icon: DollarSign },
+    { value: "verify-posters", label: "AI Verify", icon: Sparkles },
     { value: "results", label: "Results", icon: Trophy },
     { value: "programs", label: "Programs", icon: Calendar },
     { value: "news", label: "News", icon: Newspaper },
@@ -163,6 +166,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="donations">
             <ManageDonations />
+          </TabsContent>
+
+          <TabsContent value="verify-posters">
+            <VerifyPosters />
           </TabsContent>
 
           <TabsContent value="results">
