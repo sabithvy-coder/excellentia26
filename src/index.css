@@ -71,7 +71,7 @@ All colors MUST be HSL.
     animation: scroll-slide 3s ease-in-out infinite;
   }
 
-  /* Champion Gradient Animation - 1st Place */
+  /* Champion iOS-Style Animation - 1st Place */
   @keyframes champion-gradient {
     0% {
       background-position: 0% 50%;
@@ -86,17 +86,84 @@ All colors MUST be HSL.
 
   @keyframes champion-glow {
     0%, 100% {
-      box-shadow: 0 0 20px hsl(33 100% 50% / 0.5), 0 0 40px hsl(38 92% 50% / 0.3), 0 10px 50px hsl(33 100% 50% / 0.4);
+      box-shadow: 
+        0 0 40px hsl(33 100% 50% / 0.6),
+        0 0 80px hsl(38 92% 50% / 0.4),
+        0 20px 100px hsl(33 100% 50% / 0.5),
+        inset 0 0 60px hsl(45 100% 60% / 0.15);
     }
     50% {
-      box-shadow: 0 0 30px hsl(33 100% 50% / 0.7), 0 0 60px hsl(38 92% 50% / 0.5), 0 15px 70px hsl(33 100% 50% / 0.6);
+      box-shadow: 
+        0 0 60px hsl(33 100% 50% / 0.8),
+        0 0 120px hsl(38 92% 50% / 0.6),
+        0 30px 140px hsl(33 100% 50% / 0.7),
+        inset 0 0 80px hsl(45 100% 60% / 0.25);
+    }
+  }
+
+  @keyframes text-shimmer {
+    0%, 100% {
+      text-shadow: 
+        0 0 10px hsl(0 0% 100% / 0.8),
+        0 0 20px hsl(45 100% 60% / 0.6),
+        0 0 30px hsl(33 100% 50% / 0.4);
+    }
+    50% {
+      text-shadow: 
+        0 0 20px hsl(0 0% 100% / 1),
+        0 0 40px hsl(45 100% 60% / 0.8),
+        0 0 60px hsl(33 100% 50% / 0.6),
+        0 0 80px hsl(38 92% 50% / 0.4);
+    }
+  }
+
+  @keyframes backdrop-pulse {
+    0%, 100% {
+      backdrop-filter: blur(20px) saturate(180%);
+    }
+    50% {
+      backdrop-filter: blur(30px) saturate(200%);
     }
   }
 
   .champion-card {
-    background: linear-gradient(135deg, hsl(33 100% 50%), hsl(45 100% 55%), hsl(38 92% 50%), hsl(33 100% 50%));
-    background-size: 300% 300%;
-    animation: champion-gradient 4s ease infinite, champion-glow 3s ease-in-out infinite;
+    position: relative;
+    background: 
+      linear-gradient(135deg, 
+        hsl(33 100% 50% / 0.95), 
+        hsl(45 100% 55% / 0.9), 
+        hsl(38 92% 50% / 0.95), 
+        hsl(33 100% 50% / 0.95)
+      ),
+      linear-gradient(45deg, 
+        hsl(0 0% 100% / 0.1), 
+        transparent 50%, 
+        hsl(0 0% 100% / 0.1)
+      );
+    background-size: 300% 300%, 200% 200%;
+    animation: champion-gradient 4s ease infinite, champion-glow 3s ease-in-out infinite, backdrop-pulse 4s ease-in-out infinite;
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .champion-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, 
+      hsl(45 100% 70% / 0.8), 
+      hsl(33 100% 60% / 0.6), 
+      hsl(38 92% 60% / 0.8)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.7;
+  }
+
+  .champion-text-glow {
+    animation: text-shimmer 2.5s ease-in-out infinite;
   }
 
   /* Runner-up Gradient Animation - 2nd Place */

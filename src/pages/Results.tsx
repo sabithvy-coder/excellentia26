@@ -165,7 +165,7 @@ const Results = () => {
               >
                 <div className={`${cardClasses} ${sizeClasses} h-full flex flex-col justify-center`}>
                   <div className={`font-bold mb-3 ${
-                    rank === 1 ? "text-7xl lg:text-8xl text-background drop-shadow-2xl" : 
+                    rank === 1 ? "text-7xl lg:text-8xl text-background drop-shadow-2xl champion-text-glow" : 
                     rank === 2 ? "text-6xl lg:text-7xl text-background drop-shadow-xl" : 
                     rank === 3 ? "text-5xl lg:text-6xl text-background drop-shadow-lg" :
                     "text-5xl text-primary"
@@ -173,7 +173,7 @@ const Results = () => {
                     {team.published_points || 0}
                   </div>
                   <h3 className={`font-righteous font-bold tracking-wider ${
-                    rank === 1 ? "text-3xl lg:text-5xl text-background mb-4 drop-shadow-xl" : 
+                    rank === 1 ? "text-3xl lg:text-5xl text-background mb-4 drop-shadow-xl champion-text-glow" : 
                     rank === 2 ? "text-2xl lg:text-4xl text-background mb-3 drop-shadow-lg" : 
                     rank === 3 ? "text-xl lg:text-3xl text-background mb-2 drop-shadow-md" :
                     "text-xl lg:text-2xl"
@@ -181,7 +181,7 @@ const Results = () => {
                     {team.name}
                   </h3>
                   <div className={`text-sm font-bold mt-2 uppercase tracking-widest ${
-                    rank === 1 ? "text-background/90 text-base lg:text-xl" : 
+                    rank === 1 ? "text-background/90 text-base lg:text-xl champion-text-glow" : 
                     rank === 2 ? "text-background/85 text-sm lg:text-lg" : 
                     rank === 3 ? "text-background/80 text-sm lg:text-base" :
                     "text-muted-foreground"
