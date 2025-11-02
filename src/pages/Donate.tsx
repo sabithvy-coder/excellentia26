@@ -56,9 +56,28 @@ const Donate = () => {
         currency: "INR",
         name: "Excellentia Arts Fiesta",
         description: "Donation",
-        handler: function (response: any) {
-          toast.success("✅ Payment Successful! Thank you ❤️");
-          console.log(response.razorpay_payment_id);
+        handler: async function (response: any) {
+          try {
+            // Save donation to database
+            const { error } = await supabase.from('donations').insert({
+              payment_id: response.razorpay_payment_id,
+              order_id: response.razorpay_order_id || null,
+              amount: amountInPaise,
+              donor_name: donorName || 'Anonymous',
+              status: 'completed'
+            });
+
+            if (error) {
+              console.error('Error saving donation:', error);
+              toast.error("Payment successful but failed to record donation");
+            } else {
+              toast.success("✅ Payment Successful! Thank you ❤️");
+            }
+          } catch (err) {
+            console.error('Error:', err);
+            toast.error("Payment successful but failed to record donation");
+          }
+          
           setDonorName("");
           setAmount("");
           setLoading(false);
