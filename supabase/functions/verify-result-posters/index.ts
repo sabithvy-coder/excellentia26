@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.78.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -145,8 +145,8 @@ Be specific about discrepancies. If everything matches, say "All information mat
         const discrepancies: string[] = [];
         if (hasDiscrepancies) {
           // Extract discrepancy details from AI response
-          const lines = aiFindings.split('\n').filter(line => line.trim());
-          lines.forEach(line => {
+          const lines = aiFindings.split('\n').filter((line: string) => line.trim());
+          lines.forEach((line: string) => {
             if (line.toLowerCase().includes('discrepancy') || 
                 line.toLowerCase().includes('difference') ||
                 line.toLowerCase().includes('mismatch') ||
@@ -173,10 +173,11 @@ Be specific about discrepancies. If everything matches, say "All information mat
 
       } catch (error) {
         console.error(`Error verifying poster ${posterUrl}:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         verificationResults.push({
           posterUrl,
           aiFindings: 'Error during verification',
-          discrepancies: [`Verification error: ${error.message}`],
+          discrepancies: [`Verification error: ${errorMessage}`],
           status: 'error'
         });
       }
@@ -205,8 +206,9 @@ Be specific about discrepancies. If everything matches, say "All information mat
 
   } catch (error) {
     console.error('Verification error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
