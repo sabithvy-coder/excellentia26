@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Upload, Trash2 } from "lucide-react";
+import { Upload, Trash2, Cloud } from "lucide-react";
 import heic2any from "heic2any";
 
 const ManageGallery = () => {
@@ -16,6 +16,8 @@ const ManageGallery = () => {
   const [linkUrl, setLinkUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
+  const [googleDriveUrl, setGoogleDriveUrl] = useState("");
+  const [syncing, setSyncing] = useState(false);
 
   const { data: images } = useQuery({
     queryKey: ["gallery"],
@@ -122,8 +124,73 @@ const ManageGallery = () => {
     addImageMutation.mutate({ image_url: imageUrl, caption, link_url: linkUrl || null });
   };
 
+  const handleGoogleDriveSync = async () => {
+    if (!googleDriveUrl.trim()) {
+      toast.error("Please enter a Google Drive folder URL");
+      return;
+    }
+
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-google-drive-gallery', {
+        body: { folderUrl: googleDriveUrl }
+      });
+
+      if (error) throw error;
+
+      if (data.errorCount > 0) {
+        toast.warning(data.message, {
+          description: `${data.successCount} images uploaded successfully, ${data.errorCount} failed`
+        });
+      } else {
+        toast.success(data.message);
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ["gallery"] });
+      setGoogleDriveUrl("");
+    } catch (error: any) {
+      console.error("Google Drive sync error:", error);
+      toast.error(error.message || "Failed to sync from Google Drive");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Cloud className="w-5 h-5" />
+            Sync from Google Drive
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <Label>Google Drive Folder URL</Label>
+              <Input
+                value={googleDriveUrl}
+                onChange={(e) => setGoogleDriveUrl(e.target.value)}
+                placeholder="https://drive.google.com/drive/folders/..."
+                disabled={syncing}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Paste a shared Google Drive folder link. All images will be automatically uploaded to the gallery.
+              </p>
+            </div>
+            <Button 
+              onClick={handleGoogleDriveSync} 
+              disabled={syncing || !googleDriveUrl.trim()}
+              className="w-full"
+            >
+              {syncing ? "Syncing..." : "Sync from Google Drive"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -239,6 +306,7 @@ const ManageGallery = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
