@@ -22,17 +22,17 @@ const Donate = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Load Razorpay checkout script
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const handleDonate = async () => {
     if (!amount || parseInt(amount) <= 0) {
@@ -40,18 +40,46 @@ const Donate = () => {
       return;
     }
 
+    if (!window.Razorpay) {
+      toast.error("Payment system is loading. Please try again.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const baseUrl = "https://rzp.io/rzp/Ub2xWsWg";
-      const params = new URLSearchParams({ amount: parseInt(amount).toString() });
-      // If your Payment Page has a matching field (e.g., "name"), you can prefill it too:
-      // if (donorName) params.set("name", donorName);
+      const amountInPaise = parseInt(amount) * 100;
 
-      // Redirect to Razorpay Payment Page with the amount prefilled
-      window.location.href = `${baseUrl}?${params.toString()}`;
+      const options = {
+        key: "rzp_live_RahT6y3nJya1jd",
+        amount: amountInPaise,
+        currency: "INR",
+        name: "Excellentia Arts Fiesta",
+        description: "Donation",
+        handler: function (response: any) {
+          toast.success("✅ Payment Successful! Thank you ❤️");
+          console.log(response.razorpay_payment_id);
+          setDonorName("");
+          setAmount("");
+          setLoading(false);
+        },
+        prefill: {
+          name: donorName || "",
+        },
+        theme: {
+          color: "#ff9900",
+        },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-      toast.error("Failed to redirect to payment page. Please try again.");
+      toast.error("Failed to open payment window. Please try again.");
       setLoading(false);
     }
   };
