@@ -135,17 +135,51 @@ const Results = () => {
               }
             }
             
+            // Determine card styling based on rank
+            let cardClasses = "rounded-lg text-center transition-all duration-500 relative overflow-hidden";
+            let sizeClasses = "";
+            
+            if (rank === 1) {
+              cardClasses += " champion-card border-2 border-primary/50";
+              sizeClasses = "md:col-span-4 md:scale-110 p-8";
+            } else if (rank === 2) {
+              cardClasses += " runner-card border-2 border-secondary/40";
+              sizeClasses = "p-7";
+            } else if (rank === 3) {
+              cardClasses += " third-card border border-muted";
+              sizeClasses = "p-6";
+            } else {
+              cardClasses += " bg-card border border-border p-6";
+            }
+            
             return (
               <div
                 key={team.id}
-                className={`bg-card border-2 rounded-lg p-6 text-center ${
-                  rank === 1 ? "border-primary" : "border-border"
-                }`}
+                className={`${cardClasses} ${sizeClasses}`}
               >
-                <div className="text-5xl font-bold text-primary mb-2">{team.published_points || 0}</div>
-                <h3 className="text-xl font-bold">{team.name}</h3>
-                <div className="text-sm text-muted-foreground mt-2">
-                  Rank #{rank}
+                <div className={`font-bold mb-2 ${
+                  rank === 1 ? "text-7xl text-background drop-shadow-lg" : 
+                  rank === 2 ? "text-6xl text-background" : 
+                  rank === 3 ? "text-5xl text-muted-foreground" :
+                  "text-5xl text-primary"
+                }`}>
+                  {team.published_points || 0}
+                </div>
+                <h3 className={`font-bold ${
+                  rank === 1 ? "text-3xl text-background mb-3" : 
+                  rank === 2 ? "text-2xl text-background mb-2" : 
+                  rank === 3 ? "text-xl text-muted-foreground" :
+                  "text-xl"
+                }`}>
+                  {team.name}
+                </h3>
+                <div className={`text-sm font-medium mt-2 ${
+                  rank === 1 ? "text-background/90 text-lg" : 
+                  rank === 2 ? "text-background/80" : 
+                  rank === 3 ? "text-muted-foreground/80" :
+                  "text-muted-foreground"
+                }`}>
+                  {rank === 1 ? "🏆 Champion" : rank === 2 ? "🥈 Runner-up" : rank === 3 ? "🥉 Third Place" : `Rank #${rank}`}
                 </div>
               </div>
             );

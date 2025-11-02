@@ -70,4 +70,79 @@ All colors MUST be HSL.
   .animate-scroll-slide {
     animation: scroll-slide 3s ease-in-out infinite;
   }
+
+  /* Champion Gradient Animation - 1st Place */
+  @keyframes champion-gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes champion-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(33 100% 50% / 0.5), 0 0 40px hsl(38 92% 50% / 0.3), 0 10px 50px hsl(33 100% 50% / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 30px hsl(33 100% 50% / 0.7), 0 0 60px hsl(38 92% 50% / 0.5), 0 15px 70px hsl(33 100% 50% / 0.6);
+    }
+  }
+
+  .champion-card {
+    background: linear-gradient(135deg, hsl(33 100% 50%), hsl(45 100% 55%), hsl(38 92% 50%), hsl(33 100% 50%));
+    background-size: 300% 300%;
+    animation: champion-gradient 4s ease infinite, champion-glow 3s ease-in-out infinite;
+  }
+
+  /* Runner-up Gradient Animation - 2nd Place */
+  @keyframes runner-gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes runner-glow {
+    0%, 100% {
+      box-shadow: 0 0 15px hsl(38 92% 50% / 0.4), 0 5px 30px hsl(38 92% 50% / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 25px hsl(38 92% 50% / 0.6), 0 8px 40px hsl(38 92% 50% / 0.4);
+    }
+  }
+
+  .runner-card {
+    background: linear-gradient(135deg, hsl(38 92% 50%), hsl(42 88% 55%), hsl(38 92% 50%));
+    background-size: 200% 200%;
+    animation: runner-gradient 5s ease infinite, runner-glow 4s ease-in-out infinite;
+  }
+
+  /* Third Place Gradient - 3rd Place */
+  @keyframes third-gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .third-card {
+    background: linear-gradient(135deg, hsl(38 50% 70%), hsl(38 70% 75%), hsl(38 50% 70%));
+    background-size: 150% 150%;
+    animation: third-gradient 6s ease infinite;
+  }
 }
