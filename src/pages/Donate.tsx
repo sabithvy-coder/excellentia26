@@ -5,15 +5,80 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const Donate = () => {
   const [donorName, setDonorName] = useState("");
   const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Load Razorpay checkout script
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
   }, []);
+
+  const handleDonate = () => {
+    if (!amount || parseInt(amount) <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    if (!window.Razorpay) {
+      toast.error("Payment system is loading. Please try again.");
+      return;
+    }
+
+    setLoading(true);
+
+    const amountInPaise = parseInt(amount) * 100;
+
+    const options = {
+      key: "rzp_live_RalCj3UqJFYX6k",
+      amount: amountInPaise,
+      currency: "INR",
+      name: "Excellentia Arts Fiesta",
+      description: "Donation",
+      handler: function (response: any) {
+        toast.success("✅ Payment Successful! Thank you ❤️");
+        console.log(response.razorpay_payment_id);
+        setDonorName("");
+        setAmount("");
+        setLoading(false);
+      },
+      prefill: {
+        name: donorName || "",
+      },
+      theme: {
+        color: "#ff9900",
+      },
+      modal: {
+        ondismiss: function() {
+          setLoading(false);
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-16 px-4">
@@ -94,19 +159,14 @@ const Donate = () => {
                 ))}
               </div>
 
-              <div 
-                dangerouslySetInnerHTML={{
-                  __html: `
-                    <form>
-                      <script 
-                        src="https://checkout.razorpay.com/v1/payment-button.js"
-                        data-payment_button_id="pl_PazBnJyLJo8CeX"
-                        async
-                      ></script>
-                    </form>
-                  `
-                }}
-              />
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleDonate}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Donate Now"}
+              </Button>
 
               <p className="text-xs text-center text-muted-foreground">
                 Secure payment powered by Razorpay
