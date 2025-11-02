@@ -32,7 +32,7 @@ const Settings = () => {
     },
   });
 
-  const publishedUpToResult = (settings?.find(s => s.key === "published_up_to_result")?.value as number) || 0;
+  const publishedUpToResult = (settings?.find(s => s.key === "team_standings_after_result")?.value as number) || 0;
 
   const [editingResultThreshold, setEditingResultThreshold] = useState(false);
   const [resultThresholdValue, setResultThresholdValue] = useState<number>(0);
@@ -43,7 +43,7 @@ const Settings = () => {
     mutationFn: async (threshold: number) => {
       const { error } = await supabase
         .from("settings")
-        .upsert({ key: "published_up_to_result", value: threshold }, { onConflict: "key" });
+        .upsert({ key: "team_standings_after_result", value: threshold }, { onConflict: "key" });
       if (error) throw error;
     },
     onSuccess: () => {
