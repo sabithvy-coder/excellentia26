@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const razorpayKeyId = 'rzp_live_RahT6y3nJya1jd';
+    const razorpayKeyId = 'rzp_live_RalCj3UqJFYX6k';
     const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
 
     if (!razorpayKeySecret) {

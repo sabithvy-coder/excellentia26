@@ -51,7 +51,7 @@ const Donate = () => {
       const amountInPaise = parseInt(amount) * 100;
 
       const options = {
-        key: "rzp_live_RahT6y3nJya1jd",
+        key: "rzp_live_RalCj3UqJFYX6k",
         amount: amountInPaise,
         currency: "INR",
         name: "Excellentia Arts Fiesta",
