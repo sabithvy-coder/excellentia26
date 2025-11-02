@@ -36,13 +36,13 @@ const Home = () => {
           <source src="/background-video.mp4" type="video/mp4" />
         </video>
         
-        {/* Lighter gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/75 to-background" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <img src={excellentiaLogo} alt="Excellentia" className="w-64 mx-auto mb-8" />
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 font-playfair animate-slide-up">
               <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
                 Unfolding Excellence Through the{" "}
               </span>
