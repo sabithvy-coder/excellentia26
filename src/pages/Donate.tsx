@@ -38,74 +38,18 @@ const Donate = () => {
 
     setLoading(true);
 
-    // Load Razorpay script
-    const scriptLoaded = await loadRazorpayScript();
-    if (!scriptLoaded) {
-      toast.error("Failed to load payment gateway. Please try again.");
+    try {
+      const baseUrl = "https://rzp.io/rzp/Ub2xWsWg";
+      const params = new URLSearchParams({ amount: parseInt(amount).toString() });
+      // If your Payment Page has a matching field (e.g., "name"), you can prefill it too:
+      // if (donorName) params.set("name", donorName);
+
+      // Redirect to Razorpay Payment Page with the amount prefilled
+      window.location.href = `${baseUrl}?${params.toString()}`;
+    } catch (error) {
+      toast.error("Failed to redirect to payment page. Please try again.");
       setLoading(false);
-      return;
     }
-
-    // Create donation record
-    const { data: donation, error: dbError } = await supabase
-      .from("donations")
-      .insert({
-        donor_name: donorName || "Anonymous",
-        amount: parseInt(amount) * 100, // Convert to paise
-        status: "pending",
-      })
-      .select()
-      .single();
-
-    if (dbError) {
-      toast.error("Failed to process donation. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    const options = {
-      key: "rzp_live_RahT6y3nJya1jd",
-      amount: parseInt(amount) * 100, // Amount in paise
-      currency: "INR",
-      name: "Excellentia Arts Fiesta",
-      description: "Support Excellentia Arts Fiesta",
-      image: "/excellentia-logo.png",
-      handler: async function (response: any) {
-        // Update donation record with payment details
-        await supabase
-          .from("donations")
-          .update({
-            payment_id: response.razorpay_payment_id,
-            status: "completed",
-          })
-          .eq("id", donation.id);
-
-        toast.success("Thank you for your generous donation! 🎉");
-        setDonorName("");
-        setAmount("");
-        setLoading(false);
-      },
-      prefill: {
-        name: donorName,
-      },
-      theme: {
-        color: "#6366f1",
-      },
-      modal: {
-        ondismiss: async function () {
-          // Update status to cancelled if payment modal is closed
-          await supabase
-            .from("donations")
-            .update({ status: "cancelled" })
-            .eq("id", donation.id);
-          
-          setLoading(false);
-        },
-      },
-    };
-
-    const razorpay = new window.Razorpay(options);
-    razorpay.open();
   };
 
   return (
