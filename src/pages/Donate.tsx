@@ -1,10 +1,14 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Sparkles } from "lucide-react";
 
 const Donate = () => {
+  const [donorName, setDonorName] = useState("");
+  const [amount, setAmount] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +58,42 @@ const Donate = () => {
               <CardDescription>Every contribution counts!</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Your Name (Optional)</Label>
+                <Input
+                  id="name"
+                  placeholder="Enter your name"
+                  value={donorName}
+                  onChange={(e) => setDonorName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="amount">Donation Amount (₹) *</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  placeholder="Enter amount"
+                  min="1"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {[100, 500, 1000, 2000].map((value) => (
+                  <Button
+                    key={value}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAmount(value.toString())}
+                  >
+                    ₹{value}
+                  </Button>
+                ))}
+              </div>
+
               <div 
                 dangerouslySetInnerHTML={{
                   __html: `
@@ -68,7 +108,7 @@ const Donate = () => {
                 }}
               />
 
-              <p className="text-xs text-center text-muted-foreground mt-4">
+              <p className="text-xs text-center text-muted-foreground">
                 Secure payment powered by Razorpay
               </p>
             </CardContent>
