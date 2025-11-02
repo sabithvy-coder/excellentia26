@@ -296,6 +296,11 @@ const Results = () => {
                     <>
                       {(result.additional_grades as any[])
                         .filter((grade: any) => grade.place !== "1st") // Exclude first place as it's shown separately
+                        .sort((a: any, b: any) => {
+                          // Sort by place: 2nd before 3rd before others
+                          const placeOrder: Record<string, number> = { "2nd": 1, "3rd": 2 };
+                          return (placeOrder[a.place] || 999) - (placeOrder[b.place] || 999);
+                        })
                         .map((grade: any, idx: number) => {
                         const isSecondPlace = grade.place === "2nd";
                         const isThirdPlace = grade.place === "3rd";

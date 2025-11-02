@@ -85,8 +85,9 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 max-w-5xl mx-auto">
+          <TabsList className="grid w-full grid-cols-7 max-w-6xl mx-auto">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="programs">Programs</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
@@ -96,6 +97,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="dashboard">
             <AdminWelcome />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <Notifications />
           </TabsContent>
 
           <TabsContent value="results">
