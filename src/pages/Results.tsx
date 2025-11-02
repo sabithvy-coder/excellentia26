@@ -5,6 +5,7 @@ import { Search, AlertCircle, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PosterPreviewDialog from "@/components/PosterPreviewDialog";
+import dimashqTeamBg from "@/assets/dimashq-team.jpg";
 import {
   Select,
   SelectContent,
@@ -139,11 +140,23 @@ const Results = () => {
             let cardClasses = "rounded-xl text-center transition-all duration-500 relative overflow-hidden";
             let containerClasses = "";
             let sizeClasses = "";
+            let backgroundStyle: React.CSSProperties = {};
             
             if (rank === 1) {
               cardClasses += " champion-card border-2 border-primary/50";
               containerClasses = "lg:col-span-3 lg:row-start-1";
               sizeClasses = "p-10 lg:p-12";
+              backgroundStyle = {
+                backgroundImage: `linear-gradient(135deg, 
+                  hsl(33 100% 50% / 0.92), 
+                  hsl(45 100% 55% / 0.88), 
+                  hsl(38 92% 50% / 0.92), 
+                  hsl(33 100% 50% / 0.92)
+                ), url(${dimashqTeamBg})`,
+                backgroundSize: '300% 300%, cover',
+                backgroundPosition: 'center',
+                backgroundBlendMode: 'overlay, normal'
+              };
             } else if (rank === 2) {
               cardClasses += " runner-card border-2 border-secondary/40";
               containerClasses = "lg:col-start-1 lg:row-start-2";
@@ -163,7 +176,10 @@ const Results = () => {
                 key={team.id}
                 className={`${containerClasses}`}
               >
-                <div className={`${cardClasses} ${sizeClasses} h-full flex flex-col justify-center`}>
+                <div 
+                  className={`${cardClasses} ${sizeClasses} h-full flex flex-col justify-center`}
+                  style={rank === 1 ? backgroundStyle : undefined}
+                >
                   <div className={`font-bold mb-3 ${
                     rank === 1 ? "text-7xl lg:text-8xl text-background drop-shadow-2xl champion-text-glow" : 
                     rank === 2 ? "text-6xl lg:text-7xl text-background drop-shadow-xl" : 
