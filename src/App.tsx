@@ -14,6 +14,7 @@ import Donate from "./pages/Donate";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import RefundPolicy from "./pages/RefundPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/shipping-policy" element={<Layout><ShippingPolicy /></Layout>} />
           <Route path="/terms-conditions" element={<Layout><TermsConditions /></Layout>} />
           <Route path="/refund-policy" element={<Layout><RefundPolicy /></Layout>} />
+          <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

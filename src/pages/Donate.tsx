@@ -229,6 +229,13 @@ const Donate = () => {
             >
               Refund Policy
             </button>
+            <span>•</span>
+            <button 
+              onClick={() => window.open("/privacy-policy", "_blank")}
+              className="hover:text-primary transition-colors"
+            >
+              Privacy Policy
+            </button>
           </div>
         </div>
       </div>
