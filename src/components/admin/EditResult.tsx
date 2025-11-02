@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, X, Image as ImageIcon } from "lucide-react";
 
 const GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "No Grade"];
 
@@ -58,8 +58,12 @@ const EditResult = ({ result }: EditResultProps) => {
   const [thirdPlaceRight, setThirdPlaceRight] = useState({ name: "", team: "", grade: "A-", points: "8" });
   
   const [additionalGrades, setAdditionalGrades] = useState<Array<{name: string; team: string; grade: string; points: string}>>([]);
+  const [existingPosters, setExistingPosters] = useState<string[]>([]);
+  const [newPosterFiles, setNewPosterFiles] = useState<File[]>([]);
+  const [uploadingPosters, setUploadingPosters] = useState(false);
 
   useEffect(() => {
+    setExistingPosters(result.poster_urls || []);
     if (result.additional_grades && Array.isArray(result.additional_grades)) {
       const firstPlace = result.additional_grades.find((g: any) => g.place === "1st");
       const secondPlace = result.additional_grades.find((g: any) => g.place === "2nd");
@@ -122,9 +126,36 @@ const EditResult = ({ result }: EditResultProps) => {
 
   const updateResultMutation = useMutation({
     mutationFn: async (resultData: any) => {
+      // Upload new posters if any
+      let newPosterUrls: string[] = [];
+      if (newPosterFiles.length > 0) {
+        setUploadingPosters(true);
+        for (const file of newPosterFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('result-posters')
+            .upload(fileName, file);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data: urlData } = supabase.storage
+            .from('result-posters')
+            .getPublicUrl(fileName);
+          
+          newPosterUrls.push(urlData.publicUrl);
+        }
+        setUploadingPosters(false);
+      }
+
+      const allPosterUrls = [...existingPosters, ...newPosterUrls];
+
       const { error } = await supabase
         .from("results")
-        .update(resultData)
+        .update({
+          ...resultData,
+          poster_urls: allPosterUrls
+        })
         .eq("id", result.id);
       if (error) throw error;
     },
@@ -661,9 +692,82 @@ const EditResult = ({ result }: EditResultProps) => {
             ))}
           </div>
 
+          {/* Poster Management Section */}
+          <div className="border border-border rounded-lg p-4 space-y-4">
+            <h3 className="font-bold flex items-center gap-2">
+              <ImageIcon className="w-5 h-5" />
+              Result Posters
+            </h3>
+            
+            {/* Existing Posters */}
+            {existingPosters.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Current Posters:</p>
+                <div className="flex flex-wrap gap-2">
+                  {existingPosters.map((url, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Poster ${index + 1}`}
+                        className="w-24 h-24 object-cover rounded border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setExistingPosters(existingPosters.filter((_, i) => i !== index))}
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Upload New Posters */}
+            <div>
+              <Label htmlFor="new-poster-upload">Add More Posters</Label>
+              <Input
+                id="new-poster-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setNewPosterFiles(Array.from(e.target.files));
+                  }
+                }}
+                className="cursor-pointer"
+              />
+            </div>
+            {newPosterFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">New Posters to Upload:</p>
+                <div className="flex flex-wrap gap-2">
+                  {newPosterFiles.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`New poster ${index + 1}`}
+                        className="w-24 h-24 object-cover rounded border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setNewPosterFiles(newPosterFiles.filter((_, i) => i !== index))}
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2">
-            <Button type="submit" className="flex-1" disabled={updateResultMutation.isPending}>
-              {updateResultMutation.isPending ? "Updating..." : "Update Result"}
+            <Button type="submit" className="flex-1" disabled={updateResultMutation.isPending || uploadingPosters}>
+              {uploadingPosters ? "Uploading Posters..." : updateResultMutation.isPending ? "Updating..." : "Update Result"}
             </Button>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel

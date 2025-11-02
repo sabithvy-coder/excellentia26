@@ -231,6 +231,7 @@ export type Database = {
           first_place_points: number | null
           first_place_team: string | null
           id: string
+          poster_urls: string[] | null
           program_id: string | null
           result_number: number | null
           second_place_grade: string | null
@@ -253,6 +254,7 @@ export type Database = {
           first_place_points?: number | null
           first_place_team?: string | null
           id?: string
+          poster_urls?: string[] | null
           program_id?: string | null
           result_number?: number | null
           second_place_grade?: string | null
@@ -275,6 +277,7 @@ export type Database = {
           first_place_points?: number | null
           first_place_team?: string | null
           id?: string
+          poster_urls?: string[] | null
           program_id?: string | null
           result_number?: number | null
           second_place_grade?: string | null

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, AlertCircle } from "lucide-react";
+import { Search, AlertCircle, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import PosterPreviewDialog from "@/components/PosterPreviewDialog";
 import {
   Select,
   SelectContent,
@@ -27,6 +28,9 @@ const Results = () => {
   const [selectedResultId, setSelectedResultId] = useState<string>("");
   const [reporterName, setReporterName] = useState("");
   const [reportIssue, setReportIssue] = useState("");
+  const [posterDialogOpen, setPosterDialogOpen] = useState(false);
+  const [selectedPosters, setSelectedPosters] = useState<string[]>([]);
+  const [selectedResultName, setSelectedResultName] = useState("");
 
   const { data: settings } = useQuery({
     queryKey: ["settings"],
@@ -199,6 +203,20 @@ const Results = () => {
                     )}
                   </div>
                   <div className="flex gap-2">
+                    {result.poster_urls && Array.isArray(result.poster_urls) && result.poster_urls.length > 0 && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedPosters(result.poster_urls);
+                          setSelectedResultName(result.program?.name || "Result");
+                          setPosterDialogOpen(true);
+                        }}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Posters
+                      </Button>
+                    )}
                     <Dialog
                       open={reportDialogOpen && selectedResultId === result.id}
                       onOpenChange={(open) => {
@@ -367,6 +385,13 @@ const Results = () => {
           </div>
         )}
       </section>
+
+      <PosterPreviewDialog
+        open={posterDialogOpen}
+        onOpenChange={setPosterDialogOpen}
+        posterUrls={selectedPosters}
+        resultName={selectedResultName}
+      />
     </div>
   );
 };

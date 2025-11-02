@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { X, Image as ImageIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -51,6 +52,8 @@ const AddResult = () => {
   const [thirdPlaceRight, setThirdPlaceRight] = useState({ name: "", team: "", grade: "A-", points: "8" });
   
   const [additionalGrades, setAdditionalGrades] = useState<Array<{name: string; team: string; grade: string; points: string}>>([]);
+  const [posterFiles, setPosterFiles] = useState<File[]>([]);
+  const [uploadingPosters, setUploadingPosters] = useState(false);
 
   const { data: programs } = useQuery({
     queryKey: ["programs"],
@@ -107,7 +110,32 @@ const AddResult = () => {
 
   const addResultMutation = useMutation({
     mutationFn: async (resultData: any) => {
-      const { error } = await supabase.from("results").insert(resultData);
+      // Upload posters if any
+      let posterUrls: string[] = [];
+      if (posterFiles.length > 0) {
+        setUploadingPosters(true);
+        for (const file of posterFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('result-posters')
+            .upload(fileName, file);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data: urlData } = supabase.storage
+            .from('result-posters')
+            .getPublicUrl(fileName);
+          
+          posterUrls.push(urlData.publicUrl);
+        }
+        setUploadingPosters(false);
+      }
+
+      const { error } = await supabase.from("results").insert({
+        ...resultData,
+        poster_urls: posterUrls
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -135,6 +163,7 @@ const AddResult = () => {
     setThirdPlaceLeft({ name: "", team: "", grade: "A-", points: "8" });
     setThirdPlaceRight({ name: "", team: "", grade: "A-", points: "8" });
     setAdditionalGrades([]);
+    setPosterFiles([]);
   };
 
 
@@ -707,8 +736,57 @@ const AddResult = () => {
             ))}
           </div>
 
-          <Button type="submit" className="w-full" disabled={addResultMutation.isPending}>
-            {addResultMutation.isPending ? "Adding..." : "Add Result"}
+          {/* Poster Upload Section */}
+          <div className="border border-border rounded-lg p-4 space-y-4">
+            <h3 className="font-bold flex items-center gap-2">
+              <ImageIcon className="w-5 h-5" />
+              Result Posters (Optional)
+            </h3>
+            <div>
+              <Label htmlFor="poster-upload">Upload Posters</Label>
+              <Input
+                id="poster-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setPosterFiles(Array.from(e.target.files));
+                  }
+                }}
+                className="cursor-pointer"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                You can upload multiple poster images
+              </p>
+            </div>
+            {posterFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Selected Posters:</p>
+                <div className="flex flex-wrap gap-2">
+                  {posterFiles.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Poster ${index + 1}`}
+                        className="w-24 h-24 object-cover rounded border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPosterFiles(posterFiles.filter((_, i) => i !== index))}
+                        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Button type="submit" className="w-full" disabled={addResultMutation.isPending || uploadingPosters}>
+            {uploadingPosters ? "Uploading Posters..." : addResultMutation.isPending ? "Adding..." : "Add Result"}
           </Button>
         </form>
       </CardContent>

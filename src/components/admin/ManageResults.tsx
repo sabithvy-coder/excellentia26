@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2, Trophy } from "lucide-react";
+import { Trash2, Trophy, Image as ImageIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,30 +67,36 @@ const ManageResults = () => {
                 key={result.id}
                 className="flex justify-between items-start p-4 bg-muted rounded-lg"
               >
-                <div className="space-y-2">
-                  <div className="font-bold text-lg">
-                    {result.programs?.name || "Unknown Program"} - Result #{result.result_number}
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <div>
-                      <span className="font-semibold">🥇 First:</span> {result.first_place_name} ({result.first_place_grade}) - {result.first_place_points} pts
+                  <div className="space-y-2">
+                    <div className="font-bold text-lg">
+                      {result.programs?.name || "Unknown Program"} - Result #{result.result_number}
                     </div>
-                    <div>
-                      <span className="font-semibold">🥈 Second:</span> {result.second_place_name} ({result.second_place_grade}) - {result.second_place_points} pts
-                    </div>
-                    <div>
-                      <span className="font-semibold">🥉 Third:</span> {result.third_place_name} ({result.third_place_grade}) - {result.third_place_points} pts
-                    </div>
-                    {result.additional_grades && Array.isArray(result.additional_grades) && result.additional_grades.length > 0 && (
-                      <div className="text-muted-foreground">
-                        +{result.additional_grades.length} additional grade(s)
+                    <div className="space-y-1 text-sm">
+                      <div>
+                        <span className="font-semibold">🥇 First:</span> {result.first_place_name} ({result.first_place_grade}) - {result.first_place_points} pts
                       </div>
-                    )}
+                      <div>
+                        <span className="font-semibold">🥈 Second:</span> {result.second_place_name} ({result.second_place_grade}) - {result.second_place_points} pts
+                      </div>
+                      <div>
+                        <span className="font-semibold">🥉 Third:</span> {result.third_place_name} ({result.third_place_grade}) - {result.third_place_points} pts
+                      </div>
+                      {result.additional_grades && Array.isArray(result.additional_grades) && result.additional_grades.length > 0 && (
+                        <div className="text-muted-foreground">
+                          +{result.additional_grades.length} additional grade(s)
+                        </div>
+                      )}
+                      {result.poster_urls && Array.isArray(result.poster_urls) && result.poster_urls.length > 0 && (
+                        <div className="text-primary flex items-center gap-1 mt-2">
+                          <ImageIcon className="w-4 h-4" />
+                          {result.poster_urls.length} poster(s) uploaded
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Added: {new Date(result.created_at).toLocaleString()}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Added: {new Date(result.created_at).toLocaleString()}
-                  </div>
-                </div>
                 <div className="flex gap-2">
                   <EditResult result={result} />
                   <AlertDialog>
