@@ -91,9 +91,21 @@ const Settings = () => {
       const results = await Promise.all(updates);
       const errors = results.filter(r => r.error);
       if (errors.length > 0) throw new Error("Failed to publish some team points");
+
+      // Set team_standings_visible to true
+      const { error: settingsError } = await supabase
+        .from("settings")
+        .upsert({ 
+          key: "team_standings_visible", 
+          value: true,
+          updated_at: new Date().toISOString()
+        }, { onConflict: "key" });
+
+      if (settingsError) throw settingsError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teams"] });
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
       toast.success("All team points published successfully!");
     },
     onError: (error: any) => {
