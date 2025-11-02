@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Upload, Trash2 } from "lucide-react";
+import heic2any from "heic2any";
 
 const ManageGallery = () => {
   const queryClient = useQueryClient();
@@ -65,13 +66,36 @@ const ManageGallery = () => {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
+      let uploadFile: File | Blob = file;
+      let fileExt = file.name.split(".").pop()?.toLowerCase();
+      
+      // Convert HEIC to JPEG
+      if (fileExt === "heic" || fileExt === "heif") {
+        toast.info("Converting HEIC image to JPEG...");
+        try {
+          const convertedBlob = await heic2any({
+            blob: file,
+            toType: "image/jpeg",
+            quality: 0.9,
+          });
+          
+          // heic2any can return an array or a single blob
+          uploadFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+          fileExt = "jpg";
+        } catch (conversionError) {
+          console.error("HEIC conversion error:", conversionError);
+          toast.error("Failed to convert HEIC image. Please try a different format.");
+          setUploading(false);
+          return;
+        }
+      }
+
       const fileName = `gallery-${Date.now()}.${fileExt}`;
       const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from("gallery")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, uploadFile, { upsert: true });
 
       if (uploadError) throw uploadError;
 
@@ -141,7 +165,7 @@ const ManageGallery = () => {
             {uploadMethod === "file" ? (
               <div>
                 <Label>Upload Image *</Label>
-                <Input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
+                <Input type="file" accept="image/*,.heic,.heif" onChange={handleFileUpload} disabled={uploading} />
                 {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
               </div>
             ) : (
