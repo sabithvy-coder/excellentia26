@@ -23,12 +23,20 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 w-64 h-64 border-2 border-primary rounded-full animate-pulse" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 border-2 border-secondary rounded-full animate-pulse" style={{ animationDelay: "1s" }} />
-        </div>
+      <section className="relative py-20 overflow-hidden min-h-screen flex items-center">
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/background-video.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Lighter gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
