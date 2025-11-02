@@ -198,6 +198,39 @@ const Donate = () => {
             </CardContent>
           </Card>
         </div>
+
+        <div className="mt-8 border-t border-border pt-8">
+          <div className="text-center mb-6">
+            <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
+            <div className="space-y-2 text-muted-foreground">
+              <p>Email: sabithvy10@gmail.com</p>
+              <p>Phone: +91 8590307346</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+            <button 
+              onClick={() => window.open("/shipping-policy", "_blank")}
+              className="hover:text-primary transition-colors"
+            >
+              Shipping Policy
+            </button>
+            <span>•</span>
+            <button 
+              onClick={() => window.open("/terms-conditions", "_blank")}
+              className="hover:text-primary transition-colors"
+            >
+              Terms and Conditions
+            </button>
+            <span>•</span>
+            <button 
+              onClick={() => window.open("/refund-policy", "_blank")}
+              className="hover:text-primary transition-colors"
+            >
+              Refund Policy
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
