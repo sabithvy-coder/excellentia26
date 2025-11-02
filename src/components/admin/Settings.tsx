@@ -77,6 +77,30 @@ const Settings = () => {
     },
   });
 
+  const publishTeamPointsMutation = useMutation({
+    mutationFn: async () => {
+      if (!teams) return;
+      
+      const updates = teams.map(team => 
+        supabase
+          .from("teams")
+          .update({ published_points: team.points })
+          .eq("id", team.id)
+      );
+      
+      const results = await Promise.all(updates);
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) throw new Error("Failed to publish some team points");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      toast.success("All team points published successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to publish team points");
+    },
+  });
+
   return (
     <Card>
       <CardHeader>
@@ -148,6 +172,12 @@ const Settings = () => {
               <Trophy className="w-5 h-5" />
               <Label className="text-base font-medium">All Team Points</Label>
             </div>
+            <Button
+              onClick={() => publishTeamPointsMutation.mutate()}
+              disabled={publishTeamPointsMutation.isPending}
+            >
+              Publish Team Standings
+            </Button>
           </div>
           <div className="space-y-2">
             {teams?.map((team, index) => (

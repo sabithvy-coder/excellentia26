@@ -119,20 +119,30 @@ const Results = () => {
             Team Standings After Result #{teamStandingsAfterResult}
           </h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-          {teams?.map((team, index) => (
-            <div
-              key={team.id}
-              className={`bg-card border-2 rounded-lg p-6 text-center ${
-                index === 0 ? "border-primary" : "border-border"
-              }`}
-            >
-              <div className="text-5xl font-bold text-primary mb-2">{team.published_points || 0}</div>
-              <h3 className="text-xl font-bold">{team.name}</h3>
-              <div className="text-sm text-muted-foreground mt-2">
-                Rank #{index + 1}
+          {teams?.map((team, index) => {
+            // Calculate rank considering ties
+            let rank = 1;
+            for (let i = 0; i < index; i++) {
+              if (teams[i].published_points !== team.published_points) {
+                rank = i + 2;
+              }
+            }
+            
+            return (
+              <div
+                key={team.id}
+                className={`bg-card border-2 rounded-lg p-6 text-center ${
+                  rank === 1 ? "border-primary" : "border-border"
+                }`}
+              >
+                <div className="text-5xl font-bold text-primary mb-2">{team.published_points || 0}</div>
+                <h3 className="text-xl font-bold">{team.name}</h3>
+                <div className="text-sm text-muted-foreground mt-2">
+                  Rank #{rank}
+                </div>
               </div>
-            </div>
-            ))}
+            );
+          })}
           </div>
         </section>
       )}
