@@ -3,8 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, LayoutDashboard, Bell, DollarSign, Trophy, Calendar, Newspaper, Image as ImageIcon, Settings as SettingsIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import AdminWelcome from "@/components/admin/AdminWelcome";
 import AddResult from "@/components/admin/AddResult";
 import ManagePrograms from "@/components/admin/ManagePrograms";
@@ -19,6 +28,20 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  const menuItems = [
+    { value: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { value: "notifications", label: "Notifications", icon: Bell },
+    { value: "donations", label: "Donations", icon: DollarSign },
+    { value: "results", label: "Results", icon: Trophy },
+    { value: "programs", label: "Programs", icon: Calendar },
+    { value: "news", label: "News", icon: Newspaper },
+    { value: "gallery", label: "Gallery", icon: ImageIcon },
+    { value: "settings", label: "Settings", icon: SettingsIcon },
+  ];
 
   useEffect(() => {
     const checkAdminAccess = async () => {
@@ -73,29 +96,60 @@ const AdminDashboard = () => {
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Admin Dashboard
-            </h1>
-            <Button variant="outline" onClick={handleLogout}>
+            <div className="flex items-center gap-3">
+              {isMobile && (
+                <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                  <DrawerTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent>
+                    <DrawerHeader>
+                      <DrawerTitle>Admin Menu</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="p-4 space-y-2">
+                      {menuItems.map((item) => (
+                        <DrawerClose key={item.value} asChild>
+                          <Button
+                            variant={activeTab === item.value ? "default" : "ghost"}
+                            className="w-full justify-start"
+                            onClick={() => setActiveTab(item.value)}
+                          >
+                            <item.icon className="w-4 h-4 mr-2" />
+                            {item.label}
+                          </Button>
+                        </DrawerClose>
+                      ))}
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              )}
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
+            </div>
+            <Button variant="outline" onClick={handleLogout} size={isMobile ? "sm" : "default"}>
               <LogOut className="w-4 h-4 mr-2" />
-              Logout
+              {!isMobile && "Logout"}
             </Button>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8 max-w-7xl mx-auto">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="donations">Donations</TabsTrigger>
-            <TabsTrigger value="results">Results</TabsTrigger>
-            <TabsTrigger value="programs">Programs</TabsTrigger>
-            <TabsTrigger value="news">News</TabsTrigger>
-            <TabsTrigger value="gallery">Gallery</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {!isMobile && (
+            <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 max-w-7xl mx-auto">
+              {menuItems.map((item) => (
+                <TabsTrigger key={item.value} value={item.value} className="flex items-center gap-2">
+                  <item.icon className="w-4 h-4 hidden md:inline" />
+                  <span className="hidden md:inline">{item.label}</span>
+                  <span className="md:hidden text-xs">{item.label.slice(0, 4)}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          )}
 
           <TabsContent value="dashboard">
             <AdminWelcome />
