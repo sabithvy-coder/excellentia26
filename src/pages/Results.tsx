@@ -188,74 +188,21 @@ const Results = () => {
                 key={result.id}
                 className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-colors"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
-                        #{result.result_number}
-                      </span>
-                      <h3 className="text-xl font-bold">{result.program?.name}</h3>
-                    </div>
-                    {result.program?.category && (
-                      <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary rounded-full text-sm font-medium">
-                        {result.program.category}
-                      </span>
-                    )}
+                <div className="mb-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
+                      #{result.result_number}
+                    </span>
+                    <h3 className="text-xl font-bold">{result.program?.name}</h3>
                   </div>
-                  <div className="flex gap-2">
-                    {result.poster_urls && Array.isArray(result.poster_urls) && result.poster_urls.length > 0 && (
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedPosters(result.poster_urls);
-                          setSelectedResultName(result.program?.name || "Result");
-                          setPosterDialogOpen(true);
-                        }}
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Posters
-                      </Button>
-                    )}
-                    <Dialog
-                      open={reportDialogOpen && selectedResultId === result.id}
-                      onOpenChange={(open) => {
-                        setReportDialogOpen(open);
-                        if (open) setSelectedResultId(result.id);
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <AlertCircle className="w-4 h-4 mr-2" />
-                          Report
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Report Issue</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <Input
-                            placeholder="Your Name"
-                            value={reporterName}
-                            onChange={(e) => setReporterName(e.target.value)}
-                          />
-                          <textarea
-                            className="w-full min-h-[100px] p-3 bg-input border border-border rounded-md"
-                            placeholder="Describe the issue..."
-                            value={reportIssue}
-                            onChange={(e) => setReportIssue(e.target.value)}
-                          />
-                          <Button onClick={handleReport} className="w-full">
-                            Submit Report
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+                  {result.program?.category && (
+                    <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary rounded-full text-sm font-medium">
+                      {result.program.category}
+                    </span>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {/* First Place */}
                   <div className="bg-primary/10 border border-primary rounded-lg p-4">
                     <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
@@ -375,6 +322,59 @@ const Results = () => {
                       })}
                     </>
                   )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 justify-center sm:justify-end mt-4 pt-4 border-t border-border">
+                  {result.poster_urls && Array.isArray(result.poster_urls) && result.poster_urls.length > 0 && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedPosters(result.poster_urls);
+                        setSelectedResultName(result.program?.name || "Result");
+                        setPosterDialogOpen(true);
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Posters
+                    </Button>
+                  )}
+                  <Dialog
+                    open={reportDialogOpen && selectedResultId === result.id}
+                    onOpenChange={(open) => {
+                      setReportDialogOpen(open);
+                      if (open) setSelectedResultId(result.id);
+                    }}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        Report
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Report Issue</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Your Name"
+                          value={reporterName}
+                          onChange={(e) => setReporterName(e.target.value)}
+                        />
+                        <textarea
+                          className="w-full min-h-[100px] p-3 bg-input border border-border rounded-md"
+                          placeholder="Describe the issue..."
+                          value={reportIssue}
+                          onChange={(e) => setReportIssue(e.target.value)}
+                        />
+                        <Button onClick={handleReport} className="w-full">
+                          Submit Report
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             ))}
