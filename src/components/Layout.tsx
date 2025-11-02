@@ -12,6 +12,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const navLinks = [
     { path: "/", label: "Home" },
     { path: "/results", label: "Results" },
+    { path: "/videos", label: "Videos" },
     { path: "/gallery", label: "Gallery" },
     { path: "/news", label: "News" },
     { path: "/about", label: "About" },
