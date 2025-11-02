@@ -125,9 +125,9 @@ const Settings = () => {
         {/* Result Threshold Display */}
         <div className="flex items-center justify-between p-4 border rounded-lg bg-primary/10">
           <div className="space-y-1">
-            <Label className="text-base font-medium">Result After</Label>
+            <Label className="text-base font-medium">Final Result Number</Label>
             <p className="text-sm text-muted-foreground">
-              Current result number: {publishedUpToResult}
+              Set the last result number to finalize team standings
             </p>
           </div>
           <div className="flex items-center gap-2">

@@ -121,7 +121,9 @@ const Results = () => {
       {teamStandingsVisible && (
         <section className="mb-12">
           <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Team Standings After Result #{teamStandingsAfterResult}
+            {teamStandingsAfterResult >= latestResultNumber 
+              ? "Final Team Standings" 
+              : `Team Standings After Result #${teamStandingsAfterResult}`}
           </h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {teams?.map((team, index) => {
@@ -205,14 +207,14 @@ const Results = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {/* First Place */}
-                  <div className="bg-primary/10 border border-primary rounded-lg p-4">
+                  <div className="bg-primary/10 border-2 border-primary rounded-lg p-6 transform md:scale-105 hover:scale-110 transition-transform duration-300 shadow-lg">
                     <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
-                    <div className="font-bold text-lg">{result.first_place_name}</div>
+                    <div className="font-bold text-xl">{result.first_place_name}</div>
                     <div className="text-sm text-muted-foreground mt-1">
                       {result.first_place_team?.name}
                     </div>
                     {result.first_place_grade && (
-                      <div className="text-2xl font-bold text-primary mt-2">
+                      <div className="text-3xl font-bold text-primary mt-2">
                         Grade: {result.first_place_grade}
                       </div>
                     )}
@@ -237,8 +239,8 @@ const Results = () => {
                     </div>
                   )}
 
-                  {/* Second Place */}
-                  <div className="bg-secondary/10 border border-secondary rounded-lg p-4">
+                   {/* Second Place */}
+                  <div className="bg-secondary/10 border border-secondary rounded-lg p-5 transform md:scale-100 hover:scale-105 transition-transform duration-300 shadow-md">
                     <div className="text-sm font-medium text-secondary mb-2">🥈 2nd Place</div>
                     <div className="font-bold text-lg">{result.second_place_name}</div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -252,16 +254,16 @@ const Results = () => {
                   </div>
 
                   {/* Third Place */}
-                  <div className="bg-muted/30 border border-muted rounded-lg p-4">
+                  <div className="bg-muted/30 border border-muted rounded-lg p-4 transform md:scale-95 hover:scale-100 transition-transform duration-300">
                     <div className="text-sm font-medium text-muted-foreground mb-2">
                       🥉 3rd Place
                     </div>
-                    <div className="font-bold text-lg">{result.third_place_name}</div>
+                    <div className="font-bold text-base">{result.third_place_name}</div>
                     <div className="text-sm text-muted-foreground mt-1">
                       {result.third_place_team?.name}
                     </div>
                     {result.third_place_grade && (
-                      <div className="text-2xl font-bold text-muted-foreground mt-2">
+                      <div className="text-xl font-bold text-muted-foreground mt-2">
                         Grade: {result.third_place_grade}
                       </div>
                     )}
