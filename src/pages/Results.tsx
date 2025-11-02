@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PosterPreviewDialog from "@/components/PosterPreviewDialog";
 import dimashqTeamBg from "@/assets/dimashq-team.jpg";
+import marakishTeamBg from "@/assets/marakish-team.jpg";
 import {
   Select,
   SelectContent,
@@ -161,6 +162,16 @@ const Results = () => {
               cardClasses += " runner-card border-2 border-secondary/40";
               containerClasses = "lg:col-start-1 lg:row-start-2";
               sizeClasses = "p-8 lg:p-10";
+              backgroundStyle = {
+                backgroundImage: `linear-gradient(135deg, 
+                  hsl(38 92% 50% / 0.90), 
+                  hsl(42 88% 55% / 0.88), 
+                  hsl(38 92% 50% / 0.90)
+                ), url(${marakishTeamBg})`,
+                backgroundSize: '200% 200%, cover',
+                backgroundPosition: 'center',
+                backgroundBlendMode: 'overlay, normal'
+              };
             } else if (rank === 3) {
               cardClasses += " third-card border-2 border-orange-500/40";
               containerClasses = "lg:col-start-2 lg:row-start-2";
@@ -178,7 +189,7 @@ const Results = () => {
               >
                 <div 
                   className={`${cardClasses} ${sizeClasses} h-full flex flex-col justify-center`}
-                  style={rank === 1 ? backgroundStyle : undefined}
+                  style={(rank === 1 || rank === 2) ? backgroundStyle : undefined}
                 >
                   <div className={`font-bold mb-3 ${
                     rank === 1 ? "text-7xl lg:text-8xl text-background drop-shadow-2xl champion-text-glow" : 
