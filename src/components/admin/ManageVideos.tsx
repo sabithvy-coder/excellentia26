@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Pencil } from "lucide-react";
 import { useState } from "react";
 
 const ManageVideos = () => {
@@ -15,6 +15,7 @@ const ManageVideos = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: videos } = useQuery({
     queryKey: ["videos"],
@@ -51,6 +52,39 @@ const ManageVideos = () => {
     },
   });
 
+  const updateVideoMutation = useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: {
+        title: string;
+        video_url: string;
+        thumbnail_url?: string;
+        description?: string;
+      };
+    }) => {
+      const { error } = await supabase
+        .from("videos")
+        .update(data)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+      toast.success("Video updated successfully!");
+      setTitle("");
+      setVideoUrl("");
+      setThumbnailUrl("");
+      setDescription("");
+      setEditingId(null);
+    },
+    onError: () => {
+      toast.error("Failed to update video");
+    },
+  });
+
   const deleteVideoMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("videos").delete().eq("id", id);
@@ -65,18 +99,48 @@ const ManageVideos = () => {
     },
   });
 
-  const handleAddVideo = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !videoUrl.trim()) {
       toast.error("Please fill in required fields");
       return;
     }
-    addVideoMutation.mutate({
-      title,
-      video_url: videoUrl,
-      thumbnail_url: thumbnailUrl || undefined,
-      description: description || undefined,
-    });
+
+    if (editingId) {
+      updateVideoMutation.mutate({
+        id: editingId,
+        data: {
+          title,
+          video_url: videoUrl,
+          thumbnail_url: thumbnailUrl || undefined,
+          description: description || undefined,
+        },
+      });
+    } else {
+      addVideoMutation.mutate({
+        title,
+        video_url: videoUrl,
+        thumbnail_url: thumbnailUrl || undefined,
+        description: description || undefined,
+      });
+    }
+  };
+
+  const handleEdit = (video: any) => {
+    setTitle(video.title);
+    setVideoUrl(video.video_url);
+    setThumbnailUrl(video.thumbnail_url || "");
+    setDescription(video.description || "");
+    setEditingId(video.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setTitle("");
+    setVideoUrl("");
+    setThumbnailUrl("");
+    setDescription("");
+    setEditingId(null);
   };
 
   return (
@@ -84,12 +148,21 @@ const ManageVideos = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add New Video
+            {editingId ? (
+              <>
+                <Pencil className="w-5 h-5" />
+                Edit Video
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
+                Add New Video
+              </>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAddVideo} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="title">Title *</Label>
               <Input
@@ -132,9 +205,29 @@ const ManageVideos = () => {
                 rows={3}
               />
             </div>
-            <Button type="submit" disabled={addVideoMutation.isPending}>
-              {addVideoMutation.isPending ? "Adding..." : "Add Video"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="submit"
+                disabled={addVideoMutation.isPending || updateVideoMutation.isPending}
+              >
+                {editingId
+                  ? updateVideoMutation.isPending
+                    ? "Updating..."
+                    : "Update Video"
+                  : addVideoMutation.isPending
+                  ? "Adding..."
+                  : "Add Video"}
+              </Button>
+              {editingId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -168,13 +261,22 @@ const ManageVideos = () => {
                     {new Date(video.created_at).toLocaleDateString()}
                   </p>
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deleteVideoMutation.mutate(video.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(video)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => deleteVideoMutation.mutate(video.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             ))}
             {(!videos || videos.length === 0) && (
