@@ -30,6 +30,7 @@ const Home = () => {
           loop
           muted
           playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/background-video.mp4" type="video/mp4" />
