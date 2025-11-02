@@ -25,11 +25,18 @@ const GRADES = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "No Grad
 
 interface EditResultProps {
   result: any;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-const EditResult = ({ result }: EditResultProps) => {
+const EditResult = ({ result, open: externalOpen, onOpenChange: externalOnOpenChange, onSuccess: externalOnSuccess }: EditResultProps) => {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Use external state if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
   const [selectedProgram, setSelectedProgram] = useState(result.program_id);
   const [resultNumber, setResultNumber] = useState(result.result_number?.toString() || "");
   
@@ -165,6 +172,9 @@ const EditResult = ({ result }: EditResultProps) => {
       queryClient.invalidateQueries({ queryKey: ["teams"] });
       toast.success("Result updated successfully!");
       setOpen(false);
+      if (externalOnSuccess) {
+        externalOnSuccess();
+      }
     },
     onError: () => {
       toast.error("Failed to update result");
@@ -260,11 +270,13 @@ const EditResult = ({ result }: EditResultProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Pencil className="w-4 h-4" />
-        </Button>
-      </DialogTrigger>
+      {externalOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button variant="ghost" size="sm">
+            <Pencil className="w-4 h-4" />
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Result</DialogTitle>

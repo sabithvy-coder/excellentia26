@@ -5,9 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Bell, CheckCircle, XCircle } from "lucide-react";
+import EditResult from "./EditResult";
+import { useState } from "react";
 
 const Notifications = () => {
   const queryClient = useQueryClient();
+  const [editingResult, setEditingResult] = useState<any>(null);
+  const [resolvingReportId, setResolvingReportId] = useState<string | null>(null);
 
   const { data: resultRequests } = useQuery({
     queryKey: ["result-requests"],
@@ -26,12 +30,35 @@ const Notifications = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("reports")
-        .select("*, result:results(program:programs(name))")
+        .select("*, result:results(*, program:programs(*))")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
+
+  const handleResolveReport = async (report: any) => {
+    if (!report.result_id) {
+      toast.error("No result associated with this report");
+      return;
+    }
+    
+    setResolvingReportId(report.id);
+    setEditingResult(report.result);
+  };
+
+  const handleEditComplete = () => {
+    if (resolvingReportId) {
+      updateReportMutation.mutate({ id: resolvingReportId, status: "resolved" });
+    }
+    setEditingResult(null);
+    setResolvingReportId(null);
+  };
+
+  const handleEditCancel = () => {
+    setEditingResult(null);
+    setResolvingReportId(null);
+  };
 
   const updateRequestMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
@@ -168,9 +195,7 @@ const Notifications = () => {
                         </Button>
                         <Button
                           size="sm"
-                          onClick={() =>
-                            updateReportMutation.mutate({ id: report.id, status: "resolved" })
-                          }
+                          onClick={() => handleResolveReport(report)}
                         >
                           <CheckCircle className="w-4 h-4 mr-1" />
                           Resolve
@@ -186,6 +211,17 @@ const Notifications = () => {
           </TabsContent>
         </Tabs>
       </CardContent>
+      
+      {editingResult && (
+        <EditResult 
+          result={editingResult}
+          open={!!editingResult}
+          onOpenChange={(open) => {
+            if (!open) handleEditCancel();
+          }}
+          onSuccess={handleEditComplete}
+        />
+      )}
     </Card>
   );
 };
