@@ -159,19 +159,14 @@ const Donate = () => {
                 ))}
               </div>
 
-              <div 
-                dangerouslySetInnerHTML={{
-                  __html: `
-                    <form>
-                      <script 
-                        src="https://checkout.razorpay.com/v1/payment-button.js"
-                        data-payment_button_id="pl_Ralol3xVDGkh1a"
-                        async
-                      ></script>
-                    </form>
-                  `
-                }}
-              />
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={handleDonate}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Donate Now"}
+              </Button>
 
               <p className="text-xs text-center text-muted-foreground">
                 Secure payment powered by Razorpay
