@@ -125,7 +125,7 @@ const Results = () => {
               ? "Final Team Standings" 
               : `Team Standings After Result #${teamStandingsAfterResult}`}
           </h1>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {teams?.map((team, index) => {
             // Calculate rank considering ties
             let rank = 1;
@@ -136,50 +136,58 @@ const Results = () => {
             }
             
             // Determine card styling based on rank
-            let cardClasses = "rounded-lg text-center transition-all duration-500 relative overflow-hidden";
+            let cardClasses = "rounded-xl text-center transition-all duration-500 relative overflow-hidden";
+            let containerClasses = "";
             let sizeClasses = "";
             
             if (rank === 1) {
               cardClasses += " champion-card border-2 border-primary/50";
-              sizeClasses = "md:col-span-4 md:scale-110 p-8";
+              containerClasses = "lg:col-span-3 lg:row-start-1";
+              sizeClasses = "p-10 lg:p-12";
             } else if (rank === 2) {
               cardClasses += " runner-card border-2 border-secondary/40";
-              sizeClasses = "p-7";
+              containerClasses = "lg:col-start-1 lg:row-start-2";
+              sizeClasses = "p-8 lg:p-10";
             } else if (rank === 3) {
-              cardClasses += " third-card border border-muted";
-              sizeClasses = "p-6";
+              cardClasses += " third-card border-2 border-orange-500/40";
+              containerClasses = "lg:col-start-2 lg:row-start-2";
+              sizeClasses = "p-7 lg:p-9";
             } else {
-              cardClasses += " bg-card border border-border p-6";
+              cardClasses += " bg-card border border-border";
+              containerClasses = "lg:col-start-3 lg:row-start-2";
+              sizeClasses = "p-6 lg:p-8";
             }
             
             return (
               <div
                 key={team.id}
-                className={`${cardClasses} ${sizeClasses}`}
+                className={`${containerClasses}`}
               >
-                <div className={`font-bold mb-2 ${
-                  rank === 1 ? "text-7xl text-background drop-shadow-lg" : 
-                  rank === 2 ? "text-6xl text-background" : 
-                  rank === 3 ? "text-5xl text-muted-foreground" :
-                  "text-5xl text-primary"
-                }`}>
-                  {team.published_points || 0}
-                </div>
-                <h3 className={`font-bold ${
-                  rank === 1 ? "text-3xl text-background mb-3" : 
-                  rank === 2 ? "text-2xl text-background mb-2" : 
-                  rank === 3 ? "text-xl text-muted-foreground" :
-                  "text-xl"
-                }`}>
-                  {team.name}
-                </h3>
-                <div className={`text-sm font-medium mt-2 ${
-                  rank === 1 ? "text-background/90 text-lg" : 
-                  rank === 2 ? "text-background/80" : 
-                  rank === 3 ? "text-muted-foreground/80" :
-                  "text-muted-foreground"
-                }`}>
-                  {rank === 1 ? "🏆 Champion" : rank === 2 ? "🥈 Runner-up" : rank === 3 ? "🥉 Third Place" : `Rank #${rank}`}
+                <div className={`${cardClasses} ${sizeClasses} h-full flex flex-col justify-center`}>
+                  <div className={`font-bold mb-3 ${
+                    rank === 1 ? "text-7xl lg:text-8xl text-background drop-shadow-2xl" : 
+                    rank === 2 ? "text-6xl lg:text-7xl text-background drop-shadow-xl" : 
+                    rank === 3 ? "text-5xl lg:text-6xl text-background drop-shadow-lg" :
+                    "text-5xl text-primary"
+                  }`}>
+                    {team.published_points || 0}
+                  </div>
+                  <h3 className={`font-righteous font-bold tracking-wider ${
+                    rank === 1 ? "text-3xl lg:text-5xl text-background mb-4 drop-shadow-xl" : 
+                    rank === 2 ? "text-2xl lg:text-4xl text-background mb-3 drop-shadow-lg" : 
+                    rank === 3 ? "text-xl lg:text-3xl text-background mb-2 drop-shadow-md" :
+                    "text-xl lg:text-2xl"
+                  }`}>
+                    {team.name}
+                  </h3>
+                  <div className={`text-sm font-bold mt-2 uppercase tracking-widest ${
+                    rank === 1 ? "text-background/90 text-base lg:text-xl" : 
+                    rank === 2 ? "text-background/85 text-sm lg:text-lg" : 
+                    rank === 3 ? "text-background/80 text-sm lg:text-base" :
+                    "text-muted-foreground"
+                  }`}>
+                    {rank === 1 ? "🏆 CHAMPION" : rank === 2 ? "🥈 RUNNER-UP" : rank === 3 ? "🥉 THIRD PLACE" : `RANK #${rank}`}
+                  </div>
                 </div>
               </div>
             );

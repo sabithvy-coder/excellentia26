@@ -140,9 +140,18 @@ All colors MUST be HSL.
     }
   }
 
+  @keyframes third-glow {
+    0%, 100% {
+      box-shadow: 0 0 10px hsl(25 85% 60% / 0.3), 0 5px 25px hsl(20 75% 55% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px hsl(25 85% 60% / 0.5), 0 8px 35px hsl(20 75% 55% / 0.3);
+    }
+  }
+
   .third-card {
-    background: linear-gradient(135deg, hsl(38 50% 70%), hsl(38 70% 75%), hsl(38 50% 70%));
-    background-size: 150% 150%;
-    animation: third-gradient 6s ease infinite;
+    background: linear-gradient(135deg, hsl(25 85% 60%), hsl(20 75% 55%), hsl(30 80% 58%), hsl(25 85% 60%));
+    background-size: 200% 200%;
+    animation: third-gradient 5s ease infinite, third-glow 4.5s ease-in-out infinite;
   }
 }
