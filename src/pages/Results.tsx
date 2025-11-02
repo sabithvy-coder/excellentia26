@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import PosterPreviewDialog from "@/components/PosterPreviewDialog";
 import dimashqTeamBg from "@/assets/dimashq-team.jpg";
 import marakishTeamBg from "@/assets/marakish-team.jpg";
+import kahiraTeamBg from "@/assets/kahira-team.jpg";
 import {
   Select,
   SelectContent,
@@ -176,6 +177,17 @@ const Results = () => {
               cardClasses += " third-card border-2 border-orange-500/40";
               containerClasses = "lg:col-start-2 lg:row-start-2";
               sizeClasses = "p-7 lg:p-9";
+              backgroundStyle = {
+                backgroundImage: `linear-gradient(135deg, 
+                  hsl(25 85% 60% / 0.88), 
+                  hsl(20 75% 55% / 0.86), 
+                  hsl(30 80% 58% / 0.88), 
+                  hsl(25 85% 60% / 0.88)
+                ), url(${kahiraTeamBg})`,
+                backgroundSize: '200% 200%, cover',
+                backgroundPosition: 'center',
+                backgroundBlendMode: 'overlay, normal'
+              };
             } else {
               cardClasses += " bg-card border border-border";
               containerClasses = "lg:col-start-3 lg:row-start-2";
@@ -189,28 +201,28 @@ const Results = () => {
               >
                 <div 
                   className={`${cardClasses} ${sizeClasses} h-full flex flex-col justify-center`}
-                  style={(rank === 1 || rank === 2) ? backgroundStyle : undefined}
+                  style={(rank === 1 || rank === 2 || rank === 3) ? backgroundStyle : undefined}
                 >
                   <div className={`font-bold mb-3 ${
                     rank === 1 ? "text-7xl lg:text-8xl text-background drop-shadow-2xl champion-text-glow" : 
-                    rank === 2 ? "text-6xl lg:text-7xl text-background drop-shadow-xl" : 
-                    rank === 3 ? "text-5xl lg:text-6xl text-background drop-shadow-lg" :
+                    rank === 2 ? "text-6xl lg:text-7xl text-background drop-shadow-xl champion-text-glow" : 
+                    rank === 3 ? "text-5xl lg:text-6xl text-background drop-shadow-lg champion-text-glow" :
                     "text-5xl text-primary"
                   }`}>
                     {team.published_points || 0}
                   </div>
                   <h3 className={`font-righteous font-bold tracking-wider ${
                     rank === 1 ? "text-3xl lg:text-5xl text-background mb-4 drop-shadow-xl champion-text-glow" : 
-                    rank === 2 ? "text-2xl lg:text-4xl text-background mb-3 drop-shadow-lg" : 
-                    rank === 3 ? "text-xl lg:text-3xl text-background mb-2 drop-shadow-md" :
+                    rank === 2 ? "text-2xl lg:text-4xl text-background mb-3 drop-shadow-lg champion-text-glow" : 
+                    rank === 3 ? "text-xl lg:text-3xl text-background mb-2 drop-shadow-md champion-text-glow" :
                     "text-xl lg:text-2xl"
                   }`}>
                     {team.name}
                   </h3>
                   <div className={`text-sm font-bold mt-2 uppercase tracking-widest ${
                     rank === 1 ? "text-background/90 text-base lg:text-xl champion-text-glow" : 
-                    rank === 2 ? "text-background/85 text-sm lg:text-lg" : 
-                    rank === 3 ? "text-background/80 text-sm lg:text-base" :
+                    rank === 2 ? "text-background/85 text-sm lg:text-lg champion-text-glow" : 
+                    rank === 3 ? "text-background/80 text-sm lg:text-base champion-text-glow" :
                     "text-muted-foreground"
                   }`}>
                     {rank === 1 ? "🏆 CHAMPION" : rank === 2 ? "🥈 RUNNER-UP" : rank === 3 ? "🥉 THIRD PLACE" : `RANK #${rank}`}
