@@ -97,15 +97,29 @@ Deno.serve(async (req) => {
           continue
         }
 
-        const fileBlob = await downloadResponse.blob()
-        const fileExt = file.name.split('.').pop() || 'jpg'
+        let fileBlob = await downloadResponse.blob()
+        let fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+        let contentType = file.mimeType
+        
+        // Skip HEIC files and log a warning
+        if (fileExt === 'heic' || fileExt === 'heif') {
+          console.log(`Skipping HEIC file (not supported for server-side conversion): ${file.name}`)
+          errorCount++
+          results.push({ 
+            name: file.name, 
+            status: 'error', 
+            error: 'HEIC format not supported. Please convert to JPEG before uploading to Google Drive.' 
+          })
+          continue
+        }
+        
         const fileName = `gallery-gdrive-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
 
         // Upload to Supabase storage
         const { error: uploadError } = await supabase.storage
           .from('gallery')
           .upload(fileName, fileBlob, {
-            contentType: file.mimeType,
+            contentType: contentType,
             upsert: false
           })
 
