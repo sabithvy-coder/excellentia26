@@ -13,6 +13,7 @@ import ManageGallery from "@/components/admin/ManageGallery";
 import ManageResults from "@/components/admin/ManageResults";
 import Notifications from "@/components/admin/Notifications";
 import Settings from "@/components/admin/Settings";
+import ManageDonations from "@/components/admin/ManageDonations";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -85,9 +86,10 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 max-w-6xl mx-auto">
+          <TabsList className="grid w-full grid-cols-8 max-w-7xl mx-auto">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="donations">Donations</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="programs">Programs</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
@@ -101,6 +103,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="notifications">
             <Notifications />
+          </TabsContent>
+
+          <TabsContent value="donations">
+            <ManageDonations />
           </TabsContent>
 
           <TabsContent value="results">

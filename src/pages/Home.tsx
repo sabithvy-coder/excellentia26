@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Scroll, Calendar, Users, Trophy, MessageCircle } from "lucide-react";
+import { Scroll, Calendar, Users, Trophy, MessageCircle, Heart, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import excellentiaLogo from "@/assets/excellentia-logo.png";
+import { Button } from "@/components/ui/button";
 
 const Home = () => {
   const { data: newsItems } = useQuery({
@@ -87,6 +88,72 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Donation Section */}
+      <section className="py-20 bg-gradient-to-r from-primary/10 via-background to-secondary/10 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 right-20 w-72 h-72 bg-primary rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-10 left-10 w-96 h-96 bg-secondary rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <Heart className="w-10 h-10 text-primary animate-pulse" />
+              <Sparkles className="w-8 h-8 text-secondary" />
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+              Be a Part of Excellence!
+            </h2>
+            
+            <p className="text-xl md:text-2xl text-foreground mb-4 font-semibold">
+              Your Support Powers Our Dreams ✨
+            </p>
+            
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto">
+              Every contribution you make helps us celebrate art, nurture talent, and create unforgettable moments. 
+              From grand stage productions to intimate art exhibitions, from budding performers to seasoned artists—
+              <span className="text-foreground font-semibold"> your generosity makes it all possible!</span>
+            </p>
+
+            <div className="bg-card/50 backdrop-blur-sm border border-primary/20 rounded-2xl p-8 mb-8 shadow-xl">
+              <h3 className="text-2xl font-bold mb-4 text-foreground">Why Your Donation Matters</h3>
+              <div className="grid md:grid-cols-2 gap-4 text-left mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+                  <p className="text-muted-foreground">Support emerging artists and provide them a platform to shine</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+                  <p className="text-muted-foreground">Help organize world-class cultural programs and competitions</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+                  <p className="text-muted-foreground">Provide better prizes, recognition, and opportunities</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+                  <p className="text-muted-foreground">Enhance event infrastructure and create magical experiences</p>
+                </div>
+              </div>
+              
+              <p className="text-lg text-foreground font-semibold italic">
+                "Together, we don't just celebrate art—we create it, live it, and make it eternal! 🎨"
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link to="/donate">
+                <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                  <Heart className="w-5 h-5 mr-2" />
+                  Donate Now
+                </Button>
+              </Link>
+              <p className="text-sm text-muted-foreground">Every rupee counts. Every contribution matters. 💝</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Latest News */}
       {newsItems && newsItems.length > 0 && (

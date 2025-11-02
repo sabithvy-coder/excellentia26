@@ -10,6 +10,7 @@ import News from "./pages/News";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
+import Donate from "./pages/Donate";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
           <Route path="/news" element={<Layout><News /></Layout>} />
           <Route path="/about" element={<Layout><About /></Layout>} />
+          <Route path="/donate" element={<Layout><Donate /></Layout>} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
