@@ -1,12 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Heart, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Heart, TrendingUp, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 const ManageDonations = () => {
+  const queryClient = useQueryClient();
+  
   const { data: donations, isLoading } = useQuery({
     queryKey: ["donations"],
     queryFn: async () => {
@@ -17,6 +21,35 @@ const ManageDonations = () => {
 
       if (error) throw error;
       return data;
+    },
+  });
+
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-razorpay-payments`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to sync payments');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["donations"] });
+      toast.success(data.message || 'Payments synced successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to sync payments');
     },
   });
 
@@ -62,8 +95,20 @@ const ManageDonations = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Donation History</CardTitle>
-          <CardDescription>View all donations received</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Donation History</CardTitle>
+              <CardDescription>View all donations received</CardDescription>
+            </div>
+            <Button
+              onClick={() => syncMutation.mutate()}
+              disabled={syncMutation.isPending}
+              variant="outline"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+              Sync from Razorpay
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
