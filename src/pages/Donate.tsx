@@ -1,107 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Sparkles } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
 
 const Donate = () => {
-  const [donorName, setDonorName] = useState("");
-  const [amount, setAmount] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    // Load Razorpay checkout script
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
   }, []);
-
-  const handleDonate = async () => {
-    if (!amount || parseInt(amount) <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
-    }
-
-    if (!window.Razorpay) {
-      toast.error("Payment system is loading. Please try again.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const amountInPaise = parseInt(amount) * 100;
-
-      const options = {
-        key: "rzp_live_RalCj3UqJFYX6k",
-        amount: amountInPaise,
-        currency: "INR",
-        name: "Excellentia Arts Fiesta",
-        description: "Donation",
-        handler: async function (response: any) {
-          try {
-            // Save donation to database
-            const { error } = await supabase.from('donations').insert({
-              payment_id: response.razorpay_payment_id,
-              order_id: response.razorpay_order_id || null,
-              amount: amountInPaise,
-              donor_name: donorName || 'Anonymous',
-              status: 'completed'
-            });
-
-            if (error) {
-              console.error('Error saving donation:', error);
-              toast.error("Payment successful but failed to record donation");
-            } else {
-              toast.success("✅ Payment Successful! Thank you ❤️");
-            }
-          } catch (err) {
-            console.error('Error:', err);
-            toast.error("Payment successful but failed to record donation");
-          }
-          
-          setDonorName("");
-          setAmount("");
-          setLoading(false);
-        },
-        prefill: {
-          name: donorName || "",
-        },
-        theme: {
-          color: "#ff9900",
-        },
-        modal: {
-          ondismiss: function() {
-            setLoading(false);
-          }
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      toast.error("Failed to open payment window. Please try again.");
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-16 px-4">
@@ -146,52 +54,21 @@ const Donate = () => {
               <CardDescription>Every contribution counts!</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Your Name (Optional)</Label>
-                <Input
-                  id="name"
-                  placeholder="Enter your name"
-                  value={donorName}
-                  onChange={(e) => setDonorName(e.target.value)}
-                />
-              </div>
+              <div 
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    <form>
+                      <script 
+                        src="https://checkout.razorpay.com/v1/payment-button.js"
+                        data-payment_button_id="pl_PazBnJyLJo8CeX"
+                        async
+                      ></script>
+                    </form>
+                  `
+                }}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="amount">Donation Amount (₹) *</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="Enter amount"
-                  min="1"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {[100, 500, 1000, 2000].map((value) => (
-                  <Button
-                    key={value}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setAmount(value.toString())}
-                  >
-                    ₹{value}
-                  </Button>
-                ))}
-              </div>
-
-              <Button 
-                className="w-full" 
-                size="lg"
-                onClick={handleDonate}
-                disabled={loading}
-              >
-                {loading ? "Processing..." : "Donate Now"}
-              </Button>
-
-              <p className="text-xs text-center text-muted-foreground">
+              <p className="text-xs text-center text-muted-foreground mt-4">
                 Secure payment powered by Razorpay
               </p>
             </CardContent>
