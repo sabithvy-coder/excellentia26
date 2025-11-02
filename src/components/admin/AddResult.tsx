@@ -35,7 +35,7 @@ const AddResult = () => {
   // Auto-fill category when program is selected
   const handleProgramChange = (programId: string) => {
     setSelectedProgram(programId);
-    const selectedProgramData = availablePrograms?.find(p => p.id === programId);
+    const selectedProgramData = programs?.find(p => p.id === programId);
     if (selectedProgramData?.category) {
       setCategory(selectedProgramData.category);
     } else {
@@ -82,10 +82,8 @@ const AddResult = () => {
     },
   });
 
-  // Filter out programs that already have results
-  const availablePrograms = programs?.filter(
-    (program) => !existingResults?.some((result) => result.program_id === program.id)
-  );
+  // Get programs with results for tick marks
+  const programsWithResults = new Set(existingResults?.map((result) => result.program_id) || []);
 
   // Fetch the latest result number for preview
   useQuery({
@@ -282,11 +280,18 @@ const AddResult = () => {
                   <SelectValue placeholder="Select program" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availablePrograms?.map((program) => (
-                    <SelectItem key={program.id} value={program.id}>
-                      {program.name} {program.category && `(${program.category})`}
-                    </SelectItem>
-                  ))}
+                  {programs?.map((program) => {
+                    const hasResult = programsWithResults.has(program.id);
+                    return (
+                      <SelectItem 
+                        key={program.id} 
+                        value={program.id}
+                        disabled={hasResult}
+                      >
+                        {hasResult && "✓ "}{program.name} {program.category && `(${program.category})`}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>

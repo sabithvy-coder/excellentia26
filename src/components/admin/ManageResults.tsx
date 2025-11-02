@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Trash2, Trophy, Image as ImageIcon } from "lucide-react";
+import { Trash2, Trophy, Image as ImageIcon, Eye, EyeOff } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,24 @@ const ManageResults = () => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
+    },
+  });
+
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: async ({ id, isVisible }: { id: string; isVisible: boolean }) => {
+      const { error } = await supabase
+        .from("results")
+        .update({ is_visible: !isVisible })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["results-with-details"] });
+      queryClient.invalidateQueries({ queryKey: ["results"] });
+      toast.success("Visibility updated successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to update visibility");
     },
   });
 
@@ -98,6 +116,18 @@ const ManageResults = () => {
                     </div>
                   </div>
                 <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleVisibilityMutation.mutate({ id: result.id, isVisible: result.is_visible })}
+                    title={result.is_visible ? "Hide result" : "Show result"}
+                  >
+                    {result.is_visible ? (
+                      <Eye className="w-4 h-4 text-primary" />
+                    ) : (
+                      <EyeOff className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </Button>
                   <EditResult result={result} />
                   <AlertDialog>
                   <AlertDialogTrigger asChild>

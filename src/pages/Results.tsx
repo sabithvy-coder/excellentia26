@@ -69,6 +69,7 @@ const Results = () => {
           third_place_team:teams!results_third_place_team_fkey(name),
           another_grade_team:teams!results_another_grade_team_fkey(name)
         `)
+        .eq("is_visible", true)
         .order("result_number", { ascending: false });
       if (error) throw error;
       return data;
