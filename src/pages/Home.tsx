@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Scroll, Calendar, Users, Trophy, MessageCircle, Heart, Sparkles } from "lucide-react";
+import { Scroll, Calendar, Users, Trophy, MessageCircle, Heart, Sparkles, Video } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import excellentiaLogo from "@/assets/excellentia-logo.png";
@@ -14,6 +14,19 @@ const Home = () => {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(3);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: videos } = useQuery({
+    queryKey: ["videos"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("videos")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(4);
       if (error) throw error;
       return data;
     },
@@ -163,6 +176,39 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Video Highlights */}
+      {videos && videos.length > 0 && (
+        <section className="py-16 bg-gradient-to-b from-background to-card/30">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center gap-3 mb-12">
+              <Video className="w-8 h-8 text-primary" />
+              <h2 className="text-3xl font-bold text-center">Festival Highlights</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+              {videos.map((video) => (
+                <div key={video.id} className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-colors">
+                  <div className="aspect-video">
+                    <iframe
+                      src={video.video_url}
+                      title={video.title}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-2">{video.title}</h3>
+                    {video.description && (
+                      <p className="text-sm text-muted-foreground">{video.description}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Latest News */}
       {newsItems && newsItems.length > 0 && (

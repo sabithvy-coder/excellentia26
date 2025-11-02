@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, LayoutDashboard, Bell, DollarSign, Trophy, Calendar, Newspaper, Image as ImageIcon, Settings as SettingsIcon } from "lucide-react";
+import { LogOut, Menu, LayoutDashboard, Bell, DollarSign, Trophy, Calendar, Newspaper, Image as ImageIcon, Video, Settings as SettingsIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -19,6 +19,7 @@ import AddResult from "@/components/admin/AddResult";
 import ManagePrograms from "@/components/admin/ManagePrograms";
 import ManageNews from "@/components/admin/ManageNews";
 import ManageGallery from "@/components/admin/ManageGallery";
+import ManageVideos from "@/components/admin/ManageVideos";
 import ManageResults from "@/components/admin/ManageResults";
 import Notifications from "@/components/admin/Notifications";
 import Settings from "@/components/admin/Settings";
@@ -40,6 +41,7 @@ const AdminDashboard = () => {
     { value: "programs", label: "Programs", icon: Calendar },
     { value: "news", label: "News", icon: Newspaper },
     { value: "gallery", label: "Gallery", icon: ImageIcon },
+    { value: "videos", label: "Videos", icon: Video },
     { value: "settings", label: "Settings", icon: SettingsIcon },
   ];
 
@@ -140,7 +142,7 @@ const AdminDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {!isMobile && (
-            <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 max-w-7xl mx-auto">
+            <TabsList className="grid w-full grid-cols-5 md:grid-cols-10 max-w-7xl mx-auto">
               {menuItems.map((item) => (
                 <TabsTrigger key={item.value} value={item.value} className="flex items-center gap-2">
                   <item.icon className="w-4 h-4 hidden md:inline" />
@@ -180,6 +182,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="gallery">
             <ManageGallery />
+          </TabsContent>
+
+          <TabsContent value="videos">
+            <ManageVideos />
           </TabsContent>
 
           <TabsContent value="settings">
