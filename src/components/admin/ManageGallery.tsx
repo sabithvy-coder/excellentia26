@@ -63,53 +63,84 @@ const ManageGallery = () => {
   });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
+    let successCount = 0;
+    let errorCount = 0;
+
     try {
-      let uploadFile: File | Blob = file;
-      let fileExt = file.name.split(".").pop()?.toLowerCase();
-      
-      // Convert HEIC to JPEG
-      if (fileExt === "heic" || fileExt === "heif") {
-        toast.info("Converting HEIC image to JPEG...");
+      toast.info(`Uploading ${files.length} images...`);
+
+      // Process all files in parallel
+      const uploadPromises = Array.from(files).map(async (file) => {
         try {
-          const convertedBlob = await heic2any({
-            blob: file,
-            toType: "image/jpeg",
-            quality: 0.9,
-          });
+          let uploadFile: File | Blob = file;
+          let fileExt = file.name.split(".").pop()?.toLowerCase();
           
-          // heic2any can return an array or a single blob
-          uploadFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-          fileExt = "jpg";
-        } catch (conversionError) {
-          console.error("HEIC conversion error:", conversionError);
-          toast.error("Failed to convert HEIC image. Please try a different format.");
-          setUploading(false);
-          return;
+          // Convert HEIC to JPEG
+          if (fileExt === "heic" || fileExt === "heif") {
+            try {
+              const convertedBlob = await heic2any({
+                blob: file,
+                toType: "image/jpeg",
+                quality: 0.9,
+              });
+              
+              uploadFile = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+              fileExt = "jpg";
+            } catch (conversionError) {
+              console.error("HEIC conversion error:", conversionError);
+              throw new Error("Failed to convert HEIC image");
+            }
+          }
+
+          const fileName = `gallery-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const filePath = fileName;
+
+          const { error: uploadError } = await supabase.storage
+            .from("gallery")
+            .upload(filePath, uploadFile, { upsert: true });
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from("gallery")
+            .getPublicUrl(filePath);
+
+          // Add to gallery table
+          const { error: insertError } = await supabase
+            .from("gallery")
+            .insert({ image_url: publicUrl, caption: file.name.replace(/\.[^/.]+$/, ''), link_url: null });
+
+          if (insertError) throw insertError;
+
+          successCount++;
+        } catch (error: any) {
+          console.error(`Upload error for ${file.name}:`, error);
+          errorCount++;
         }
+      });
+
+      await Promise.all(uploadPromises);
+
+      if (errorCount > 0) {
+        toast.warning(`Upload completed: ${successCount} successful, ${errorCount} failed`);
+      } else {
+        toast.success(`Successfully uploaded ${successCount} images!`);
       }
 
-      const fileName = `gallery-${Date.now()}.${fileExt}`;
-      const filePath = fileName;
-
-      const { error: uploadError } = await supabase.storage
-        .from("gallery")
-        .upload(filePath, uploadFile, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("gallery")
-        .getPublicUrl(filePath);
-
-      setImageUrl(publicUrl);
-      toast.success("Image uploaded successfully!");
+      queryClient.invalidateQueries({ queryKey: ["gallery"] });
+      setImageUrl("");
+      setCaption("");
+      setLinkUrl("");
+      
+      // Reset file input
+      e.target.value = "";
     } catch (error: any) {
-      console.error("Upload error:", error);
-      toast.error(error.message || "Failed to upload image");
+      console.error("Bulk upload error:", error);
+      toast.error("Failed to upload images");
     } finally {
       setUploading(false);
     }
@@ -231,9 +262,18 @@ const ManageGallery = () => {
             </div>
             {uploadMethod === "file" ? (
               <div>
-                <Label>Upload Image *</Label>
-                <Input type="file" accept="image/*,.heic,.heif" onChange={handleFileUpload} disabled={uploading} />
-                {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
+                <Label>Upload Images * (Multiple files supported)</Label>
+                <Input 
+                  type="file" 
+                  accept="image/*,.heic,.heif" 
+                  onChange={handleFileUpload} 
+                  disabled={uploading}
+                  multiple
+                />
+                {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading images...</p>}
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select multiple images to upload them all at once. No limit on number of files.
+                </p>
               </div>
             ) : (
               <div>
@@ -261,14 +301,18 @@ const ManageGallery = () => {
                 placeholder="https://example.com"
               />
             </div>
-            {imageUrl && (
-              <div className="border rounded-lg overflow-hidden">
-                <img src={imageUrl} alt="Preview" className="w-full h-48 object-cover" />
-              </div>
+            {uploadMethod === "url" && (
+              <>
+                {imageUrl && (
+                  <div className="border rounded-lg overflow-hidden">
+                    <img src={imageUrl} alt="Preview" className="w-full h-48 object-cover" />
+                  </div>
+                )}
+                <Button type="submit" className="w-full" disabled={addImageMutation.isPending || !imageUrl}>
+                  {addImageMutation.isPending ? "Adding..." : "Add to Gallery"}
+                </Button>
+              </>
             )}
-            <Button type="submit" className="w-full" disabled={addImageMutation.isPending || !imageUrl}>
-              {addImageMutation.isPending ? "Adding..." : "Add to Gallery"}
-            </Button>
           </form>
         </CardContent>
       </Card>
