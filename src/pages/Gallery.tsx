@@ -71,9 +71,6 @@ const Gallery = () => {
                 </div>
               )}
               <div className="p-4 space-y-2">
-                {image.caption && (
-                  <p className="text-sm text-muted-foreground">{image.caption}</p>
-                )}
                 <div className="flex gap-2">
                   <Button
                     size="sm"
