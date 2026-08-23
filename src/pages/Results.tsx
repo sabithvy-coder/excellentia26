@@ -432,6 +432,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                       Download Posters
                     </Button>
                   )}
+                  {!readOnly && (
                   <Dialog
                     open={reportDialogOpen && selectedResultId === result.id}
                     onOpenChange={(open) => {
@@ -467,6 +468,8 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                       </div>
                     </DialogContent>
                   </Dialog>
+                  )}
+
                 </div>
               </div>
             ))}
