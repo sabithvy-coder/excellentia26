@@ -4,14 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import excellentiaLogo from "@/assets/excellentia-logo.png";
 import { Button } from "@/components/ui/button";
+import { useCurrentFestival } from "@/hooks/useFestival";
 
 const Home = () => {
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
+
   const { data: newsItems } = useQuery({
-    queryKey: ["latest-news"],
+    queryKey: ["latest-news", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("news")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false })
         .limit(3);
       if (error) throw error;
@@ -20,11 +26,13 @@ const Home = () => {
   });
 
   const { data: videos } = useQuery({
-    queryKey: ["videos"],
+    queryKey: ["videos", "home", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("videos")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false })
         .limit(4);
       if (error) throw error;
@@ -57,20 +65,22 @@ const Home = () => {
             <img src={excellentiaLogo} alt="Excellentia" className="w-64 mx-auto mb-8" />
             <h1 className="text-5xl md:text-7xl font-bold mb-6 font-playfair animate-slide-up">
               <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                Unfolding Excellence Through the{" "}
+                Unfolding Excellence{" "}
               </span>
               <span className="inline-block animate-scroll-slide bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent">
-                Scrolls
+                {festival?.year ?? 2026}
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              Excellentia Arts Fiesta 2025
+              {festival?.title ?? "Excellentia Arts Fiesta 2026"}
             </p>
             <div className="flex flex-wrap gap-4 justify-center mb-12">
-              <div className="flex items-center gap-2 text-lg">
-                <Calendar className="text-primary" />
-                <span>November 01-02, 2025</span>
-              </div>
+              {festival?.tagline && (
+                <div className="flex items-center gap-2 text-lg">
+                  <Calendar className="text-primary" />
+                  <span>{festival.tagline}</span>
+                </div>
+              )}
               <div className="flex items-center gap-2 text-lg">
                 <Users className="text-primary" />
                 <span>150+ Competitors</span>
@@ -94,13 +104,10 @@ const Home = () => {
             </div>
             <div className="space-y-6 text-lg leading-relaxed text-muted-foreground">
               <p>
-                The air on campus is changing. A hush of anticipation, a whisper of untold stories, settles upon the grounds of the Ma'din School of Excellence. Get ready to turn the page, because the magnificent annual arts festival, Excellentia, returns on November 01 and 02, 2025, for a two-day journey into the heart of creativity.
+                The air on campus is changing once again. A hush of anticipation settles upon the grounds of the Ma'din School of Excellence as the magnificent annual arts festival, Excellentia, returns for another edition — a journey into the heart of creativity.
               </p>
               <p>
-                Our theme this year, "Through the Scrolls," is an invitation to explore the ancient and enduring power of inscription, of history penned and poetry preserved. It is a celebration of knowledge passed down—from the oldest manuscripts and illuminated texts to the limitless potential held in a blank sheet.
-              </p>
-              <p>
-                This theme asks our young artists not just to perform, but to unravel the narratives woven into time itself, transforming the wisdom of the past into the artistry of the present.
+                Every edition invites our young artists not just to perform, but to tell a story — turning imagination into artistry across stage, canvas, page and voice.
               </p>
               <p className="font-semibold text-foreground">
                 A staggering 100 diverse competitions will unfold simultaneously across six distinct venues, each space dedicated to a unique facet of the arts. From the thunderous rhythm of the stage to the silent strokes of a paintbrush; from the profound depth of a debate to the delicate nuance of a classical raga—Excellentia is where every talent finds its voice.
@@ -241,6 +248,22 @@ const Home = () => {
           </div>
         </section>
       )}
+
+      {/* Past Fests */}
+      <section className="py-12">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold mb-3">Looking for a previous edition?</h2>
+          <p className="text-muted-foreground mb-6">
+            Results, galleries and highlights from earlier Excellentia fests are archived.
+          </p>
+          <Link
+            to="/past-fests"
+            className="inline-block px-6 py-3 border border-border rounded-lg font-medium hover:border-primary transition-colors"
+          >
+            Browse Past Excellentia Fests
+          </Link>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-16">
