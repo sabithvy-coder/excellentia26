@@ -5,17 +5,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ReportDialog from "@/components/ReportDialog";
+import { useResolvedFestivalId } from "@/hooks/useFestival";
 
-const News = () => {
+interface NewsProps {
+  festivalId?: string;
+  readOnly?: boolean;
+  hideHeading?: boolean;
+}
+
+const News = ({ festivalId: explicitId, readOnly = false, hideHeading = false }: NewsProps) => {
   const [searchParams] = useSearchParams();
   const newsId = searchParams.get("id");
   const [expandedNews, setExpandedNews] = useState<Record<string, boolean>>({});
+  const { festivalId } = useResolvedFestivalId(explicitId);
+
   const { data: newsItems, isLoading } = useQuery({
-    queryKey: ["news"],
+    queryKey: ["news", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("news")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -40,9 +51,11 @@ const News = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-        Latest News
-      </h1>
+      {!hideHeading && (
+        <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          Latest News
+        </h1>
+      )}
 
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground">Loading news...</div>
@@ -115,9 +128,11 @@ const News = () => {
                     )}
                   </Button>
                 )}
-                <div className="mt-4">
-                  <ReportDialog type="news" itemId={news.id} />
-                </div>
+                {!readOnly && (
+                  <div className="mt-4">
+                    <ReportDialog type="news" itemId={news.id} />
+                  </div>
+                )}
               </article>
             );
             

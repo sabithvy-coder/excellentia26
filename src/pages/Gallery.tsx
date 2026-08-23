@@ -4,14 +4,25 @@ import { ImageIcon, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ReportDialog from "@/components/ReportDialog";
 import { toast } from "sonner";
+import { useResolvedFestivalId } from "@/hooks/useFestival";
 
-const Gallery = () => {
+interface GalleryProps {
+  festivalId?: string;
+  readOnly?: boolean;
+  hideHeading?: boolean;
+}
+
+const Gallery = ({ festivalId: explicitId, readOnly = false, hideHeading = false }: GalleryProps) => {
+  const { festivalId } = useResolvedFestivalId(explicitId);
+
   const { data: images, isLoading } = useQuery({
-    queryKey: ["gallery"],
+    queryKey: ["gallery", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("gallery")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -38,9 +49,11 @@ const Gallery = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-        Event Gallery
-      </h1>
+      {!hideHeading && (
+        <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          Event Gallery
+        </h1>
+      )}
 
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground">Loading gallery...</div>
@@ -81,7 +94,7 @@ const Gallery = () => {
                     <Download className="w-4 h-4 mr-2" />
                     Download
                   </Button>
-                  <ReportDialog type="gallery" itemId={image.id} />
+                  {!readOnly && <ReportDialog type="gallery" itemId={image.id} />}
                 </div>
               </div>
             </div>
