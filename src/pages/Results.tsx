@@ -23,8 +23,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useResolvedFestivalId } from "@/hooks/useFestival";
 
-const Results = () => {
+interface ResultsProps {
+  festivalId?: string;
+  readOnly?: boolean;
+}
+
+const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
@@ -35,10 +41,16 @@ const Results = () => {
   const [selectedPosters, setSelectedPosters] = useState<string[]>([]);
   const [selectedResultName, setSelectedResultName] = useState("");
 
+  const { festivalId } = useResolvedFestivalId(explicitId);
+
   const { data: settings } = useQuery({
-    queryKey: ["settings"],
+    queryKey: ["settings", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("settings").select("*");
+      const { data, error } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("festival_id", festivalId!);
       if (error) throw error;
       return data;
     },
@@ -48,11 +60,13 @@ const Results = () => {
   const teamStandingsAfterResult = (settings?.find(s => s.key === "team_standings_after_result")?.value as number) || 0;
 
   const { data: teams } = useQuery({
-    queryKey: ["teams"],
+    queryKey: ["teams", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("teams")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("published_points", { ascending: false });
       if (error) throw error;
       return data;
@@ -60,7 +74,8 @@ const Results = () => {
   });
 
   const { data: results } = useQuery({
-    queryKey: ["results"],
+    queryKey: ["results", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("results")
@@ -73,6 +88,7 @@ const Results = () => {
           another_grade_team:teams!results_another_grade_team_fkey(name)
         `)
         .eq("is_visible", true)
+        .eq("festival_id", festivalId!)
         .order("result_number", { ascending: false });
       if (error) throw error;
       return data;
@@ -107,6 +123,7 @@ const Results = () => {
       result_id: selectedResultId,
       reporter_name: reporterName,
       issue: reportIssue,
+      festival_id: festivalId,
     });
 
     if (error) {
@@ -415,6 +432,7 @@ const Results = () => {
                       Download Posters
                     </Button>
                   )}
+                  {!readOnly && (
                   <Dialog
                     open={reportDialogOpen && selectedResultId === result.id}
                     onOpenChange={(open) => {
@@ -450,6 +468,8 @@ const Results = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
+                  )}
+
                 </div>
               </div>
             ))}

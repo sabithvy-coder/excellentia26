@@ -2,14 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Video as VideoIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useResolvedFestivalId } from "@/hooks/useFestival";
 
-const Videos = () => {
+interface VideosProps {
+  festivalId?: string;
+  hideHeading?: boolean;
+}
+
+const Videos = ({ festivalId: explicitId, hideHeading = false }: VideosProps) => {
+  const { festivalId } = useResolvedFestivalId(explicitId);
+
   const { data: videos, isLoading } = useQuery({
-    queryKey: ["videos"],
+    queryKey: ["videos", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("videos")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -19,10 +29,12 @@ const Videos = () => {
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-center gap-3 mb-12">
-          <VideoIcon className="w-10 h-10 text-primary" />
-          <h1 className="text-4xl font-bold text-center">Festival Highlights</h1>
-        </div>
+        {!hideHeading && (
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <VideoIcon className="w-10 h-10 text-primary" />
+            <h1 className="text-4xl font-bold text-center">Festival Highlights</h1>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

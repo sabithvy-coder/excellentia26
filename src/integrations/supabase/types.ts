@@ -65,10 +65,41 @@ export type Database = {
         }
         Relationships: []
       }
+      festivals: {
+        Row: {
+          created_at: string
+          id: string
+          is_current: boolean
+          status: string
+          tagline: string | null
+          title: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          status?: string
+          tagline?: string | null
+          title: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          status?: string
+          tagline?: string | null
+          title?: string
+          year?: number
+        }
+        Relationships: []
+      }
       gallery: {
         Row: {
           caption: string | null
           created_at: string | null
+          festival_id: string | null
           id: string
           image_url: string
           link_url: string | null
@@ -76,6 +107,7 @@ export type Database = {
         Insert: {
           caption?: string | null
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           image_url: string
           link_url?: string | null
@@ -83,16 +115,26 @@ export type Database = {
         Update: {
           caption?: string | null
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           image_url?: string
           link_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gallery_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       news: {
         Row: {
           content: string
           created_at: string | null
+          festival_id: string | null
           id: string
           image_url: string | null
           link_url: string | null
@@ -101,6 +143,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           image_url?: string | null
           link_url?: string | null
@@ -109,17 +152,27 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           image_url?: string | null
           link_url?: string | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "news_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       programs: {
         Row: {
           category: string | null
           created_at: string | null
+          festival_years: number[]
           id: string
           name: string
           venue: string | null
@@ -127,6 +180,7 @@ export type Database = {
         Insert: {
           category?: string | null
           created_at?: string | null
+          festival_years?: number[]
           id?: string
           name: string
           venue?: string | null
@@ -134,6 +188,7 @@ export type Database = {
         Update: {
           category?: string | null
           created_at?: string | null
+          festival_years?: number[]
           id?: string
           name?: string
           venue?: string | null
@@ -143,6 +198,7 @@ export type Database = {
       reports: {
         Row: {
           created_at: string | null
+          festival_id: string | null
           gallery_id: string | null
           id: string
           issue: string
@@ -153,6 +209,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          festival_id?: string | null
           gallery_id?: string | null
           id?: string
           issue: string
@@ -163,6 +220,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          festival_id?: string | null
           gallery_id?: string | null
           id?: string
           issue?: string
@@ -172,6 +230,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reports_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reports_gallery_id_fkey"
             columns: ["gallery_id"]
@@ -198,6 +263,7 @@ export type Database = {
       result_requests: {
         Row: {
           created_at: string | null
+          festival_id: string | null
           id: string
           program_name: string
           requester_name: string
@@ -205,6 +271,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           program_name: string
           requester_name: string
@@ -212,12 +279,21 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           program_name?: string
           requester_name?: string
           status?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "result_requests_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       results: {
         Row: {
@@ -226,6 +302,7 @@ export type Database = {
           another_grade_points: number | null
           another_grade_team: string | null
           created_at: string | null
+          festival_id: string | null
           first_place_grade: string | null
           first_place_name: string
           first_place_points: number | null
@@ -250,6 +327,7 @@ export type Database = {
           another_grade_points?: number | null
           another_grade_team?: string | null
           created_at?: string | null
+          festival_id?: string | null
           first_place_grade?: string | null
           first_place_name: string
           first_place_points?: number | null
@@ -274,6 +352,7 @@ export type Database = {
           another_grade_points?: number | null
           another_grade_team?: string | null
           created_at?: string | null
+          festival_id?: string | null
           first_place_grade?: string | null
           first_place_name?: string
           first_place_points?: number | null
@@ -298,6 +377,13 @@ export type Database = {
             columns: ["another_grade_team"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "results_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
             referencedColumns: ["id"]
           },
           {
@@ -333,6 +419,7 @@ export type Database = {
       settings: {
         Row: {
           created_at: string | null
+          festival_id: string | null
           id: string
           key: string
           updated_at: string | null
@@ -340,6 +427,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           key: string
           updated_at?: string | null
@@ -347,16 +435,26 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           key?: string
           updated_at?: string | null
           value?: Json
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "settings_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       students: {
         Row: {
           created_at: string | null
+          festival_id: string | null
           grade: string | null
           id: string
           name: string
@@ -366,6 +464,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          festival_id?: string | null
           grade?: string | null
           id?: string
           name: string
@@ -375,6 +474,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          festival_id?: string | null
           grade?: string | null
           id?: string
           name?: string
@@ -383,6 +483,13 @@ export type Database = {
           team_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "students_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "students_team_id_fkey"
             columns: ["team_id"]
@@ -395,6 +502,7 @@ export type Database = {
       teams: {
         Row: {
           created_at: string | null
+          festival_id: string | null
           id: string
           name: string
           points: number | null
@@ -402,6 +510,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           name: string
           points?: number | null
@@ -409,12 +518,21 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          festival_id?: string | null
           id?: string
           name?: string
           points?: number | null
           published_points?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "teams_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -441,6 +559,7 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          festival_id: string | null
           id: string
           thumbnail_url: string | null
           title: string
@@ -450,6 +569,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description?: string | null
+          festival_id?: string | null
           id?: string
           thumbnail_url?: string | null
           title: string
@@ -459,13 +579,22 @@ export type Database = {
         Update: {
           created_at?: string | null
           description?: string | null
+          festival_id?: string | null
           id?: string
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
           video_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "videos_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
