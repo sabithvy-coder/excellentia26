@@ -257,3 +257,79 @@ All colors MUST be HSL.
     animation: third-gradient 5s ease infinite, third-glow 4.5s ease-in-out infinite;
   }
 }
+
+@layer utilities {
+  /* --- Discovering the Unseen: atmosphere --- */
+  .unseen-veil {
+    background:
+      radial-gradient(120% 80% at 20% 0%, hsl(265 90% 64% / 0.20), transparent 60%),
+      radial-gradient(100% 70% at 85% 20%, hsl(187 95% 56% / 0.14), transparent 60%),
+      radial-gradient(80% 60% at 50% 100%, hsl(248 70% 30% / 0.35), transparent 70%);
+  }
+
+  .glass-card {
+    background: linear-gradient(150deg, hsl(0 0% 100% / 0.07), hsl(0 0% 100% / 0.02));
+    border: 1px solid hsl(0 0% 100% / 0.10);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    box-shadow: 0 24px 60px -30px hsl(240 60% 2% / 0.9);
+    transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s, border-color .45s;
+  }
+  .glass-card:hover {
+    transform: translateY(-6px);
+    border-color: hsl(265 90% 64% / 0.45);
+    box-shadow: 0 30px 80px -30px hsl(265 90% 64% / 0.45), 0 0 40px -12px hsl(187 95% 56% / 0.35);
+  }
+
+  .text-unseen {
+    background: var(--gradient-unseen);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glow-violet { box-shadow: var(--glow-violet); }
+  .glow-cyan { box-shadow: var(--glow-cyan); }
+
+  @keyframes aurora-drift {
+    0%, 100% { transform: translate3d(-4%, 0, 0) scale(1); opacity: .55; }
+    50% { transform: translate3d(4%, -3%, 0) scale(1.12); opacity: .85; }
+  }
+  .animate-aurora { animation: aurora-drift 16s ease-in-out infinite; }
+
+  @keyframes particle-float {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    15% { opacity: .9; }
+    100% { transform: translateY(-120px) scale(.4); opacity: 0; }
+  }
+  .particle {
+    position: absolute;
+    border-radius: 9999px;
+    background: hsl(187 95% 70%);
+    box-shadow: 0 0 12px hsl(187 95% 70% / .9);
+    animation: particle-float linear infinite;
+  }
+
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(36px); filter: blur(10px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  .reveal { animation: reveal-up .9s cubic-bezier(.2,.8,.2,1) both; }
+
+  @keyframes unveil-sweep {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .unveil-text {
+    background-image: linear-gradient(100deg, hsl(230 30% 95%) 20%, hsl(265 90% 74%) 40%, hsl(187 95% 66%) 55%, hsl(230 30% 95%) 75%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: unveil-sweep 7s linear infinite;
+  }
+
+  .timeline-dot {
+    box-shadow: 0 0 0 4px hsl(265 90% 64% / .18), 0 0 24px hsl(187 95% 56% / .7);
+  }
+}
