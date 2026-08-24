@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
-import { Scroll, Calendar, Users, Trophy, MessageCircle, Heart, Sparkles, Video } from "lucide-react";
+import { Calendar, Users, Trophy, MessageCircle, Heart, Sparkles, Video, Eye, Moon, Compass } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import excellentiaLogo from "@/assets/excellentia-logo.png";
 import { Button } from "@/components/ui/button";
 import { useCurrentFestival } from "@/hooks/useFestival";
+import UnseenParticles from "@/components/UnseenParticles";
 
 const Home = () => {
   const { data: festival } = useCurrentFestival();
@@ -205,7 +206,7 @@ const Home = () => {
               <span className="text-foreground font-semibold"> your generosity makes it all possible!</span>
             </p>
 
-            <div className="bg-card/50 backdrop-blur-sm border border-primary/20 rounded-2xl p-8 mb-8 shadow-xl">
+            <div className="glass-card rounded-2xl p-8 mb-8">
               <h3 className="text-2xl font-bold mb-4 text-foreground">Why Your Donation Matters</h3>
               <div className="grid md:grid-cols-2 gap-4 text-left mb-6">
                 <div className="flex items-start gap-3">
@@ -254,7 +255,7 @@ const Home = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
               {videos.map((video) => (
-                <div key={video.id} className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-colors">
+                <div key={video.id} className="glass-card rounded-2xl overflow-hidden">
                   <div className="aspect-video">
                     <iframe
                       src={video.video_url}
@@ -287,7 +288,7 @@ const Home = () => {
                 <Link
                   key={news.id}
                   to={`/news?id=${news.id}`}
-                  className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-colors cursor-pointer block"
+                  className="glass-card rounded-2xl p-6 cursor-pointer block"
                 >
                   <h3 className="text-xl font-bold mb-3">{news.title}</h3>
                   <p className="text-muted-foreground line-clamp-3">{news.content}</p>
