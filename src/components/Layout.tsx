@@ -1,15 +1,36 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import excellentiaLogo from "@/assets/excellentia-main-logo.png";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Hidden admin access: 5 quick taps on the logo
+  const clicks = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    clicks.current += 1;
+    if (timer.current) clearTimeout(timer.current);
+    if (clicks.current >= 5) {
+      clicks.current = 0;
+      navigate("/admin");
+      return;
+    }
+    timer.current = setTimeout(() => {
+      if (clicks.current === 1) navigate("/");
+      clicks.current = 0;
+    }, 600);
+  };
 
   const isActive = (path: string) => location.pathname === path;
   // Archived editions keep their original look
   const isArchive = location.pathname.startsWith("/fest/");
+
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -28,10 +49,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center">
-              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" />
+            {/* Logo — 5 quick taps opens the admin login */}
+            <Link to="/" onClick={handleLogoClick} className="flex items-center select-none">
+              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" draggable={false} />
             </Link>
+
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-6">
@@ -48,12 +70,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/admin"
-                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
-              >
-                Admin
-              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -82,13 +98,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-primary font-medium"
-              >
-                Admin Login
-              </Link>
             </div>
           )}
         </div>
