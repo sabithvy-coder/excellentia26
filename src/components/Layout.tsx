@@ -49,10 +49,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center">
-              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" />
+            {/* Logo — 5 quick taps opens the admin login */}
+            <Link to="/" onClick={handleLogoClick} className="flex items-center select-none">
+              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" draggable={false} />
             </Link>
+
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-6">
