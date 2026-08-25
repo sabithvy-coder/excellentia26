@@ -1,15 +1,36 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import excellentiaLogo from "@/assets/excellentia-main-logo.png";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Hidden admin access: 5 quick taps on the logo
+  const clicks = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    clicks.current += 1;
+    if (timer.current) clearTimeout(timer.current);
+    if (clicks.current >= 5) {
+      clicks.current = 0;
+      navigate("/admin");
+      return;
+    }
+    timer.current = setTimeout(() => {
+      if (clicks.current === 1) navigate("/");
+      clicks.current = 0;
+    }, 600);
+  };
 
   const isActive = (path: string) => location.pathname === path;
   // Archived editions keep their original look
   const isArchive = location.pathname.startsWith("/fest/");
+
 
   const navLinks = [
     { path: "/", label: "Home" },
