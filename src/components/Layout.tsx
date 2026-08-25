@@ -70,12 +70,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/admin"
-                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
-              >
-                Admin
-              </Link>
             </div>
 
             {/* Mobile Menu Button */}
