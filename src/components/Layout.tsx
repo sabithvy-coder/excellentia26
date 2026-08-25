@@ -98,13 +98,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-primary font-medium"
-              >
-                Admin Login
-              </Link>
             </div>
           )}
         </div>
