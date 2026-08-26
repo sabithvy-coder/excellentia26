@@ -76,7 +76,7 @@ const Home = () => {
               Excellentia {festival?.year ?? 2026}
             </p>
             <h1 className="font-sora font-extrabold leading-[0.95] mb-8 reveal" style={{ animationDelay: "0.2s" }}>
-              <span className="block text-5xl md:text-8xl unveil-text">DISCOVERING</span>
+              <span className="block text-5xl md:text-8xl unveil-text">DISCOVER</span>
               <span className="block text-5xl md:text-8xl text-unseen">THE UNSEEN</span>
             </h1>
             <p className="text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10 reveal" style={{ animationDelay: "0.35s" }}>
