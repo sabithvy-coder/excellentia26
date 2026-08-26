@@ -1,7 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useRef, useState } from "react";
-import excellentiaLogo from "@/assets/excellentia-main-logo.png";
+import excellentiaWordmarkAsset from "@/assets/excellentia-wordmark.png.asset.json";
+import InstallApp from "@/components/InstallApp";
+
+const excellentiaWordmark = excellentiaWordmarkAsset.url;
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -51,7 +54,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="flex items-center justify-between h-16">
             {/* Logo — 5 quick taps opens the admin login */}
             <Link to="/" onClick={handleLogoClick} className="flex items-center select-none">
-              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" draggable={false} />
+              <img src={excellentiaWordmark} alt="Excellentia" className="h-10 w-auto" draggable={false} />
             </Link>
 
 
@@ -106,13 +109,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Main Content */}
       <main>{children}</main>
 
+      <InstallApp />
+
       {/* Footer */}
       <footer className="border-t border-border bg-card mt-20">
         <div className="container mx-auto px-4 py-8 text-center">
           <h3 className="text-xl font-bold mb-2">Ma'din School of Excellence</h3>
           <p className="text-muted-foreground mb-4">Near Police Station, Malappuram</p>
           <p className="text-lg font-semibold text-unseen">
-            Excellentia 2026 · Discovering the Unseen
+            Excellentia 2026 · Discover the Unseen
           </p>
           <p className="text-sm text-muted-foreground mt-4">© 2026 All Rights Reserved</p>
         </div>

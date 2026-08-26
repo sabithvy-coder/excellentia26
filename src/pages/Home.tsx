@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Calendar, Users, Trophy, MessageCircle, Heart, Sparkles, Video, Eye, Moon, Compass } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import excellentiaLogo from "@/assets/excellentia-logo.png";
+import themeLogoAsset from "@/assets/discover-the-unseen.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { useCurrentFestival } from "@/hooks/useFestival";
 import UnseenParticles from "@/components/UnseenParticles";
@@ -71,12 +71,12 @@ const Home = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-5xl mx-auto">
-            <img src={excellentiaLogo} alt="Excellentia arts festival logo" className="w-52 mx-auto mb-8 reveal" />
+            <img src={themeLogoAsset.url} alt="Discover the Unseen — Excellentia theme logo" className="w-72 md:w-96 mx-auto mb-8 reveal" />
             <p className="text-xs md:text-sm tracking-[0.5em] uppercase text-secondary/90 mb-6 reveal" style={{ animationDelay: "0.1s" }}>
               Excellentia {festival?.year ?? 2026}
             </p>
             <h1 className="font-sora font-extrabold leading-[0.95] mb-8 reveal" style={{ animationDelay: "0.2s" }}>
-              <span className="block text-5xl md:text-8xl unveil-text">DISCOVERING</span>
+              <span className="block text-5xl md:text-8xl unveil-text">DISCOVER</span>
               <span className="block text-5xl md:text-8xl text-unseen">THE UNSEEN</span>
             </h1>
             <p className="text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10 reveal" style={{ animationDelay: "0.35s" }}>
