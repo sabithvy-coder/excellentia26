@@ -54,7 +54,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="flex items-center justify-between h-16">
             {/* Logo — 5 quick taps opens the admin login */}
             <Link to="/" onClick={handleLogoClick} className="flex items-center select-none">
-              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" draggable={false} />
+              <img src={excellentiaWordmark} alt="Excellentia" className="h-10 w-auto" draggable={false} />
             </Link>
 
 
@@ -108,6 +108,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <main>{children}</main>
+
+      <InstallApp />
 
       {/* Footer */}
       <footer className="border-t border-border bg-card mt-20">
