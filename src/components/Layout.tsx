@@ -1,7 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useRef, useState } from "react";
-import excellentiaLogo from "@/assets/excellentia-main-logo.png";
+import excellentiaWordmarkAsset from "@/assets/excellentia-wordmark.png.asset.json";
+import InstallApp from "@/components/InstallApp";
+
+const excellentiaWordmark = excellentiaWordmarkAsset.url;
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

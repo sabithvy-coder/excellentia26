@@ -71,7 +71,7 @@ const Home = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-5xl mx-auto">
-            <img src={excellentiaLogo} alt="Excellentia arts festival logo" className="w-52 mx-auto mb-8 reveal" />
+            <img src={themeLogoAsset.url} alt="Discover the Unseen — Excellentia theme logo" className="w-72 md:w-96 mx-auto mb-8 reveal" />
             <p className="text-xs md:text-sm tracking-[0.5em] uppercase text-secondary/90 mb-6 reveal" style={{ animationDelay: "0.1s" }}>
               Excellentia {festival?.year ?? 2026}
             </p>
