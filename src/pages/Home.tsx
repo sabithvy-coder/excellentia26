@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Calendar, Users, Trophy, MessageCircle, Heart, Sparkles, Video, Eye, Moon, Compass } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import excellentiaLogo from "@/assets/excellentia-logo.png";
+import themeLogoAsset from "@/assets/discover-the-unseen.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { useCurrentFestival } from "@/hooks/useFestival";
 import UnseenParticles from "@/components/UnseenParticles";
