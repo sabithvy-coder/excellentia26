@@ -1,31 +1,40 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Settings as SettingsIcon, Trophy, Edit2 } from "lucide-react";
+import { Settings as SettingsIcon, Trophy, Edit2, Plus, Trash2, Check, X } from "lucide-react";
 import { useState } from "react";
 
 const Settings = () => {
   const queryClient = useQueryClient();
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
 
   const { data: settings } = useQuery({
-    queryKey: ["settings"],
+    queryKey: ["settings", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("settings").select("*");
+      const { data, error } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("festival_id", festivalId!);
       if (error) throw error;
       return data;
     },
   });
 
   const { data: teams } = useQuery({
-    queryKey: ["teams"],
+    queryKey: ["teams", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("teams")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("points", { ascending: false });
       if (error) throw error;
       return data;
@@ -38,13 +47,29 @@ const Settings = () => {
   const [resultThresholdValue, setResultThresholdValue] = useState<number>(0);
   const [editingTeam, setEditingTeam] = useState<string | null>(null);
   const [newPoints, setNewPoints] = useState<number>(0);
+  const [renamingTeam, setRenamingTeam] = useState<string | null>(null);
+  const [teamNameValue, setTeamNameValue] = useState("");
+  const [newTeamName, setNewTeamName] = useState("");
+
+  const upsertSetting = async (key: string, value: any) => {
+    const existing = settings?.find(s => s.key === key);
+    if (existing) {
+      const { error } = await supabase
+        .from("settings")
+        .update({ value, updated_at: new Date().toISOString() })
+        .eq("id", existing.id);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from("settings")
+        .insert({ key, value, festival_id: festivalId });
+      if (error) throw error;
+    }
+  };
 
   const updateResultThresholdMutation = useMutation({
     mutationFn: async (threshold: number) => {
-      const { error } = await supabase
-        .from("settings")
-        .upsert({ key: "team_standings_after_result", value: threshold }, { onConflict: "key" });
-      if (error) throw error;
+      await upsertSetting("team_standings_after_result", threshold);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["settings"] });
@@ -77,31 +102,73 @@ const Settings = () => {
     },
   });
 
+  const renameTeamMutation = useMutation({
+    mutationFn: async ({ teamId, name }: { teamId: string; name: string }) => {
+      if (!name.trim()) throw new Error("Team name cannot be empty");
+      const { error } = await supabase
+        .from("teams")
+        .update({ name: name.trim() })
+        .eq("id", teamId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      toast.success("Team name updated!");
+      setRenamingTeam(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to rename team");
+    },
+  });
+
+  const addTeamMutation = useMutation({
+    mutationFn: async (name: string) => {
+      if (!name.trim()) throw new Error("Team name is required");
+      const { error } = await supabase
+        .from("teams")
+        .insert({ name: name.trim(), points: 0, published_points: 0, festival_id: festivalId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      toast.success("Team added!");
+      setNewTeamName("");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to add team");
+    },
+  });
+
+  const deleteTeamMutation = useMutation({
+    mutationFn: async (teamId: string) => {
+      const { error } = await supabase.from("teams").delete().eq("id", teamId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      toast.success("Team removed");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to remove team");
+    },
+  });
+
   const publishTeamPointsMutation = useMutation({
     mutationFn: async () => {
       if (!teams) return;
-      
-      const updates = teams.map(team => 
+
+      const updates = teams.map(team =>
         supabase
           .from("teams")
           .update({ published_points: team.points })
           .eq("id", team.id)
       );
-      
+
       const results = await Promise.all(updates);
       const errors = results.filter(r => r.error);
       if (errors.length > 0) throw new Error("Failed to publish some team points");
 
-      // Set team_standings_visible to true
-      const { error: settingsError } = await supabase
-        .from("settings")
-        .upsert({ 
-          key: "team_standings_visible", 
-          value: true,
-          updated_at: new Date().toISOString()
-        }, { onConflict: "key" });
-
-      if (settingsError) throw settingsError;
+      await upsertSetting("team_standings_visible", true);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teams"] });
@@ -119,6 +186,11 @@ const Settings = () => {
         <CardTitle className="flex items-center gap-2">
           <SettingsIcon className="w-5 h-5" />
           Team Points Management
+          {festival && (
+            <span className="text-sm font-normal text-muted-foreground">
+              — Excellentia {festival.year}
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -179,7 +251,7 @@ const Settings = () => {
 
         {/* Team Points */}
         <div className="p-4 border rounded-lg space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Trophy className="w-5 h-5" />
               <Label className="text-base font-medium">All Team Points</Label>
@@ -191,15 +263,65 @@ const Settings = () => {
               Publish Team Standings
             </Button>
           </div>
+
+          {/* Add team */}
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="New team name"
+              value={newTeamName}
+              onChange={(e) => setNewTeamName(e.target.value)}
+            />
+            <Button
+              variant="outline"
+              onClick={() => addTeamMutation.mutate(newTeamName)}
+              disabled={addTeamMutation.isPending || !newTeamName.trim()}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Team
+            </Button>
+          </div>
+
           <div className="space-y-2">
             {teams?.map((team, index) => (
               <div
                 key={team.id}
-                className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                className="flex flex-wrap items-center justify-between gap-2 p-3 bg-muted/50 rounded-lg"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <span className="text-sm font-semibold w-6">#{index + 1}</span>
-                  <span className="font-medium">{team.name}</span>
+                  {renamingTeam === team.id ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={teamNameValue}
+                        onChange={(e) => setTeamNameValue(e.target.value)}
+                        className="w-48"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => renameTeamMutation.mutate({ teamId: team.id, name: teamNameValue })}
+                        disabled={renameTeamMutation.isPending}
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setRenamingTeam(null)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{team.name}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setRenamingTeam(team.id);
+                          setTeamNameValue(team.name);
+                        }}
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 {editingTeam === team.id ? (
                   <div className="flex items-center gap-2">
@@ -238,10 +360,24 @@ const Settings = () => {
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive"
+                      onClick={() => deleteTeamMutation.mutate(team.id)}
+                      disabled={deleteTeamMutation.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 )}
               </div>
             ))}
+            {(!teams || teams.length === 0) && (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                No teams yet for this edition — add one above.
+              </p>
+            )}
           </div>
         </div>
       </CardContent>

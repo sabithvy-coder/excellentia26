@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -18,10 +19,14 @@ import {
 import EditResult from "./EditResult";
 
 const ManageResults = () => {
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
+  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
 
   const { data: results } = useQuery({
-    queryKey: ["results-with-details"],
+    queryKey: ["results-with-details", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("results")
@@ -29,6 +34,7 @@ const ManageResults = () => {
           *,
           programs (name)
         `)
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;

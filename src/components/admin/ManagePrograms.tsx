@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,9 @@ import { toast } from "sonner";
 import { Plus, Trash2, Edit } from "lucide-react";
 
 const ManagePrograms = () => {
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
+  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [programName, setProgramName] = useState("");
   const [category, setCategory] = useState("");
@@ -34,11 +38,13 @@ const ManagePrograms = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: programs } = useQuery({
-    queryKey: ["programs"],
+    queryKey: ["programs", festivalYear],
+    enabled: !!festivalYear,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("programs")
         .select("*")
+        .contains("festival_years", [festivalYear!])
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -51,7 +57,9 @@ const ManagePrograms = () => {
         const { error } = await supabase.from("programs").update(programData).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("programs").insert(programData);
+        const { error } = await supabase
+          .from("programs")
+          .insert({ ...programData, festival_years: [festivalYear] });
         if (error) throw error;
       }
     },

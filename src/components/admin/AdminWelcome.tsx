@@ -1,15 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentFestival } from "@/hooks/useFestival";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy } from "lucide-react";
 
 const AdminWelcome = () => {
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
+  const festivalYear = festival?.year;
   const { data: teams } = useQuery({
-    queryKey: ["teams"],
+    queryKey: ["teams", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("teams")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("points", { ascending: false });
       if (error) throw error;
       return data;
