@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,16 +10,21 @@ import EditResult from "./EditResult";
 import { useState } from "react";
 
 const Notifications = () => {
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
+  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [editingResult, setEditingResult] = useState<any>(null);
   const [resolvingReportId, setResolvingReportId] = useState<string | null>(null);
 
   const { data: resultRequests } = useQuery({
-    queryKey: ["result-requests"],
+    queryKey: ["result-requests", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("result_requests")
         .select("*")
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -26,11 +32,13 @@ const Notifications = () => {
   });
 
   const { data: reports } = useQuery({
-    queryKey: ["reports"],
+    queryKey: ["reports", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("reports")
         .select("*, result:results(*, program:programs(*))")
+        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;

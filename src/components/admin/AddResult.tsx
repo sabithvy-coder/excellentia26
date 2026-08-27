@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,9 @@ const GRADE_POINTS: Record<string, number> = {
 };
 
 const AddResult = () => {
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
+  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [selectedProgram, setSelectedProgram] = useState("");
   const [category, setCategory] = useState("");
@@ -56,27 +60,36 @@ const AddResult = () => {
   const [uploadingPosters, setUploadingPosters] = useState(false);
 
   const { data: programs } = useQuery({
-    queryKey: ["programs"],
+    queryKey: ["programs", festivalYear],
+    enabled: !!festivalYear,
     queryFn: async () => {
-      const { data, error } = await supabase.from("programs").select("*");
+      const { data, error } = await supabase
+        .from("programs")
+        .select("*")
+        .contains("festival_years", [festivalYear!]);
       if (error) throw error;
       return data;
     },
   });
 
   const { data: existingResults } = useQuery({
-    queryKey: ["results"],
+    queryKey: ["results", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("results").select("program_id");
+      const { data, error } = await supabase
+        .from("results")
+        .select("program_id")
+        .eq("festival_id", festivalId!);
       if (error) throw error;
       return data;
     },
   });
 
   const { data: teams } = useQuery({
-    queryKey: ["teams"],
+    queryKey: ["teams", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("teams").select("*");
+      const { data, error } = await supabase.from("teams").select("*").eq("festival_id", festivalId!);
       if (error) throw error;
       return data;
     },
@@ -87,11 +100,13 @@ const AddResult = () => {
 
   // Fetch the latest result number for preview
   useQuery({
-    queryKey: ["latestResultNumber"],
+    queryKey: ["latestResultNumber", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("results")
         .select("result_number")
+        .eq("festival_id", festivalId!)
         .order("result_number", { ascending: false })
         .limit(1)
         .single();
@@ -132,6 +147,7 @@ const AddResult = () => {
 
       const { error } = await supabase.from("results").insert({
         ...resultData,
+        festival_id: festivalId,
         poster_urls: posterUrls
       });
       if (error) throw error;

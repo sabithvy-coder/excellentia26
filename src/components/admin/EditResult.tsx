@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,9 @@ interface EditResultProps {
 }
 
 const EditResult = ({ result, open: externalOpen, onOpenChange: externalOnOpenChange, onSuccess: externalOnSuccess }: EditResultProps) => {
+  const { data: festival } = useCurrentFestival();
+  const festivalId = festival?.id;
+  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [internalOpen, setInternalOpen] = useState(false);
   
@@ -114,18 +118,23 @@ const EditResult = ({ result, open: externalOpen, onOpenChange: externalOnOpenCh
   }, [result]);
 
   const { data: programs } = useQuery({
-    queryKey: ["programs"],
+    queryKey: ["programs", festivalYear],
+    enabled: !!festivalYear,
     queryFn: async () => {
-      const { data, error } = await supabase.from("programs").select("*");
+      const { data, error } = await supabase
+        .from("programs")
+        .select("*")
+        .contains("festival_years", [festivalYear!]);
       if (error) throw error;
       return data;
     },
   });
 
   const { data: teams } = useQuery({
-    queryKey: ["teams"],
+    queryKey: ["teams", festivalId],
+    enabled: !!festivalId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("teams").select("*");
+      const { data, error } = await supabase.from("teams").select("*").eq("festival_id", festivalId!);
       if (error) throw error;
       return data;
     },
