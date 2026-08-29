@@ -142,7 +142,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
       {/* Team Standings - Only show if admin has published */}
       {teamStandingsVisible && teams && (
         <section className="mb-12">
-          <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent poly-heading">
             {teamStandingsAfterResult >= latestResultNumber 
               ? "Final Team Standings" 
               : `Team Standings After Result #${teamStandingsAfterResult}`}
@@ -158,7 +158,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
             }
             
             // Determine card styling based on rank
-            let cardClasses = "rounded-xl text-center transition-all duration-500 relative overflow-hidden";
+            let cardClasses = "poly-card text-center transition-all duration-500 relative overflow-hidden";
             let containerClasses = "";
             let sizeClasses = "";
             const backgroundStyle: React.CSSProperties = {};
@@ -197,7 +197,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                 willChange: 'transform'
               });
             } else {
-              cardClasses += " bg-card border border-border";
+              cardClasses += " poly-card";
               containerClasses = "lg:col-start-3 lg:row-start-2";
               sizeClasses = "p-6 lg:p-8";
             }
@@ -247,16 +247,16 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
       <section className="mb-8 max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5 z-10" />
             <Input
               placeholder="Search by program or participant name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 poly-chip bg-card/60 backdrop-blur-md border-white/10 focus-visible:ring-primary/60"
             />
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="md:w-[200px]">
+            <SelectTrigger className="md:w-[200px] poly-chip bg-card/60 backdrop-blur-md border-white/10">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
             <SelectContent>
@@ -272,7 +272,8 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
 
       {/* Results List */}
       <section className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Competition Results</h2>
+        <h2 className="text-2xl font-bold mb-4 poly-heading">Competition Results</h2>
+        <div className="poly-divider mb-6" />
         {filteredResults && filteredResults.length > 0 ? (
           <div className="space-y-6">
             {filteredResults.map((result) => (
@@ -282,13 +283,13 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
               >
                 <div className="mb-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
+                    <span className="bg-primary text-primary-foreground px-3 py-1 poly-chip text-sm font-bold">
                       #{result.result_number}
                     </span>
                     <h3 className="text-xl font-bold">{result.program?.name}</h3>
                   </div>
                   {result.program?.category && (
-                    <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary rounded-full text-sm font-medium">
+                    <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary poly-chip text-sm font-medium">
                       {result.program.category}
                     </span>
                   )}
@@ -296,7 +297,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {/* First Place */}
-                  <div className="bg-primary/10 border-2 border-primary rounded-lg p-6 transform md:scale-105 hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <div className="bg-primary/10 border-2 border-primary poly-card-sm p-6 transform md:scale-105 hover:scale-110 transition-transform duration-300 shadow-lg">
                     <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
                     <div className="font-bold text-xl">{result.first_place_name}</div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -312,7 +313,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                   {/* Check for additional first place winner */}
                   {result.additional_grades && Array.isArray(result.additional_grades) && 
                    (result.additional_grades as any[]).find((g: any) => g.place === "1st") && (
-                    <div className="bg-primary/10 border border-primary rounded-lg p-4">
+                    <div className="bg-primary/10 border border-primary poly-card-sm p-4">
                       <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
                       <div className="font-bold text-lg">
                         {(result.additional_grades as any[]).find((g: any) => g.place === "1st").name}
@@ -329,7 +330,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                   )}
 
                    {/* Second Place */}
-                  <div className="bg-secondary/10 border border-secondary rounded-lg p-5 transform md:scale-100 hover:scale-105 transition-transform duration-300 shadow-md">
+                  <div className="bg-secondary/10 border border-secondary poly-card-sm p-5 transform md:scale-100 hover:scale-105 transition-transform duration-300 shadow-md">
                     <div className="text-sm font-medium text-secondary mb-2">🥈 2nd Place</div>
                     <div className="font-bold text-lg">{result.second_place_name}</div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -343,7 +344,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                   </div>
 
                   {/* Third Place */}
-                  <div className="bg-muted/30 border border-muted rounded-lg p-4 transform md:scale-95 hover:scale-100 transition-transform duration-300">
+                  <div className="bg-muted/30 border border-muted poly-card-sm p-4 transform md:scale-95 hover:scale-100 transition-transform duration-300">
                     <div className="text-sm font-medium text-muted-foreground mb-2">
                       🥉 3rd Place
                     </div>
@@ -375,7 +376,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                         return (
                           <div 
                             key={idx} 
-                            className={`rounded-lg p-4 ${
+                            className={`poly-card-sm p-4 ${
                               isSecondPlace 
                                 ? "bg-secondary/10 border border-secondary" 
                                 : isThirdPlace 
@@ -426,7 +427,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                         setSelectedResultName(result.program?.name || "Result");
                         setPosterDialogOpen(true);
                       }}
-                      className="w-full sm:w-auto"
+                      className="w-full sm:w-auto poly-chip"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download Posters
@@ -441,7 +442,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                     }}
                   >
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto poly-chip">
                         <AlertCircle className="w-4 h-4 mr-2" />
                         Report
                       </Button>
@@ -457,7 +458,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                           onChange={(e) => setReporterName(e.target.value)}
                         />
                         <textarea
-                          className="w-full min-h-[100px] p-3 bg-input border border-border rounded-md"
+                          className="w-full min-h-[100px] p-3 bg-input border border-border poly-chip"
                           placeholder="Describe the issue..."
                           value={reportIssue}
                           onChange={(e) => setReportIssue(e.target.value)}
