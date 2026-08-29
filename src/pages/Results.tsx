@@ -142,7 +142,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
       {/* Team Standings - Only show if admin has published */}
       {teamStandingsVisible && teams && (
         <section className="mb-12">
-          <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent poly-heading">
             {teamStandingsAfterResult >= latestResultNumber 
               ? "Final Team Standings" 
               : `Team Standings After Result #${teamStandingsAfterResult}`}
@@ -197,7 +197,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                 willChange: 'transform'
               });
             } else {
-              cardClasses += " bg-card border border-border";
+              cardClasses += " poly-card";
               containerClasses = "lg:col-start-3 lg:row-start-2";
               sizeClasses = "p-6 lg:p-8";
             }
@@ -247,16 +247,16 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
       <section className="mb-8 max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5 z-10" />
             <Input
               placeholder="Search by program or participant name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 poly-chip bg-card/60 backdrop-blur-md border-white/10 focus-visible:ring-primary/60"
             />
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="md:w-[200px]">
+            <SelectTrigger className="md:w-[200px] poly-chip bg-card/60 backdrop-blur-md border-white/10">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
             <SelectContent>
@@ -272,7 +272,8 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
 
       {/* Results List */}
       <section className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Competition Results</h2>
+        <h2 className="text-2xl font-bold mb-4 poly-heading">Competition Results</h2>
+        <div className="poly-divider mb-6" />
         {filteredResults && filteredResults.length > 0 ? (
           <div className="space-y-6">
             {filteredResults.map((result) => (
@@ -282,13 +283,13 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
               >
                 <div className="mb-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
+                    <span className="bg-primary text-primary-foreground px-3 py-1 poly-chip text-sm font-bold">
                       #{result.result_number}
                     </span>
                     <h3 className="text-xl font-bold">{result.program?.name}</h3>
                   </div>
                   {result.program?.category && (
-                    <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary rounded-full text-sm font-medium">
+                    <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary poly-chip text-sm font-medium">
                       {result.program.category}
                     </span>
                   )}
