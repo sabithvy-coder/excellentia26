@@ -47,10 +47,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className={`min-h-screen bg-background text-foreground font-sora ${isArchive ? "legacy-2025" : ""}`}>
+    <div className={`relative min-h-screen bg-background text-foreground font-sora ${isArchive ? "legacy-2025" : ""}`}>
+      {!isArchive && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <LowPolyBackdrop className="opacity-70" />
+        </div>
+      )}
+      <div className="relative z-10">
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
+
           <div className="flex items-center justify-between h-16">
             {/* Logo — 5 quick taps opens the admin login */}
             <Link to="/" onClick={handleLogoClick} className="flex items-center select-none">
