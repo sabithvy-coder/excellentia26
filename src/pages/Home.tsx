@@ -102,12 +102,12 @@ const Home = () => {
 
             <div className="flex flex-wrap gap-4 justify-center reveal" style={{ animationDelay: "0.55s" }}>
               <Link to="/results">
-                <Button size="lg" className="rounded-full px-8 glow-violet">
+                <Button size="lg" className="poly-chip px-8 glow-violet">
                   Enter the Unseen
                 </Button>
               </Link>
               <Link to="/gallery">
-                <Button size="lg" variant="outline" className="rounded-full px-8 border-secondary/40 text-secondary hover:bg-secondary/10">
+                <Button size="lg" variant="outline" className="poly-chip px-8 border-secondary/40 text-secondary hover:bg-secondary/10">
                   Immersive Gallery
                 </Button>
               </Link>
