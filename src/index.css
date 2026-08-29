@@ -332,4 +332,73 @@ All colors MUST be HSL.
   .timeline-dot {
     box-shadow: 0 0 0 4px hsl(265 90% 64% / .18), 0 0 24px hsl(187 95% 56% / .7);
   }
+
+  /* --- Low-poly geometry art system --- */
+  @keyframes poly-shift {
+    0%, 100% { opacity: .55; transform: translate3d(0, 0, 0); }
+    50% { opacity: 1; transform: translate3d(0.35%, -0.5%, 0); }
+  }
+  .poly-facet {
+    animation-name: poly-shift;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  /* Faceted, chamfered panel — the core low-poly card */
+  .poly-card {
+    position: relative;
+    background:
+      linear-gradient(135deg, hsl(0 0% 100% / 0.07) 0%, hsl(0 0% 100% / 0.02) 45%, hsl(265 90% 64% / 0.06) 100%);
+    border: 1px solid hsl(0 0% 100% / 0.10);
+    clip-path: polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 24px 60px -32px hsl(240 60% 2% / 0.9);
+    transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, background .4s;
+  }
+  .poly-card:hover {
+    transform: translateY(-5px);
+    background:
+      linear-gradient(135deg, hsl(265 90% 64% / 0.14) 0%, hsl(0 0% 100% / 0.03) 50%, hsl(187 95% 56% / 0.12) 100%);
+    box-shadow: 0 30px 80px -34px hsl(265 90% 64% / 0.5), 0 0 40px -14px hsl(187 95% 56% / 0.35);
+  }
+
+  .poly-card-sm {
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+
+  /* Angular button / chip shape */
+  .poly-chip {
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    border-radius: 0 !important;
+  }
+
+  /* Faceted hex-ish media frame */
+  .poly-frame {
+    clip-path: polygon(0 18px, 18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+  }
+
+  /* Angled section separators */
+  .poly-top {
+    clip-path: polygon(0 3vw, 50% 0, 100% 3vw, 100% 100%, 0 100%);
+  }
+  .poly-bottom {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3vw), 50% 100%, 0 calc(100% - 3vw));
+  }
+
+  /* Thin faceted rule */
+  .poly-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(265 90% 64% / .8), hsl(187 95% 56% / .8), transparent);
+    clip-path: polygon(0 0, 6% 100%, 18% 0, 32% 100%, 46% 0, 60% 100%, 74% 0, 88% 100%, 100% 0, 100% 100%, 0 100%);
+  }
+
+  /* Crystalline text treatment for headings */
+  .poly-heading {
+    letter-spacing: .02em;
+    text-shadow: 0 0 22px hsl(265 90% 64% / .35), 0 0 60px hsl(187 95% 56% / .18);
+  }
 }
+

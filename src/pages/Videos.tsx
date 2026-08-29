@@ -51,7 +51,7 @@ const Videos = ({ festivalId: explicitId, hideHeading = false }: VideosProps) =>
             {videos.map((video) => (
               <div
                 key={video.id}
-                className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-colors hover:shadow-lg"
+                className="poly-card overflow-hidden hover:border-primary transition-colors hover:shadow-lg"
               >
                 <div className="aspect-video">
                   <iframe

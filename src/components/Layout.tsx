@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useRef, useState } from "react";
 import excellentiaWordmarkAsset from "@/assets/excellentia-wordmark.png.asset.json";
 import InstallApp from "@/components/InstallApp";
+import LowPolyBackdrop from "@/components/LowPolyBackdrop";
 
 const excellentiaWordmark = excellentiaWordmarkAsset.url;
 
@@ -47,10 +48,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className={`min-h-screen bg-background text-foreground font-sora ${isArchive ? "legacy-2025" : ""}`}>
+    <div className={`relative min-h-screen bg-background text-foreground font-sora ${isArchive ? "legacy-2025" : ""}`}>
+      {!isArchive && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <LowPolyBackdrop className="opacity-70" />
+        </div>
+      )}
+      <div className="relative z-10">
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
+
           <div className="flex items-center justify-between h-16">
             {/* Logo — 5 quick taps opens the admin login */}
             <Link to="/" onClick={handleLogoClick} className="flex items-center select-none">
@@ -112,17 +120,21 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <InstallApp />
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card mt-20">
-        <div className="container mx-auto px-4 py-8 text-center">
+      <footer className={`relative border-t border-border bg-card mt-20 ${isArchive ? "" : "poly-top overflow-hidden"}`}>
+        {!isArchive && <LowPolyBackdrop className="opacity-60" />}
+        <div className="container mx-auto px-4 py-12 pt-[6vw] text-center relative z-10">
           <h3 className="text-xl font-bold mb-2">Ma'din School of Excellence</h3>
           <p className="text-muted-foreground mb-4">Near Police Station, Malappuram</p>
+          <div className="poly-divider max-w-xs mx-auto mb-4" />
           <p className="text-lg font-semibold text-unseen">
             Excellentia 2026 · Discover the Unseen
           </p>
           <p className="text-sm text-muted-foreground mt-4">© 2026 All Rights Reserved</p>
         </div>
       </footer>
+      </div>
     </div>
+
   );
 };
 

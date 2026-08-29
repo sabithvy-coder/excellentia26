@@ -278,7 +278,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
             {filteredResults.map((result) => (
               <div
                 key={result.id}
-                className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-colors"
+                className="poly-card p-6 hover:border-primary transition-colors"
               >
                 <div className="mb-4">
                   <div className="flex items-center gap-3 mb-2">

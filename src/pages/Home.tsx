@@ -6,6 +6,7 @@ import themeLogoAsset from "@/assets/discover-the-unseen.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { useCurrentFestival } from "@/hooks/useFestival";
 import UnseenParticles from "@/components/UnseenParticles";
+import LowPolyBackdrop from "@/components/LowPolyBackdrop";
 
 const Home = () => {
   const { data: festival } = useCurrentFestival();
@@ -66,8 +67,10 @@ const Home = () => {
 
         {/* Atmospheric layers */}
         <div className="absolute inset-0 unseen-veil animate-aurora" />
+        <LowPolyBackdrop className="opacity-90 mix-blend-screen" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background" />
         <UnseenParticles />
+
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-5xl mx-auto">
@@ -85,16 +88,16 @@ const Home = () => {
 
             <div className="flex flex-wrap gap-3 justify-center mb-12 reveal" style={{ animationDelay: "0.45s" }}>
               {festival?.tagline && (
-                <span className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm">
+                <span className="poly-card poly-chip px-5 py-2.5 flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4 text-secondary" />
                   {festival.tagline}
                 </span>
               )}
-              <span className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm">
+              <span className="poly-card poly-chip px-5 py-2.5 flex items-center gap-2 text-sm">
                 <Users className="w-4 h-4 text-secondary" />
                 150+ Competitors
               </span>
-              <span className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm">
+              <span className="poly-card poly-chip px-5 py-2.5 flex items-center gap-2 text-sm">
                 <Trophy className="w-4 h-4 text-secondary" />
                 100+ Competitions
               </span>
@@ -102,12 +105,12 @@ const Home = () => {
 
             <div className="flex flex-wrap gap-4 justify-center reveal" style={{ animationDelay: "0.55s" }}>
               <Link to="/results">
-                <Button size="lg" className="rounded-full px-8 glow-violet">
+                <Button size="lg" className="poly-chip px-8 glow-violet">
                   Enter the Unseen
                 </Button>
               </Link>
               <Link to="/gallery">
-                <Button size="lg" variant="outline" className="rounded-full px-8 border-secondary/40 text-secondary hover:bg-secondary/10">
+                <Button size="lg" variant="outline" className="poly-chip px-8 border-secondary/40 text-secondary hover:bg-secondary/10">
                   Immersive Gallery
                 </Button>
               </Link>
@@ -140,7 +143,7 @@ const Home = () => {
                       i % 2 ? "md:-left-0" : "md:left-auto md:-right-0 md:translate-x-1/2"
                     }`}
                   />
-                  <div className="glass-card rounded-2xl p-6">
+                  <div className="poly-card p-6">
                     <div className={`flex items-center gap-3 mb-3 ${i % 2 ? "" : "md:justify-end"}`}>
                       <phase.icon className="w-5 h-5 text-secondary" />
                       <h3 className="font-sora font-bold text-xl">{phase.label}</h3>
@@ -206,7 +209,7 @@ const Home = () => {
               <span className="text-foreground font-semibold"> your generosity makes it all possible!</span>
             </p>
 
-            <div className="glass-card rounded-2xl p-8 mb-8">
+            <div className="poly-card p-8 mb-8">
               <h3 className="text-2xl font-bold mb-4 text-foreground">Why Your Donation Matters</h3>
               <div className="grid md:grid-cols-2 gap-4 text-left mb-6">
                 <div className="flex items-start gap-3">
@@ -255,7 +258,7 @@ const Home = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
               {videos.map((video) => (
-                <div key={video.id} className="glass-card rounded-2xl overflow-hidden">
+                <div key={video.id} className="poly-card overflow-hidden">
                   <div className="aspect-video">
                     <iframe
                       src={video.video_url}
@@ -288,7 +291,7 @@ const Home = () => {
                 <Link
                   key={news.id}
                   to={`/news?id=${news.id}`}
-                  className="glass-card rounded-2xl p-6 cursor-pointer block"
+                  className="poly-card p-6 cursor-pointer block"
                 >
                   <h3 className="text-xl font-bold mb-3">{news.title}</h3>
                   <p className="text-muted-foreground line-clamp-3">{news.content}</p>
