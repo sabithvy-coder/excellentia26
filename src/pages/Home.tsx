@@ -6,6 +6,7 @@ import themeLogoAsset from "@/assets/discover-the-unseen.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { useCurrentFestival } from "@/hooks/useFestival";
 import UnseenParticles from "@/components/UnseenParticles";
+import LowPolyBackdrop from "@/components/LowPolyBackdrop";
 
 const Home = () => {
   const { data: festival } = useCurrentFestival();
