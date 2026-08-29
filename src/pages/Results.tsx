@@ -158,7 +158,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
             }
             
             // Determine card styling based on rank
-            let cardClasses = "rounded-xl text-center transition-all duration-500 relative overflow-hidden";
+            let cardClasses = "poly-card text-center transition-all duration-500 relative overflow-hidden";
             let containerClasses = "";
             let sizeClasses = "";
             const backgroundStyle: React.CSSProperties = {};
@@ -297,7 +297,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {/* First Place */}
-                  <div className="bg-primary/10 border-2 border-primary rounded-lg p-6 transform md:scale-105 hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <div className="bg-primary/10 border-2 border-primary poly-card-sm p-6 transform md:scale-105 hover:scale-110 transition-transform duration-300 shadow-lg">
                     <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
                     <div className="font-bold text-xl">{result.first_place_name}</div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -313,7 +313,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                   {/* Check for additional first place winner */}
                   {result.additional_grades && Array.isArray(result.additional_grades) && 
                    (result.additional_grades as any[]).find((g: any) => g.place === "1st") && (
-                    <div className="bg-primary/10 border border-primary rounded-lg p-4">
+                    <div className="bg-primary/10 border border-primary poly-card-sm p-4">
                       <div className="text-sm font-medium text-primary mb-2">🥇 1st Place</div>
                       <div className="font-bold text-lg">
                         {(result.additional_grades as any[]).find((g: any) => g.place === "1st").name}
@@ -330,7 +330,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                   )}
 
                    {/* Second Place */}
-                  <div className="bg-secondary/10 border border-secondary rounded-lg p-5 transform md:scale-100 hover:scale-105 transition-transform duration-300 shadow-md">
+                  <div className="bg-secondary/10 border border-secondary poly-card-sm p-5 transform md:scale-100 hover:scale-105 transition-transform duration-300 shadow-md">
                     <div className="text-sm font-medium text-secondary mb-2">🥈 2nd Place</div>
                     <div className="font-bold text-lg">{result.second_place_name}</div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -344,7 +344,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                   </div>
 
                   {/* Third Place */}
-                  <div className="bg-muted/30 border border-muted rounded-lg p-4 transform md:scale-95 hover:scale-100 transition-transform duration-300">
+                  <div className="bg-muted/30 border border-muted poly-card-sm p-4 transform md:scale-95 hover:scale-100 transition-transform duration-300">
                     <div className="text-sm font-medium text-muted-foreground mb-2">
                       🥉 3rd Place
                     </div>
@@ -376,7 +376,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                         return (
                           <div 
                             key={idx} 
-                            className={`rounded-lg p-4 ${
+                            className={`poly-card-sm p-4 ${
                               isSecondPlace 
                                 ? "bg-secondary/10 border border-secondary" 
                                 : isThirdPlace 
