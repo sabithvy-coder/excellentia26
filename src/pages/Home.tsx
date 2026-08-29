@@ -66,8 +66,10 @@ const Home = () => {
 
         {/* Atmospheric layers */}
         <div className="absolute inset-0 unseen-veil animate-aurora" />
+        <LowPolyBackdrop className="opacity-90 mix-blend-screen" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background" />
         <UnseenParticles />
+
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-5xl mx-auto">
