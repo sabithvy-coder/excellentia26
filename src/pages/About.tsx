@@ -10,7 +10,7 @@ const About = () => {
 
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Main Description */}
-        <section className="bg-card border border-border rounded-lg p-8">
+        <section className="poly-card p-8">
           <div className="flex items-center gap-4 mb-6">
             <img src={themeLogoAsset.url} alt="Discover the Unseen theme logo" className="w-24 h-auto" />
             <h2 className="text-2xl font-bold">Discover the Unseen</h2>
@@ -37,28 +37,28 @@ const About = () => {
         <section>
           <h2 className="text-2xl font-bold mb-6">Event Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-card border border-border rounded-lg p-6">
+            <div className="poly-card p-6">
               <Calendar className="w-10 h-10 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Dates</h3>
               <p className="text-muted-foreground">Coming Soon, 2026</p>
               <p className="text-sm text-muted-foreground mt-1">Two days of excellence</p>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6">
+            <div className="poly-card p-6">
               <Users className="w-10 h-10 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Participants</h3>
               <p className="text-muted-foreground">150+ Competitors</p>
               <p className="text-sm text-muted-foreground mt-1">Across four teams</p>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6">
+            <div className="poly-card p-6">
               <Trophy className="w-10 h-10 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Competitions</h3>
               <p className="text-muted-foreground">100+ Events</p>
               <p className="text-sm text-muted-foreground mt-1">Across six venues</p>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6">
+            <div className="poly-card p-6">
               <MapPin className="w-10 h-10 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Venue</h3>
               <p className="text-muted-foreground">Ma'din School of Excellence</p>
@@ -74,7 +74,7 @@ const About = () => {
             {["Marakish", "Dimashq", "Undulus", "Qudus"].map((team) => (
               <div
                 key={team}
-                className="bg-card border border-border rounded-lg p-6 text-center hover:border-primary transition-colors"
+                className="poly-card p-6 text-center hover:border-primary transition-colors"
               >
                 <h3 className="text-2xl font-bold">{team}</h3>
               </div>
@@ -94,7 +94,7 @@ const About = () => {
         </section>
 
         {/* WhatsApp CTA */}
-        <section className="bg-card border border-border rounded-lg p-8 text-center">
+        <section className="poly-card p-8 text-center">
           <MessageCircle className="w-12 h-12 mx-auto mb-4 text-primary" />
           <h2 className="text-2xl font-bold mb-4">Stay Connected</h2>
           <p className="text-muted-foreground mb-6">

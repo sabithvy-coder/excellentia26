@@ -62,7 +62,7 @@ const Gallery = ({ festivalId: explicitId, readOnly = false, hideHeading = false
           {images.map((image) => (
             <div
               key={image.id}
-              className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-colors group"
+              className="poly-card overflow-hidden hover:border-primary transition-colors group"
             >
               {image.link_url ? (
                 <a href={image.link_url} target="_blank" rel="noopener noreferrer">
