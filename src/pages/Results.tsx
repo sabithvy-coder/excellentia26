@@ -427,7 +427,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                         setSelectedResultName(result.program?.name || "Result");
                         setPosterDialogOpen(true);
                       }}
-                      className="w-full sm:w-auto"
+                      className="w-full sm:w-auto poly-chip"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download Posters
@@ -442,7 +442,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                     }}
                   >
                     <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto poly-chip">
                         <AlertCircle className="w-4 h-4 mr-2" />
                         Report
                       </Button>
@@ -458,7 +458,7 @@ const Results = ({ festivalId: explicitId, readOnly = false }: ResultsProps) => 
                           onChange={(e) => setReporterName(e.target.value)}
                         />
                         <textarea
-                          className="w-full min-h-[100px] p-3 bg-input border border-border rounded-md"
+                          className="w-full min-h-[100px] p-3 bg-input border border-border poly-chip"
                           placeholder="Describe the issue..."
                           value={reportIssue}
                           onChange={(e) => setReportIssue(e.target.value)}
