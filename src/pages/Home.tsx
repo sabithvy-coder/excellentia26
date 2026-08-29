@@ -85,16 +85,16 @@ const Home = () => {
 
             <div className="flex flex-wrap gap-3 justify-center mb-12 reveal" style={{ animationDelay: "0.45s" }}>
               {festival?.tagline && (
-                <span className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm">
+                <span className="poly-card poly-chip px-5 py-2.5 flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4 text-secondary" />
                   {festival.tagline}
                 </span>
               )}
-              <span className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm">
+              <span className="poly-card poly-chip px-5 py-2.5 flex items-center gap-2 text-sm">
                 <Users className="w-4 h-4 text-secondary" />
                 150+ Competitors
               </span>
-              <span className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm">
+              <span className="poly-card poly-chip px-5 py-2.5 flex items-center gap-2 text-sm">
                 <Trophy className="w-4 h-4 text-secondary" />
                 100+ Competitions
               </span>
@@ -140,7 +140,7 @@ const Home = () => {
                       i % 2 ? "md:-left-0" : "md:left-auto md:-right-0 md:translate-x-1/2"
                     }`}
                   />
-                  <div className="glass-card rounded-2xl p-6">
+                  <div className="poly-card p-6">
                     <div className={`flex items-center gap-3 mb-3 ${i % 2 ? "" : "md:justify-end"}`}>
                       <phase.icon className="w-5 h-5 text-secondary" />
                       <h3 className="font-sora font-bold text-xl">{phase.label}</h3>
@@ -206,7 +206,7 @@ const Home = () => {
               <span className="text-foreground font-semibold"> your generosity makes it all possible!</span>
             </p>
 
-            <div className="glass-card rounded-2xl p-8 mb-8">
+            <div className="poly-card p-8 mb-8">
               <h3 className="text-2xl font-bold mb-4 text-foreground">Why Your Donation Matters</h3>
               <div className="grid md:grid-cols-2 gap-4 text-left mb-6">
                 <div className="flex items-start gap-3">
@@ -255,7 +255,7 @@ const Home = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
               {videos.map((video) => (
-                <div key={video.id} className="glass-card rounded-2xl overflow-hidden">
+                <div key={video.id} className="poly-card overflow-hidden">
                   <div className="aspect-video">
                     <iframe
                       src={video.video_url}
@@ -288,7 +288,7 @@ const Home = () => {
                 <Link
                   key={news.id}
                   to={`/news?id=${news.id}`}
-                  className="glass-card rounded-2xl p-6 cursor-pointer block"
+                  className="poly-card p-6 cursor-pointer block"
                 >
                   <h3 className="text-xl font-bold mb-3">{news.title}</h3>
                   <p className="text-muted-foreground line-clamp-3">{news.content}</p>

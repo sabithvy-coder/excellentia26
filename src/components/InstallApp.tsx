@@ -69,7 +69,7 @@ const InstallApp = () => {
 
   return (
     <div className="fixed bottom-4 inset-x-4 md:left-auto md:right-6 md:w-96 z-50 reveal">
-      <div className="glass-card rounded-2xl p-4 flex items-start gap-3">
+      <div className="poly-card p-4 flex items-start gap-3">
         <img src="/icon-192.png" alt="" className="w-11 h-11 rounded-xl shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm">Install Excellentia</p>
