@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useRef, useState } from "react";
 import excellentiaWordmarkAsset from "@/assets/excellentia-wordmark.png.asset.json";
 import InstallApp from "@/components/InstallApp";
+import LowPolyBackdrop from "@/components/LowPolyBackdrop";
 
 const excellentiaWordmark = excellentiaWordmarkAsset.url;
 
