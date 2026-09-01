@@ -168,6 +168,47 @@ export type Database = {
           },
         ]
       }
+      photo_requests: {
+        Row: {
+          admin_message: string
+          created_at: string
+          festival_id: string
+          id: string
+          requester_email: string
+          requester_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_message?: string
+          created_at?: string
+          festival_id: string
+          id?: string
+          requester_email: string
+          requester_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_message?: string
+          created_at?: string
+          festival_id?: string
+          id?: string
+          requester_email?: string
+          requester_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_requests_festival_id_fkey"
+            columns: ["festival_id"]
+            isOneToOne: false
+            referencedRelation: "festivals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       programs: {
         Row: {
           category: string | null
