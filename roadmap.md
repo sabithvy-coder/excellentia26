@@ -1,0 +1,5 @@
+- [ ] Remove archived 2025 gallery photos from the database and storage-backed gallery listing.
+- [ ] Add a public “Do you want photos?” request flow with validated name/email capture.
+- [ ] Surface photo requests and the required notification in the admin Gallery panel.
+- [ ] Update homepage hero wording/font, replace “Enter the Unseen” with “Results”, and refresh the About the Theme section with the supplied illustration and copy.
+- [ ] Verify the current site and build output.
