@@ -68,11 +68,11 @@ const Home = () => {
                 Unfolding Excellence{" "}
               </span>
               <span className="inline-block animate-scroll-slide bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent">
-                {festival?.year ?? 2026}
+                {festival?.year ?? 2025}
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              {festival?.title ?? "Excellentia Arts Fiesta 2026"}
+              {festival?.title ?? "Excellentia Arts Fiesta 2025"}
             </p>
             <div className="flex flex-wrap gap-4 justify-center mb-12">
               {festival?.tagline && (
