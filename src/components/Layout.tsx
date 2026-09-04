@@ -101,9 +101,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <h3 className="text-xl font-bold mb-2">Ma'din School of Excellence</h3>
           <p className="text-muted-foreground mb-4">Near Police Station, Malappuram</p>
           <p className="text-lg font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Excellentia Arts Fiesta 2026
+            Excellentia Arts Fiesta 2025
           </p>
-          <p className="text-sm text-muted-foreground mt-4">© 2026 All Rights Reserved</p>
+          <p className="text-sm text-muted-foreground mt-4">© 2025 All Rights Reserved</p>
         </div>
       </footer>
     </div>
