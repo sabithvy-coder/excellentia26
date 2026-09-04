@@ -8,6 +8,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
+  // Archived editions keep their original look
+  const isArchive = location.pathname.startsWith("/fest/");
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -21,7 +23,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`min-h-screen bg-background text-foreground font-sora ${isArchive ? "legacy-2025" : ""}`}>
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
@@ -100,8 +102,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="container mx-auto px-4 py-8 text-center">
           <h3 className="text-xl font-bold mb-2">Ma'din School of Excellence</h3>
           <p className="text-muted-foreground mb-4">Near Police Station, Malappuram</p>
-          <p className="text-lg font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Excellentia Arts Fiesta 2026
+          <p className="text-lg font-semibold text-unseen">
+            Excellentia 2026 · Discovering the Unseen
           </p>
           <p className="text-sm text-muted-foreground mt-4">© 2026 All Rights Reserved</p>
         </div>
