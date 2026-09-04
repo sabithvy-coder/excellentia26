@@ -249,22 +249,6 @@ const Home = () => {
         </section>
       )}
 
-      {/* Past Fests */}
-      <section className="py-12">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold mb-3">Looking for a previous edition?</h2>
-          <p className="text-muted-foreground mb-6">
-            Results, galleries and highlights from earlier Excellentia fests are archived.
-          </p>
-          <Link
-            to="/past-fests"
-            className="inline-block px-6 py-3 border border-border rounded-lg font-medium hover:border-primary transition-colors"
-          >
-            Browse Past Excellentia Fests
-          </Link>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16">
         <div className="container mx-auto px-4 text-center">
