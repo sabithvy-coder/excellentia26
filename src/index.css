@@ -8,79 +8,44 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Excellentia 2026 — "Discovering the Unseen" */
-    --background: 240 48% 5%;
-    --foreground: 230 30% 95%;
+    --background: 0 0% 5%;
+    --foreground: 38 90% 90%;
 
-    --card: 245 42% 9%;
-    --card-foreground: 230 30% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 38 90% 90%;
 
-    --popover: 245 45% 8%;
-    --popover-foreground: 230 30% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 38 90% 90%;
 
-    --primary: 265 90% 64%;
-    --primary-foreground: 240 48% 5%;
+    --primary: 33 100% 50%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 187 95% 56%;
-    --secondary-foreground: 240 48% 5%;
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 0 0% 5%;
 
-    --muted: 244 32% 14%;
-    --muted-foreground: 235 20% 70%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 38 50% 70%;
 
-    --accent: 187 95% 56%;
-    --accent-foreground: 240 48% 5%;
+    --accent: 33 100% 50%;
+    --accent-foreground: 0 0% 5%;
 
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 230 30% 95%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 38 90% 90%;
 
-    --border: 250 35% 20%;
-    --input: 250 32% 16%;
-    --ring: 265 90% 64%;
+    --border: 33 50% 20%;
+    --input: 33 30% 18%;
+    --ring: 33 100% 50%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    /* Theme tokens */
-    --violet: 265 90% 64%;
-    --cyan: 187 95% 56%;
-    --indigo: 248 60% 18%;
-    --midnight: 240 48% 5%;
-    --scroll-gradient: linear-gradient(135deg, hsl(265 90% 64%) 0%, hsl(187 95% 56%) 100%);
-    --dark-gradient: linear-gradient(180deg, hsl(240 48% 5%) 0%, hsl(245 42% 9%) 100%);
-    --gradient-unseen: linear-gradient(120deg, hsl(265 90% 64%) 0%, hsl(224 80% 60%) 45%, hsl(187 95% 56%) 100%);
-    --glow-violet: 0 0 60px hsl(265 90% 64% / 0.35);
-    --glow-cyan: 0 0 60px hsl(187 95% 56% / 0.3);
+    /* Excellentia custom tokens */
+    --scroll-gradient: linear-gradient(135deg, hsl(33 100% 50%) 0%, hsl(38 92% 50%) 100%);
+    --dark-gradient: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 8%) 100%);
     --gold: 38 92% 50%;
     --amber: 33 100% 50%;
     --deep-black: 0 0% 3%;
   }
-
-  /* Legacy Excellentia 2025 theme — used on archived fest pages */
-  .legacy-2025 {
-    --background: 0 0% 5%;
-    --foreground: 38 90% 90%;
-    --card: 0 0% 8%;
-    --card-foreground: 38 90% 90%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 38 90% 90%;
-    --primary: 33 100% 50%;
-    --primary-foreground: 0 0% 5%;
-    --secondary: 38 92% 50%;
-    --secondary-foreground: 0 0% 5%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 38 50% 70%;
-    --accent: 33 100% 50%;
-    --accent-foreground: 0 0% 5%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 38 90% 90%;
-    --border: 33 50% 20%;
-    --input: 33 30% 18%;
-    --ring: 33 100% 50%;
-    --radius: 0.75rem;
-    --scroll-gradient: linear-gradient(135deg, hsl(33 100% 50%) 0%, hsl(38 92% 50%) 100%);
-    --dark-gradient: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 8%) 100%);
-  }
 }
-
 
 @layer base {
   * {
@@ -257,148 +222,3 @@ All colors MUST be HSL.
     animation: third-gradient 5s ease infinite, third-glow 4.5s ease-in-out infinite;
   }
 }
-
-@layer utilities {
-  /* --- Discovering the Unseen: atmosphere --- */
-  .unseen-veil {
-    background:
-      radial-gradient(120% 80% at 20% 0%, hsl(265 90% 64% / 0.20), transparent 60%),
-      radial-gradient(100% 70% at 85% 20%, hsl(187 95% 56% / 0.14), transparent 60%),
-      radial-gradient(80% 60% at 50% 100%, hsl(248 70% 30% / 0.35), transparent 70%);
-  }
-
-  .glass-card {
-    background: linear-gradient(150deg, hsl(0 0% 100% / 0.07), hsl(0 0% 100% / 0.02));
-    border: 1px solid hsl(0 0% 100% / 0.10);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 24px 60px -30px hsl(240 60% 2% / 0.9);
-    transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s, border-color .45s;
-  }
-  .glass-card:hover {
-    transform: translateY(-6px);
-    border-color: hsl(265 90% 64% / 0.45);
-    box-shadow: 0 30px 80px -30px hsl(265 90% 64% / 0.45), 0 0 40px -12px hsl(187 95% 56% / 0.35);
-  }
-
-  .text-unseen {
-    background: var(--gradient-unseen);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .glow-violet { box-shadow: var(--glow-violet); }
-  .glow-cyan { box-shadow: var(--glow-cyan); }
-
-  @keyframes aurora-drift {
-    0%, 100% { transform: translate3d(-4%, 0, 0) scale(1); opacity: .55; }
-    50% { transform: translate3d(4%, -3%, 0) scale(1.12); opacity: .85; }
-  }
-  .animate-aurora { animation: aurora-drift 16s ease-in-out infinite; }
-
-  @keyframes particle-float {
-    0% { transform: translateY(0) scale(1); opacity: 0; }
-    15% { opacity: .9; }
-    100% { transform: translateY(-120px) scale(.4); opacity: 0; }
-  }
-  .particle {
-    position: absolute;
-    border-radius: 9999px;
-    background: hsl(187 95% 70%);
-    box-shadow: 0 0 12px hsl(187 95% 70% / .9);
-    animation: particle-float linear infinite;
-  }
-
-  @keyframes reveal-up {
-    from { opacity: 0; transform: translateY(36px); filter: blur(10px); }
-    to { opacity: 1; transform: translateY(0); filter: blur(0); }
-  }
-  .reveal { animation: reveal-up .9s cubic-bezier(.2,.8,.2,1) both; }
-
-  @keyframes unveil-sweep {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  .unveil-text {
-    background-image: linear-gradient(100deg, hsl(230 30% 95%) 20%, hsl(265 90% 74%) 40%, hsl(187 95% 66%) 55%, hsl(230 30% 95%) 75%);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: unveil-sweep 7s linear infinite;
-  }
-
-  .timeline-dot {
-    box-shadow: 0 0 0 4px hsl(265 90% 64% / .18), 0 0 24px hsl(187 95% 56% / .7);
-  }
-
-  /* --- Low-poly geometry art system --- */
-  @keyframes poly-shift {
-    0%, 100% { opacity: .55; transform: translate3d(0, 0, 0); }
-    50% { opacity: 1; transform: translate3d(0.35%, -0.5%, 0); }
-  }
-  .poly-facet {
-    animation-name: poly-shift;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    transform-origin: center;
-    transform-box: fill-box;
-  }
-
-  /* Faceted, chamfered panel — the core low-poly card */
-  .poly-card {
-    position: relative;
-    background:
-      linear-gradient(135deg, hsl(0 0% 100% / 0.07) 0%, hsl(0 0% 100% / 0.02) 45%, hsl(265 90% 64% / 0.06) 100%);
-    border: 1px solid hsl(0 0% 100% / 0.10);
-    clip-path: polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    box-shadow: 0 24px 60px -32px hsl(240 60% 2% / 0.9);
-    transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, background .4s;
-  }
-  .poly-card:hover {
-    transform: translateY(-5px);
-    background:
-      linear-gradient(135deg, hsl(265 90% 64% / 0.14) 0%, hsl(0 0% 100% / 0.03) 50%, hsl(187 95% 56% / 0.12) 100%);
-    box-shadow: 0 30px 80px -34px hsl(265 90% 64% / 0.5), 0 0 40px -14px hsl(187 95% 56% / 0.35);
-  }
-
-  .poly-card-sm {
-    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
-  }
-
-  /* Angular button / chip shape */
-  .poly-chip {
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-    border-radius: 0 !important;
-  }
-
-  /* Faceted hex-ish media frame */
-  .poly-frame {
-    clip-path: polygon(0 18px, 18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
-  }
-
-  /* Angled section separators */
-  .poly-top {
-    clip-path: polygon(0 3vw, 50% 0, 100% 3vw, 100% 100%, 0 100%);
-  }
-  .poly-bottom {
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3vw), 50% 100%, 0 calc(100% - 3vw));
-  }
-
-  /* Thin faceted rule */
-  .poly-divider {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, hsl(265 90% 64% / .8), hsl(187 95% 56% / .8), transparent);
-    clip-path: polygon(0 0, 6% 100%, 18% 0, 32% 100%, 46% 0, 60% 100%, 74% 0, 88% 100%, 100% 0, 100% 100%, 0 100%);
-  }
-
-  /* Crystalline text treatment for headings */
-  .poly-heading {
-    letter-spacing: .02em;
-    text-shadow: 0 0 22px hsl(265 90% 64% / .35), 0 0 60px hsl(187 95% 56% / .18);
-  }
-}
-

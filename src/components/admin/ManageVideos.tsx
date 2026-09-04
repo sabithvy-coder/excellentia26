@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +10,6 @@ import { Trash2, Plus, Pencil } from "lucide-react";
 import { useState } from "react";
 
 const ManageVideos = () => {
-  const { data: festival } = useCurrentFestival();
-  const festivalId = festival?.id;
-  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
@@ -22,13 +18,11 @@ const ManageVideos = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: videos } = useQuery({
-    queryKey: ["videos", festivalId],
-    enabled: !!festivalId,
+    queryKey: ["videos"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("videos")
         .select("*")
-        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -42,9 +36,7 @@ const ManageVideos = () => {
       thumbnail_url?: string;
       description?: string;
     }) => {
-      const { error } = await supabase
-        .from("videos")
-        .insert({ ...newVideo, festival_id: festivalId });
+      const { error } = await supabase.from("videos").insert(newVideo);
       if (error) throw error;
     },
     onSuccess: () => {

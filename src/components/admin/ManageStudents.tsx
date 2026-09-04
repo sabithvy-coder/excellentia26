@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,27 +10,22 @@ import { toast } from "sonner";
 import { Plus, Trash2, Edit } from "lucide-react";
 
 const ManageStudents = () => {
-  const { data: festival } = useCurrentFestival();
-  const festivalId = festival?.id;
-  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [teamId, setTeamId] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: teams } = useQuery({
-    queryKey: ["teams", festivalId],
-    enabled: !!festivalId,
+    queryKey: ["teams"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("teams").select("*").eq("festival_id", festivalId!);
+      const { data, error } = await supabase.from("teams").select("*");
       if (error) throw error;
       return data;
     },
   });
 
   const { data: students } = useQuery({
-    queryKey: ["students", festivalId],
-    enabled: !!festivalId,
+    queryKey: ["students"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("students")
@@ -39,7 +33,6 @@ const ManageStudents = () => {
           *,
           team:teams(name)
         `)
-        .eq("festival_id", festivalId!)
         .order("points", { ascending: false });
       if (error) throw error;
       return data;
@@ -52,9 +45,7 @@ const ManageStudents = () => {
         const { error } = await supabase.from("students").update(studentData).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("students")
-          .insert({ ...studentData, festival_id: festivalId });
+        const { error } = await supabase.from("students").insert(studentData);
         if (error) throw error;
       }
     },

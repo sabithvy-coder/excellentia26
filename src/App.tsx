@@ -37,7 +37,7 @@ const App = () => (
           <Route path="/news" element={<Layout><News /></Layout>} />
           <Route path="/about" element={<Layout><About /></Layout>} />
           <Route path="/past-fests" element={<Layout><PastFests /></Layout>} />
-          <Route path="/fest/:year" element={<FestArchive />} />
+          <Route path="/fest/:year" element={<Layout><FestArchive /></Layout>} />
           <Route path="/donate" element={<Layout><Donate /></Layout>} />
           <Route path="/shipping-policy" element={<Layout><ShippingPolicy /></Layout>} />
           <Route path="/terms-conditions" element={<Layout><TermsConditions /></Layout>} />

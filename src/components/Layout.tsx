@@ -1,40 +1,13 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useRef, useState } from "react";
-import excellentiaWordmarkAsset from "@/assets/excellentia-wordmark.png.asset.json";
-import InstallApp from "@/components/InstallApp";
-import LowPolyBackdrop from "@/components/LowPolyBackdrop";
-
-const excellentiaWordmark = excellentiaWordmarkAsset.url;
+import { useState } from "react";
+import excellentiaLogo from "@/assets/excellentia-main-logo.png";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-
-  // Hidden admin access: 5 quick taps on the logo
-  const clicks = useRef(0);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleLogoClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    clicks.current += 1;
-    if (timer.current) clearTimeout(timer.current);
-    if (clicks.current >= 5) {
-      clicks.current = 0;
-      navigate("/admin");
-      return;
-    }
-    timer.current = setTimeout(() => {
-      if (clicks.current === 1) navigate("/");
-      clicks.current = 0;
-    }, 600);
-  };
 
   const isActive = (path: string) => location.pathname === path;
-  // Archived editions keep their original look
-  const isArchive = location.pathname.startsWith("/fest/");
-
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -48,23 +21,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className={`relative min-h-screen bg-background text-foreground font-sora ${isArchive ? "legacy-2025" : ""}`}>
-      {!isArchive && (
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <LowPolyBackdrop className="opacity-70" />
-        </div>
-      )}
-      <div className="relative z-10">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
       <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
-
           <div className="flex items-center justify-between h-16">
-            {/* Logo — 5 quick taps opens the admin login */}
-            <Link to="/" onClick={handleLogoClick} className="flex items-center select-none">
-              <img src={excellentiaWordmark} alt="Excellentia" className="h-10 w-auto" draggable={false} />
+            {/* Logo */}
+            <Link to="/" className="flex items-center">
+              <img src={excellentiaLogo} alt="Excellentia" className="h-12 w-auto" />
             </Link>
-
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-6">
@@ -81,6 +46,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                to="/admin"
+                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
+              >
+                Admin
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -109,6 +80,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                to="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2 text-primary font-medium"
+              >
+                Admin Login
+              </Link>
             </div>
           )}
         </div>
@@ -117,24 +95,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Main Content */}
       <main>{children}</main>
 
-      <InstallApp />
-
       {/* Footer */}
-      <footer className={`relative border-t border-border bg-card mt-20 ${isArchive ? "" : "poly-top overflow-hidden"}`}>
-        {!isArchive && <LowPolyBackdrop className="opacity-60" />}
-        <div className="container mx-auto px-4 py-12 pt-[6vw] text-center relative z-10">
+      <footer className="border-t border-border bg-card mt-20">
+        <div className="container mx-auto px-4 py-8 text-center">
           <h3 className="text-xl font-bold mb-2">Ma'din School of Excellence</h3>
           <p className="text-muted-foreground mb-4">Near Police Station, Malappuram</p>
-          <div className="poly-divider max-w-xs mx-auto mb-4" />
-          <p className="text-lg font-semibold text-unseen">
-            Excellentia 2026 · Discover the Unseen
+          <p className="text-lg font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Excellentia Arts Fiesta 2026
           </p>
           <p className="text-sm text-muted-foreground mt-4">© 2026 All Rights Reserved</p>
         </div>
       </footer>
-      </div>
     </div>
-
   );
 };
 

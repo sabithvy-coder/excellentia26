@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +10,6 @@ import { Upload, Trash2, Cloud } from "lucide-react";
 import heic2any from "heic2any";
 
 const ManageGallery = () => {
-  const { data: festival } = useCurrentFestival();
-  const festivalId = festival?.id;
-  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [imageUrl, setImageUrl] = useState("");
   const [caption, setCaption] = useState("");
@@ -24,13 +20,11 @@ const ManageGallery = () => {
   const [syncing, setSyncing] = useState(false);
 
   const { data: images } = useQuery({
-    queryKey: ["gallery", festivalId],
-    enabled: !!festivalId,
+    queryKey: ["gallery"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("gallery")
         .select("*")
-        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -39,9 +33,7 @@ const ManageGallery = () => {
 
   const addImageMutation = useMutation({
     mutationFn: async (imageData: any) => {
-      const { error } = await supabase
-        .from("gallery")
-        .insert({ ...imageData, festival_id: festivalId });
+      const { error } = await supabase.from("gallery").insert(imageData);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -120,7 +112,7 @@ const ManageGallery = () => {
           // Add to gallery table
           const { error: insertError } = await supabase
             .from("gallery")
-            .insert({ image_url: publicUrl, caption: file.name.replace(/\.[^/.]+$/, ''), link_url: null, festival_id: festivalId });
+            .insert({ image_url: publicUrl, caption: file.name.replace(/\.[^/.]+$/, ''), link_url: null });
 
           if (insertError) throw insertError;
 

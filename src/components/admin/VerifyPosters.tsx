@@ -1,6 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -15,9 +14,6 @@ import {
 } from "@/components/ui/dialog";
 
 const VerifyPosters = () => {
-  const { data: festival } = useCurrentFestival();
-  const festivalId = festival?.id;
-  const festivalYear = festival?.year;
   const [verificationDialog, setVerificationDialog] = useState<{
     open: boolean;
     results: any;
@@ -25,8 +21,7 @@ const VerifyPosters = () => {
   }>({ open: false, results: null, loading: false });
 
   const { data: results, isLoading } = useQuery({
-    queryKey: ["results-with-posters", festivalId],
-    enabled: !!festivalId,
+    queryKey: ["results-with-posters"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("results")
@@ -34,7 +29,6 @@ const VerifyPosters = () => {
           *,
           programs (name)
         `)
-        .eq("festival_id", festivalId!)
         .not("poster_urls", "is", null)
         .order("created_at", { ascending: false });
       if (error) throw error;

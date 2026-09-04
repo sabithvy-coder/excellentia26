@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrentFestival } from "@/hooks/useFestival";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +10,6 @@ import { toast } from "sonner";
 import { Plus, Trash2, Edit } from "lucide-react";
 
 const ManageNews = () => {
-  const { data: festival } = useCurrentFestival();
-  const festivalId = festival?.id;
-  const festivalYear = festival?.year;
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -24,13 +20,11 @@ const ManageNews = () => {
   const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
 
   const { data: newsItems } = useQuery({
-    queryKey: ["news", festivalId],
-    enabled: !!festivalId,
+    queryKey: ["news"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("news")
         .select("*")
-        .eq("festival_id", festivalId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -43,9 +37,7 @@ const ManageNews = () => {
         const { error } = await supabase.from("news").update(newsData).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("news")
-          .insert({ ...newsData, festival_id: festivalId });
+        const { error } = await supabase.from("news").insert(newsData);
         if (error) throw error;
       }
     },
