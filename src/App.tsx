@@ -16,8 +16,6 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import PastFests from "./pages/PastFests";
-import FestArchive from "./pages/FestArchive";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 

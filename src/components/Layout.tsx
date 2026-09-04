@@ -16,7 +16,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { path: "/gallery", label: "Gallery" },
     { path: "/news", label: "News" },
     { path: "/about", label: "About" },
-    { path: "/past-fests", label: "Past Fests" },
+    
     { path: "/donate", label: "Donate" },
   ];
 
